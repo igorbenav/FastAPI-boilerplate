@@ -10,7 +10,7 @@ packages = [{include = "fastapi_boilerplate"}]
 [tool.poetry.dependencies]
 python = "^3.11"
 python-dotenv = "^1.0.0"
-pydantic = "^2.3.0"
+pydantic = {extras = ["email"], version = "^2.4.1"}
 fastapi = "^0.103.1"
 uvicorn = "^0.23.2"
 uvloop = "^0.17.0"
@@ -27,6 +27,7 @@ python-multipart = "^0.0.6"
 python-decouple = "^3.8"
 greenlet = "^2.0.2"
 httpx = "^0.25.0"
+pydantic-settings = "^2.0.3"
 
 
 [build-system]
