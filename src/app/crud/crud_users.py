@@ -1,9 +1,11 @@
 from datetime import datetime
+from typing import Union, Dict, Any
 
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, delete, update
 from passlib.context import CryptContext
 from sqlalchemy import and_
+
 
 from app.schemas.user import (
     UserCreate, 
@@ -56,23 +58,23 @@ async def get_users(db: AsyncSession):
 async def update_user(
         db: AsyncSession, 
         id: int, 
-        values: UserUpdate, 
+        values: Union[UserUpdate, Dict[str, Any]], 
         user: User | None = None
 ):
     user = user or await get_user(db=db, id=id)
     if user is not None:
-        internal_values = UserUpdateInternal(
-            name=values.name,
-            username=values.username,
-            email=values.email,
-            profile_image_url=values.profile_image_url,
-            updated_at=datetime.utcnow()
-        )
-        query = update(User).where(User.id == id).values(internal_values.dict(exclude_unset=True))
-        await db.execute(query)
-        await db.commit()
-        await db.refresh(user)
-
+        if isinstance(values, dict):
+            update_data = values
+        else:
+            update_data = values.model_dump(exclude_unset=True)
+        
+        update_data.update({"updated_at": datetime.utcnow()})        
+        for field in user.__dict__:
+            if field in update_data:
+                setattr(user, field, update_data[field])
+            db.add(user)
+            await db.commit()
+   
     return user
 
 async def delete_user(
@@ -86,7 +88,7 @@ async def delete_user(
             is_deleted=True,
             deleted_at=datetime.utcnow()
         )
-        query = update(User).where(User.id == id).values(values.dict(exclude_unset=True))
+        query = update(User).where(User.id == id).values(values.model_dump())
         await db.execute(query)
         await db.commit()
         await db.refresh(user)

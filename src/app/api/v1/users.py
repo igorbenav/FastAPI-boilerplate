@@ -5,7 +5,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 import fastapi
 
 from app.schemas.user import UserCreate, UserUpdate, UserRead, UserBase
-from app.api.dependencies import get_current_user
+from app.api.dependencies import get_current_user, get_current_superuser
 from app.core.database import async_get_db
 from ...crud.crud_users import (
     get_user, 
@@ -96,5 +96,19 @@ async def erase_user(
     if db_user.id != current_user.id:
         raise HTTPException(status_code=403, detail="You don't own this user.")
 
+    db_user = await delete_user(db=db, id=id, user=db_user)
+    return db_user
+
+
+@router.delete("/db_user/{id}")
+async def erase_db_user(
+    id: int, 
+    current_superuser: Annotated[UserRead, Depends(get_current_superuser)],
+    db: AsyncSession = Depends(async_get_db)
+):
+    db_user = await get_user(db=db, id=id)
+    if db_user is None:
+        raise HTTPException(status_code=404, detail="User not found")
+    
     db_user = await delete_user(db=db, id=id, user=db_user)
     return db_user

@@ -9,6 +9,7 @@ from fastapi import Depends, HTTPException, status
 from app.core.database import async_get_db
 from app.crud.crud_users import get_user_by_email, get_user_by_username
 from app.core.models import TokenData
+from app.models.user import User
 
 async def get_current_user(token: Annotated[str, Depends(oauth2_scheme)], db: Annotated[AsyncSession, Depends(async_get_db)]):
     credentials_exception = HTTPException(
@@ -38,3 +39,10 @@ async def get_current_user(token: Annotated[str, Depends(oauth2_scheme)], db: An
         raise HTTPException(status_code=400, detai="User deleted")
 
     return user
+
+def get_current_superuser(current_user: Annotated[User, Depends(get_current_user)]) -> User:
+    if not current_user.is_superuser:
+        raise HTTPException(
+            status_code=403, detail="The user doesn't have enough privileges"
+        )
+    return current_user

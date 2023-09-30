@@ -1,7 +1,7 @@
-from typing import Annotated
+from typing import Annotated, Optional
 from datetime import datetime
 
-from pydantic import BaseModel, EmailStr, StringConstraints, Field, HttpUrl
+from pydantic import BaseModel, EmailStr, Field, HttpUrl, ConfigDict
 
 from app.core.models import UUIDModel, TimestampModel, PersistentDeletion
 
@@ -27,11 +27,16 @@ class UserBase(BaseModel):
 
 
 class User(TimestampModel, UserBase, UUIDModel, PersistentDeletion):
-    profile_image_url: Annotated[HttpUrl, Field(default="profileimageurl.com")]
+    profile_image_url: Annotated[
+        str, 
+        Field(default="https://profileimageurl.com")
+    ]
     hashed_password: str
+    is_superuser: bool = False
 
 
 class UserRead(BaseModel):
+    id: int
     name: Annotated[
         str, 
         Field(
@@ -44,10 +49,12 @@ class UserRead(BaseModel):
             min_length=2, max_length=20, pattern=r"^[a-z0-9]+$", examples=["userson"]
         )
     ]
-    profile_image_url: Annotated[HttpUrl | None, Field()]
+    profile_image_url: str
 
 
 class UserCreate(UserBase):
+    model_config = ConfigDict(extra='forbid')
+
     password: Annotated[
         str, 
         Field(
@@ -57,25 +64,42 @@ class UserCreate(UserBase):
 
 
 class UserUpdate(BaseModel):
+    model_config = ConfigDict(extra='forbid')
+
     name: Annotated[
-        str, 
+        Optional[str], 
         Field(
-            min_length=2, max_length=30, examples=["User Userson"], default=None
+            min_length=2, 
+            max_length=30, 
+            examples=["User Userberg"],
+            default=None
         )
     ]
     username: Annotated[
-        str, 
+        Optional[str], 
         Field(
-            min_length=2, max_length=20, pattern=r"^[a-z0-9]+$", examples=["userson"], default=None
+            min_length=2, 
+            max_length=20, 
+            pattern=r"^[a-z0-9]+$", 
+            examples=["userberg"],
+            default=None
         )
     ]
     email: Annotated[
-        EmailStr, 
+        Optional[EmailStr],
         Field(
-            examples=["user.userson@example.com"], default=None
+            examples=["user.userberg@example.com"],
+            default=None
         )
     ]
-    profile_image_url: Annotated[HttpUrl | None, Field(default=None)]
+    profile_image_url: Annotated[
+        Optional[str],
+        Field(
+            pattern=r"^((http|https)://)[-a-zA-Z0-9@:%._\\+~#?&//=]{2,256}\\.[a-z]{2,6}\\b([-a-zA-Z0-9@:%._\\+~#?&//=]*)$",
+            examples=["https://profileimageurl.com"],
+            default=None
+        )
+    ]
 
 
 class UserUpdateInternal(UserUpdate):
@@ -83,6 +107,8 @@ class UserUpdateInternal(UserUpdate):
 
 
 class UserDelete(BaseModel):
+    model_config = ConfigDict(extra='forbid')
+
     is_deleted: bool
     deleted_at: datetime
 
