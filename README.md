@@ -15,9 +15,8 @@
   - Easily extendable
   - Flexible
 
-
-# Usage
 ___
+# Usage
 ## Start by cloning the repository
 ```sh
 git clone https://github.com/igormagalhaesr/FastAPI-boilerplate
