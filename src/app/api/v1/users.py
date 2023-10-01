@@ -4,38 +4,36 @@ from fastapi import Depends, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 import fastapi
 
-from app.schemas.user import UserCreate, UserUpdate, UserRead, UserBase
+from app.schemas.user import UserCreate, UserCreateInternal, UserUpdate, UserRead, UserBase 
 from app.api.dependencies import get_current_user, get_current_superuser
 from app.core.database import async_get_db
-from ...crud.crud_users import (
-    get_user, 
-    get_user_by_email, 
-    get_users, 
-    create_user, 
-    get_user_by_username, 
-    update_user,
-    delete_user
-)
-from app.api.dependencies import get_current_user
+from app.core.security import get_password_hash
+from app.crud.crud_users import crud_users
+from app.api.exceptions import privileges_exception
 
 router = fastapi.APIRouter(tags=["users"])
 
 @router.post("/user", response_model=UserBase, status_code=201)
 async def write_user(user: UserCreate, db: AsyncSession = Depends(async_get_db)):
-    db_user = await get_user_by_email(db=db, email=user.email)
+    db_user = await crud_users.get(db=db, email=user.email)
     if db_user:
         raise HTTPException(status_code=400, detail="Email is already registered")
 
-    db_user = await get_user_by_username(db=db, username=user.username)
+    db_user = await crud_users.get(db=db, username=user.username)
     if db_user:
         raise HTTPException(status_code=400, detail="Username not available")
+    
+    user_internal_dict = user.model_dump()
+    user_internal_dict["hashed_password"] = get_password_hash(password=user_internal_dict["password"])
+    del user_internal_dict["password"]
 
-    return await create_user(db=db, user=user)
+    user_internal = UserCreateInternal(**user_internal_dict)
+    return await crud_users.create(db=db, object=user_internal)
 
 
 @router.get("/user", response_model=List[UserRead])
 async def read_users(db: AsyncSession = Depends(async_get_db)):
-    users = await get_users(db=db)
+    users = await crud_users.get_multi(db=db, is_deleted=False)
     return users
 
 
@@ -48,7 +46,7 @@ async def read_users_me(
 
 @router.get("/user/{id}", response_model=UserRead)
 async def read_user(id: int, db: AsyncSession = Depends(async_get_db)):
-    db_user = await get_user(db=db, id=id)
+    db_user = await crud_users.get(db=db, id=id, is_deleted=False)
     if db_user is None:
         raise HTTPException(status_code=404, detail="User not found")
     
@@ -57,29 +55,29 @@ async def read_user(id: int, db: AsyncSession = Depends(async_get_db)):
 
 @router.patch("/users/{id}", response_model=UserUpdate)
 async def patch_user(
-    values: UserUpdate, 
-    id: int, 
+    values: UserUpdate,
+    id: int,
     current_user: Annotated[UserRead, Depends(get_current_user)],
     db: AsyncSession = Depends(async_get_db)
 ):
-    db_user = await get_user(db=db, id=id)
+    db_user = await crud_users.get(db=db, id=id)
     if db_user is None:
         raise HTTPException(status_code=404, detail="User not found")
     
     if db_user.id != current_user.id:
-        raise HTTPException(status_code=403, detail="You don't own this user.")
+        raise privileges_exception
     
     if values.username != db_user.username:
-        existing_username = await get_user_by_username(db=db, username=values.username)
+        existing_username = await crud_users.get(db=db, username=values.username)
         if existing_username is not None:
             raise HTTPException(status_code=400, detail="Username not available")
 
     if values.email != db_user.email:
-        existing_email = await get_user_by_email(db=db, email=values.email)
+        existing_email = await crud_users.get(db=db, email=values.email)
         if existing_email:
             raise HTTPException(status_code=400, detail="Email is already registered")
 
-    db_user = await update_user(db=db, id=id, values=values, user=db_user)
+    db_user = await crud_users.update(db=db, object=values, db_object=db_user)
     return db_user
 
 
@@ -89,14 +87,14 @@ async def erase_user(
     current_user: Annotated[UserRead, Depends(get_current_user)],
     db: AsyncSession = Depends(async_get_db)
 ):
-    db_user = await get_user(db=db, id=id)
+    db_user = await crud_users.get(db=db, id=id)
     if db_user is None:
         raise HTTPException(status_code=404, detail="User not found")
     
     if db_user.id != current_user.id:
-        raise HTTPException(status_code=403, detail="You don't own this user.")
+        raise privileges_exception
 
-    db_user = await delete_user(db=db, id=id, user=db_user)
+    db_user = await crud_users.delete(db=db, db_object=db_user, id=id)
     return db_user
 
 
@@ -106,9 +104,9 @@ async def erase_db_user(
     current_superuser: Annotated[UserRead, Depends(get_current_superuser)],
     db: AsyncSession = Depends(async_get_db)
 ):
-    db_user = await get_user(db=db, id=id)
+    db_user = await crud_users.get(db=db, id=id)
     if db_user is None:
         raise HTTPException(status_code=404, detail="User not found")
     
-    db_user = await delete_user(db=db, id=id, user=db_user)
+    db_user = await crud_users.db_delete(db=db, db_object=db_user, id=id)
     return db_user

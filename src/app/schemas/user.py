@@ -29,7 +29,7 @@ class UserBase(BaseModel):
 class User(TimestampModel, UserBase, UUIDModel, PersistentDeletion):
     profile_image_url: Annotated[
         str, 
-        Field(default="https://profileimageurl.com")
+        Field(default="https://www.profileimageurl.com")
     ]
     hashed_password: str
     is_superuser: bool = False
@@ -61,6 +61,10 @@ class UserCreate(UserBase):
             pattern=r"^.{8,}|[0-9]+|[A-Z]+|[a-z]+|[^a-zA-Z0-9]+$", examples=["Str1ngst!"]
         )
     ]
+
+
+class UserCreateInternal(UserBase):
+    hashed_password: str
 
 
 class UserUpdate(BaseModel):
@@ -95,8 +99,8 @@ class UserUpdate(BaseModel):
     profile_image_url: Annotated[
         Optional[str],
         Field(
-            pattern=r"^((http|https)://)[-a-zA-Z0-9@:%._\\+~#?&//=]{2,256}\\.[a-z]{2,6}\\b([-a-zA-Z0-9@:%._\\+~#?&//=]*)$",
-            examples=["https://profileimageurl.com"],
+            pattern=r"^(https?|ftp)://[^\s/$.?#].[^\s]*$",
+            examples=["https://www.profileimageurl.com"],
             default=None
         )
     ]

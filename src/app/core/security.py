@@ -5,7 +5,7 @@ from passlib.context import CryptContext
 from jose import jwt
 from fastapi.security import OAuth2PasswordBearer
 
-from app.crud.crud_users import get_user_by_email, get_user_by_username
+from app.crud.crud_users import crud_users
 from app.core.config import settings
 
 
@@ -19,27 +19,20 @@ crypt_context = CryptContext(schemes=["sha256_crypt"])
 async def verify_password(plain_password, hashed_password):
     return crypt_context.verify(plain_password, hashed_password)
 
-async def get_password_hash(password):
+def get_password_hash(password):
     return crypt_context.hash(password)
 
-async def authenticate_user_by_username(username: str, password: str, db: AsyncSession):
-    db_user = await get_user_by_username(db=db, username=username)
-    if not db_user:
-        db_user = False
-    else:
-        if not await verify_password(password, db_user.hashed_password):
-            db_user = False
+async def authenticate_user(username_or_email: str, password: str, db: AsyncSession):
+    if "@" in username_or_email:
+        db_user = await crud_users.get(db=db, email=username_or_email)
+    else: 
+        db_user = await crud_users.get(db=db, username=username_or_email)
     
-    return db_user
-
-async def authenticate_user_by_email(email: str, password: str, db: AsyncSession):
-    db_user = await get_user_by_email(db=db, email=email)
-    
-    if not db_user:
+    if (not db_user) or (db_user.is_deleted):
         db_user = False
-    else:
-        if not await verify_password(password, db_user.hashed_password):
-            db_user = False
+    
+    elif not await verify_password(password, db_user.hashed_password):
+        db_user = False
     
     return db_user
 
