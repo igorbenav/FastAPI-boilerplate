@@ -72,6 +72,7 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType, UpdateSche
         db_object = db_object or await self.get(db=db, **kwargs)
         await db.delete(db_object)
         await db.commit()
+
         return db_object
 
     async def delete(

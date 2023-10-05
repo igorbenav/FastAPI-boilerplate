@@ -11,7 +11,7 @@ async def create_tables():
         await conn.run_sync(Base.metadata.create_all)
 
 
-def create_applitcation() -> FastAPI:
+def create_application() -> FastAPI:
     application = FastAPI(
         title=settings.APP_NAME,
         description=settings.APP_DESCRIPTION,
@@ -25,4 +25,4 @@ def create_applitcation() -> FastAPI:
     return application
 
 
-app = create_applitcation()
+app = create_application()

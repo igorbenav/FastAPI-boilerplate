@@ -24,10 +24,7 @@ class TokenData(BaseModel):
 class UUIDModel(BaseModel):
     uuid: uuid_pkg.UUID = Field(
         default_factory=uuid_pkg.uuid4,
-        primary_key=True,
-        index=True,
-        nullable=False,
-        sa_column_kwargs={
+        json_schema_extra={
             "server_default": text("gen_random_uuid()"),
             "unique": True
         }
@@ -37,16 +34,14 @@ class UUIDModel(BaseModel):
 class TimestampModel(BaseModel):
     created_at: datetime = Field(
        default_factory=datetime.utcnow,
-       nullable=False,
-       sa_column_kwargs={
+       json_schema_extra={
            "server_default": text("current_timestamp(0)")
        }
     )
 
     updated_at: datetime = Field(
        default=None,
-       nullable=True,
-       sa_column_kwargs={
+       json_schema_extra={
            "server_default": text("current_timestamp(0)"),
            "onupdate": text("current_timestamp(0)")
        }
@@ -56,8 +51,7 @@ class TimestampModel(BaseModel):
 class PersistentDeletion(BaseModel):
     deleted_at: datetime | None = Field(
         default=None,
-        nullable=True,
-        sa_column_kwargs={
+        json_schema_extra={
             "server_default": text("None"),
             "ondelete": text("current_timestamp(0)")
         }
