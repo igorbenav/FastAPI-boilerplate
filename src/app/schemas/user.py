@@ -8,21 +8,15 @@ from app.core.models import UUIDModel, TimestampModel, PersistentDeletion
 class UserBase(BaseModel):
     name: Annotated[
         str, 
-        Field(
-            min_length=2, max_length=30, examples=["User Userson"]
-        )
+        Field(min_length=2, max_length=30, examples=["User Userson"])
     ]
     username: Annotated[
         str, 
-        Field(
-            min_length=2, max_length=20, pattern=r"^[a-z0-9]+$", examples=["userson"]
-        )
+        Field(min_length=2, max_length=20, pattern=r"^[a-z0-9]+$", examples=["userson"])
     ]
     email: Annotated[
         EmailStr, 
-        Field(
-            examples=["user.userson@example.com"]
-        )
+        Field(examples=["user.userson@example.com"])
     ]
 
 
@@ -39,15 +33,11 @@ class UserRead(BaseModel):
     id: int
     name: Annotated[
         str, 
-        Field(
-            min_length=2, max_length=30, examples=["User Userson"]
-        )
+        Field(min_length=2, max_length=30, examples=["User Userson"])
     ]
     username: Annotated[
         str, 
-        Field(
-            min_length=2, max_length=20, pattern=r"^[a-z0-9]+$", examples=["userson"]
-        )
+        Field(min_length=2, max_length=20, pattern=r"^[a-z0-9]+$", examples=["userson"])
     ]
     profile_image_url: str
 
@@ -57,9 +47,7 @@ class UserCreate(UserBase):
 
     password: Annotated[
         str, 
-        Field(
-            pattern=r"^.{8,}|[0-9]+|[A-Z]+|[a-z]+|[^a-zA-Z0-9]+$", examples=["Str1ngst!"]
-        )
+        Field(pattern=r"^.{8,}|[0-9]+|[A-Z]+|[a-z]+|[^a-zA-Z0-9]+$", examples=["Str1ngst!"])
     ]
 
 
