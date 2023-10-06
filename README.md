@@ -151,8 +151,15 @@ poetry run alembic upgrade head
 
 ___
 ## Testing
-TODO
+While in the tests folder, create your test file with the name "test_{object}.py", replacing object with what you're testing
+```sh
+touch test_items.py
+```
 
+Create your tests (you may want to copy the structure in test_user.py), then run:
+```sh
+poetry run python -m pytest
+```
 ___
 # Other stuff
 ## Contributing
@@ -164,7 +171,10 @@ ___
 6. Create a new Pull Request
 
 ## References
-TODO
+This project was inspired by a few projects, it's based on them with things changed to the way I like (and pydantic, sqlalchemy updated)
+* [`Full Stack FastAPI and PostgreSQL`](https://github.com/tiangolo/full-stack-fastapi-postgresql) by @tiangolo himself
+* [`FastAPI Microservices`](https://github.com/Kludex/fastapi-microservices) by @kludex which heavily inspired this boilerplate
+* [Async Web API with FastAPI + SQLAlchemy 2.0](https://github.com/rhoboro/async-fastapi-sqlalchemy)
 
 ## License
 [`MIT`](LICENSE.md)

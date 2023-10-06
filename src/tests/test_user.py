@@ -1,10 +1,8 @@
-from typing import List
 from fastapi.testclient import TestClient
 from decouple import config
 
 from src.app.main import app
 from tests.helper import _get_token
-from app.schemas.user import UserCreate, UserRead, UserUpdate
 
 test_name = config("TEST_NAME")
 test_username = config("TEST_USERNAME")
