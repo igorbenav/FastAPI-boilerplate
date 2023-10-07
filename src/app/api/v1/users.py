@@ -13,7 +13,7 @@ from app.api.exceptions import privileges_exception
 
 router = fastapi.APIRouter(tags=["users"])
 
-@router.post("/user", response_model=UserBase, status_code=201)
+@router.post("/user", response_model=UserRead, status_code=201)
 async def write_user(user: UserCreate, db: AsyncSession = Depends(async_get_db)):
     db_user = await crud_users.get(db=db, email=user.email)
     if db_user:
@@ -53,7 +53,7 @@ async def read_user(username: str, db: AsyncSession = Depends(async_get_db)):
     return db_user
 
 
-@router.patch("/user/{username}", response_model=UserUpdate)
+@router.patch("/user/{username}", response_model=UserRead)
 async def patch_user(
     values: UserUpdate,
     username: str,
