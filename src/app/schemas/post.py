@@ -41,7 +41,6 @@ class PostRead(BaseModel):
     media_url: Annotated[
         str | None, 
         Field(
-            pattern=r"^(https?|ftp)://[^\s/$.?#].[^\s]*$",
             examples=["https://www.postimageurl.com"],
             default=None
         ),
@@ -53,8 +52,18 @@ class PostRead(BaseModel):
 class PostCreate(PostBase):
     model_config = ConfigDict(extra='forbid')
     
+    media_url: Annotated[
+        str | None, 
+        Field(
+            pattern=r"^(https?|ftp)://[^\s/$.?#].[^\s]*$",
+            examples=["https://www.postimageurl.com"],
+            default=None
+        ),
+    ]
+
+
+class PostCreateInternal(PostCreate):
     created_by_user_id: int
-    media_url: str | None = None
 
 
 class PostUpdate(PostBase):
