@@ -1,4 +1,4 @@
-from typing import Any, Dict, Generic, List, Optional, Type, TypeVar, Union
+from typing import Any, Dict, Generic, List, Type, TypeVar, Union
 from datetime import datetime
 
 from pydantic import BaseModel
@@ -24,7 +24,7 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType, UpdateSche
         await db.commit()
         return db_object
 
-    async def get(self, db: AsyncSession, **kwargs) -> Optional[ModelType]:
+    async def get(self, db: AsyncSession, **kwargs) -> ModelType | None:
         query = select(self._model).filter_by(**kwargs)
         result = await db.execute(query)
         return result.scalar_one_or_none()
@@ -46,7 +46,7 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType, UpdateSche
             object: Union[UpdateSchemaType, Dict[str, Any]],
             db_object: ModelType | None = None,
             **kwargs
-    ) -> Optional[ModelType]:
+    ) -> ModelType | None:
         db_object = db_object or await self.get(db=db, **kwargs)
         if db_object:
             if isinstance(object, dict):
@@ -80,7 +80,7 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType, UpdateSche
             db: AsyncSession,
             db_object: ModelType | None = None,
             **kwargs
-    ) -> Optional[ModelType]:
+    ) -> ModelType | None:
         db_object = db_object or await self.get(db=db, **kwargs)
         if db_object:
             if "is_deleted" in db_object.__dict__.keys():

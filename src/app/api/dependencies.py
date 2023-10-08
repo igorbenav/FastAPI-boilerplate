@@ -12,7 +12,7 @@ from app.models.user import User
 from app.crud.crud_users import crud_users
 from app.api.exceptions import credentials_exception, privileges_exception
 
-async def get_current_user(token: Annotated[str, Depends(oauth2_scheme)], db: Annotated[AsyncSession, Depends(async_get_db)]):
+async def get_current_user(token: Annotated[str, Depends(oauth2_scheme)], db: Annotated[AsyncSession, Depends(async_get_db)]) -> User:
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
         username_or_email: str = payload.get("sub")

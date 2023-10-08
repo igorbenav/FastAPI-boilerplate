@@ -1,4 +1,3 @@
-from typing import Optional
 import uuid as uuid_pkg
 from datetime import datetime
 
@@ -16,6 +15,9 @@ class Post(Base):
     created_by_user_id: Mapped[int] = mapped_column(ForeignKey("user.id"))
     title: Mapped[str] = mapped_column(String(30))
     text: Mapped[str] = mapped_column(String(63206))
+    uuid: Mapped[uuid_pkg.UUID] = mapped_column(
+        default_factory=uuid_pkg.uuid4, primary_key=True, unique=True
+    )    
     media_url: Mapped[str | None] = mapped_column(String, default=None)
 
     user: Mapped["User"] = relationship(back_populates="posts", lazy="selectin", init=False)
@@ -23,6 +25,6 @@ class Post(Base):
     created_at: Mapped[datetime] = mapped_column(
         DateTime, default_factory=datetime.utcnow
     )
-    updated_at: Mapped[Optional[datetime]] = mapped_column(default=None)
-    deleted_at: Mapped[Optional[datetime]] = mapped_column(default=None)
+    updated_at: Mapped[datetime | None] = mapped_column(default=None)
+    deleted_at: Mapped[datetime | None] = mapped_column(default=None)
     is_deleted: Mapped[bool] = mapped_column(default=False)

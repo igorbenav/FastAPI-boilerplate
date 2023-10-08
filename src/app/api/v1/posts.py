@@ -113,11 +113,10 @@ async def erase_post(
     return message
 
 
-@router.delete("/{username}/db_post/{id}")
+@router.delete("/{username}/db_post/{id}", dependencies=Depends(get_current_superuser))
 async def erase_db_post(
     username: str,
     id: int,
-    current_superuser: Annotated[UserRead, Depends(get_current_superuser)],
     db: Annotated[AsyncSession, Depends(async_get_db)]
 ):
     db_user = await crud_users.get(db=db, username=username, is_deleted=False)

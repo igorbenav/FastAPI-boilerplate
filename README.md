@@ -75,14 +75,6 @@ ALGORITHM= # pick an algorithm, default HS256
 ACCESS_TOKEN_EXPIRE_MINUTES= # minutes until token expires, default 30
 ```
 
-For tests, create:
-```
-# ------------- test -------------
-TEST_EMAIL="test@tester.com"
-TEST_USERNAME="testeruser"
-TEST_PASSWORD="Str1ng$t"
-```
-
 And finally for the first admin user:
 ```
 # ------------- admin -------------
@@ -151,12 +143,20 @@ poetry run alembic upgrade head
 
 ___
 ## Testing
+For tests, create in .env:
+```
+# ------------- test -------------
+TEST_EMAIL="test@tester.com"
+TEST_USERNAME="testeruser"
+TEST_PASSWORD="Str1ng$t"
+```
+
 While in the tests folder, create your test file with the name "test_{object}.py", replacing object with what you're testing
 ```sh
 touch test_items.py
 ```
 
-Create your tests (you may want to copy the structure in test_user.py), then run:
+Finally create your tests (you may want to copy the structure in test_user.py), then run:
 ```sh
 poetry run python -m pytest
 ```
