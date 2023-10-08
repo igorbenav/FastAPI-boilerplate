@@ -98,7 +98,7 @@ async def erase_user(
     return db_user
 
 
-@router.delete("/db_user/{username}", dependencies=Depends(get_current_superuser))
+@router.delete("/db_user/{username}", dependencies=[Depends(get_current_superuser)])
 async def erase_db_user(
     username: str,
     db: AsyncSession = Depends(async_get_db)
