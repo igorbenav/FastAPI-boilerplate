@@ -1,29 +1,60 @@
 # FastAPI-boilerplate
 >A template to speed your FastAPI development up.
 
-## About
+## 0. About
 **FastAPI boilerplate** creates an extendable async API using FastAPI, Pydantic V2, SQLAlchemy 2.0 and PostgreSQL:
 - [`FastAPI`](https://fastapi.tiangolo.com): modern Python web framework for building APIs
-- [`Pydantic V2`](https://docs.pydantic.dev/2.4/): the most widely used data validation library for Python now rewritten in Rust [`(5x to 50x speed improvement)`](https://docs.pydantic.dev/latest/blog/pydantic-v2-alpha/)
+- [`Pydantic V2`](https://docs.pydantic.dev/2.4/): the most widely used data validation library for Python, now rewritten in Rust [`(5x to 50x speed improvement)`](https://docs.pydantic.dev/latest/blog/pydantic-v2-alpha/)
 - [`SQLAlchemy 2.0`](https://docs.sqlalchemy.org/en/20/changelog/whatsnew_20.html): Python SQL toolkit and Object Relational Mapper
 - [`PostgreSQL`](https://www.postgresql.org): The World's Most Advanced Open Source Relational Database
 
-## Features
+## 1. Features
   - Fully async
   - Pydantic V2 and SQLAlchemy 2.0
   - User authentication with JWT
   - Easily extendable
   - Flexible
 
+### 1.1 To do
+- [ ] Redis cache
+- [ ] Arq job queues
+
+## 2. Contents
+0. [About](#0-about)
+1. [Features](#1-features)
+    1. [To do](#11-to-do)
+2. [Contents](#2-contents)
+3. [Usage](#3-usage)
+4. [Requirements](#4-requirements)
+    1. [Packages](#41-packages)
+    2. [Environment Variables](#42-environment-variables)
+5. [Running PostgreSQL with docker](#5-running-postgresql-with-docker)
+6. [Running the api](#6-running-the-api)
+7. [Creating the first superuser](#7-creating-the-first-superuser)
+8. [Database Migrations](#8-database-migrations)
+9. [Extending](#9-extending)
+    1. [Database Model](#91-database-model)
+    2. [SQLAlchemy Models](#92-sqlalchemy-model)
+    3. [Pydantic Schemas](#93-pydantic-schemas)
+    4. [Alembic Migrations](#94-alembic-migration)
+    5. [CRUD](#95-crud)
+    6. [Routes](#96-routes)
+    7. [Running](#97-running)
+10. [Testing](#10-testing)
+11. [Contributing](#11-contributing)
+12. [References](#12-references)
+13. [License](#13-license)
+14. [Contact](#14-contact)
+
 ___
-# Usage
-## Start by cloning the repository
+## 3. Usage
+Start by cloning the repository
 ```sh
 git clone https://github.com/igormagalhaesr/FastAPI-boilerplate
 ```
 ___
-## Requirements
-### Packages
+## 4. Requirements
+### 4.1 Packages
 Then install poetry:
 ```sh
 pip install poetry
@@ -34,7 +65,7 @@ In the **src** directory, run to install required packages:
 poetry install
 ```
 
-### Environment Variables
+### 4.2 Environment Variables
 Then create a .env file:
 ```sh
 touch .env
@@ -85,7 +116,7 @@ ADMIN_PASSWORD="your_password"
 ```
 
 ___
-## Running PostgreSQL with docker:
+## 5. Running PostgreSQL with docker:
 Install docker if you don't have it yet, then run:
 ```sh
 docker pull postgres
@@ -114,24 +145,24 @@ docker run -d \
 [`If you didn't create the .env variables yet, click here.`](#environment-variables)
 
 ___
-## Running the api
+## 6. Running the api
 While in the **src** folder, run to start the application with uvicorn server:
 ```sh
 poetry run uvicorn app.main:app --reload
 ```
 
 ___
-## Creating the first superuser:
+## 7. Creating the first superuser:
 While in the **src** folder, run (after you started the application at least once to create the tables):
 ```sh
 poetry run python -m scripts.create_first_superuser
 ```
 
 ___
-## Database Migrations
+## 8. Database Migrations
 Migrations done via [Alembic](https://alembic.sqlalchemy.org/en/latest/):
 
-Whenever you change somethin in the database, in the **src** directory, run to create the script:
+Whenever you change something in the database, in the **src** directory, run to create the script:
 ```sh
 poetry run alembic revision --autogenerate
 ```
@@ -142,7 +173,130 @@ poetry run alembic upgrade head
 ```
 
 ___
-## Testing
+## 9. Extending
+### 9.1 Database Model
+Create the new entities and relationships and add them to the model
+![diagram](https://private-user-images.githubusercontent.com/43156212/273493228-e90bdf25-57e3-4811-b59e-ec3c2eb8eae2.png?jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJnaXRodWIuY29tIiwiYXVkIjoicmF3LmdpdGh1YnVzZXJjb250ZW50LmNvbSIsImtleSI6ImtleTEiLCJleHAiOjE2OTY4MjI2NDYsIm5iZiI6MTY5NjgyMjM0NiwicGF0aCI6Ii80MzE1NjIxMi8yNzM0OTMyMjgtZTkwYmRmMjUtNTdlMy00ODExLWI1OWUtZWMzYzJlYjhlYWUyLnBuZz9YLUFtei1BbGdvcml0aG09QVdTNC1ITUFDLVNIQTI1NiZYLUFtei1DcmVkZW50aWFsPUFLSUFJV05KWUFYNENTVkVINTNBJTJGMjAyMzEwMDklMkZ1cy1lYXN0LTElMkZzMyUyRmF3czRfcmVxdWVzdCZYLUFtei1EYXRlPTIwMjMxMDA5VDAzMzIyNlomWC1BbXotRXhwaXJlcz0zMDAmWC1BbXotU2lnbmF0dXJlPTcyOWJmMGY0MDY1OTc0YTlhODlkNjhiM2FmNTM0NGJlMTNiNTM5ZTlhYzgxMGRjNzZmNDc4OTVjMmU1NTZjMzQmWC1BbXotU2lnbmVkSGVhZGVycz1ob3N0JmFjdG9yX2lkPTAma2V5X2lkPTAmcmVwb19pZD0wIn0.7KR0K-ts3gRqP8n1eXklx-HxKqXsp3Iobpzvj1ZWxII)
+
+### 9.2 SQLAlchemy Model
+Inside **app/models**, create a new **entity.py** for each new entity (replacing entity with the name) and define the attributes according to [SQLAlchemy 2.0 standards](https://docs.sqlalchemy.org/en/20/orm/mapping_styles.html#orm-mapping-styles):
+```python
+from sqlalchemy import String, DateTime
+from sqlalchemy.orm import Mapped, mapped_column, relationship
+
+from app.core.database import Base
+
+class Entity(Base):
+  __tablename__ = "entity"
+
+  id: Mapped[int] = mapped_column(
+    "id", autoincrement=True, nullable=False, unique=True, primary_key=True, init=False
+  )
+  name: Mapped[str] = mapped_column(String(30))
+  ...
+```
+
+### 9.3 Pydantic Schemas
+Inside app/schemas, create a new entity.py for for each new entity (replacing entity with the name) and create the schemas according to [Pydantic V2](https://docs.pydantic.dev/latest/#pydantic-examples) standards:
+```python
+from typing import Annotated
+
+from pydantic import BaseModel, EmailStr, Field, HttpUrl, ConfigDict
+
+class EntityBase(BaseModel):
+  name: Annotated[
+    str, 
+    Field(min_length=2, max_length=30, examples=["Entity Name"])
+    ...
+  ]
+
+class Entity(EntityBase):
+  ...
+
+class EntityRead(EntityBase):
+  ...
+
+class EntityCreate(EntityBase):
+  ...
+
+class EntityCreateInternal(EntityCreate):
+  ...
+
+class EntityUpdate(BaseModel):
+  ...
+
+class EntityUpdateInternal(BaseModel):
+  ...
+
+class EntityDelete(BaseModel):
+    model_config = ConfigDict(extra='forbid')
+
+    is_deleted: bool
+    deleted_at: datetime
+
+```
+
+### 9.4 Alembic Migration
+Then, while in the **src** folder, run Alembic migrations:
+```sh
+poetry run alembic revision --autogenerate
+```
+
+And to apply the migration
+```sh
+poetry run alembic upgrade head
+```
+
+### 9.5 CRUD
+Inside **app/crud**, create a new crud_entities.py inheriting from CRUDBase for each new entity:
+```python
+from app.crud.crud_base import CRUDBase
+from app.models.entity import Entity
+from app.schemas.entity import EntityCreateInternal, EntityUpdate, EntityUpdateInternal, EntityDelete
+
+CRUDEntity = CRUDBase[Entity, EntityCreateInternal, EntityUpdate, EntityUpdateInternal, EntityDelete]
+crud_entity = CRUDEntity(Entity)
+```
+
+### 9.6 Routes
+Inside **app/api/v1**, create a new entities.py file and create the desired routes
+```python
+from typing import Annotated
+
+from fastapi import Depends
+
+from app.schemas.entity import EntityRead
+from app.core.database import async_get_db
+...
+
+router = fastapi.APIRouter(tags=["entities"])
+
+@router.get("/entities", response_model=List[EntityRead])
+async def read_entities(db: Annotated[AsyncSession, Depends(async_get_db)]):
+  entities = await crud_entities.get_multi(db=db)
+    return entities
+
+...
+```
+Then in **app/api/v1/__init__.py** add the router such as:
+```python
+from fastapi import APIRouter
+from app.api.v1.entity import router as entity_router
+...
+
+router = APIRouter(prefix="/v1") # this should be there already
+...
+router.include_router(entity_router)
+```
+
+### 9.7 Running
+While in the **src** folder, run to start the application with uvicorn server:
+```sh
+poetry run uvicorn app.main:app --reload
+```
+
+___
+## 10. Testing
 For tests, create in .env:
 ```
 # ------------- test -------------
@@ -152,7 +306,7 @@ TEST_USERNAME="testeruser"
 TEST_PASSWORD="Str1ng$t"
 ```
 
-While in the tests folder, create your test file with the name "test_{object}.py", replacing object with what you're testing
+While in the tests folder, create your test file with the name "test_{entity}.py", replacing entity with what you're testing
 ```sh
 touch test_items.py
 ```
@@ -162,8 +316,8 @@ Finally create your tests (you may want to copy the structure in test_user.py), 
 poetry run python -m pytest
 ```
 ___
-# Other stuff
-## Contributing
+## 11. Contributing
+Contributions are appreciated, even if just reporting bugs, documenting stuff or answering questions. To contribute with a feature:
 1. Fork it (https://github.com/igormagalhaesr/FastAPI-boilerplate)
 2. Create your feature branch (`git checkout -b feature/fooBar`)
 3. Test your changes while in the src folder `poetry run python -m pytest`
@@ -171,15 +325,15 @@ ___
 5. Push to the branch (`git push origin feature/fooBar`)
 6. Create a new Pull Request
 
-## References
+## 12. References
 This project was inspired by a few projects, it's based on them with things changed to the way I like (and pydantic, sqlalchemy updated)
 * [`Full Stack FastAPI and PostgreSQL`](https://github.com/tiangolo/full-stack-fastapi-postgresql) by @tiangolo himself
 * [`FastAPI Microservices`](https://github.com/Kludex/fastapi-microservices) by @kludex which heavily inspired this boilerplate
-* [Async Web API with FastAPI + SQLAlchemy 2.0](https://github.com/rhoboro/async-fastapi-sqlalchemy)
+* [`Async Web API with FastAPI + SQLAlchemy 2.0`](https://github.com/rhoboro/async-fastapi-sqlalchemy)
 
-## License
+## 13. License
 [`MIT`](LICENSE.md)
 
-## Contact
+## 14. Contact
 Igor Magalhaes – [@igormagalhaesr](https://twitter.com/igormagalhaesr) – igormagalhaesr@gmail.com
 [github.com/igormagalhaesr](https://github.com/igormagalhaesr/)
