@@ -146,6 +146,7 @@ ___
 For tests, create in .env:
 ```
 # ------------- test -------------
+TEST_NAME="Tester User"
 TEST_EMAIL="test@tester.com"
 TEST_USERNAME="testeruser"
 TEST_PASSWORD="Str1ng$t"
