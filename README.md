@@ -176,7 +176,7 @@ ___
 ## 9. Extending
 ### 9.1 Database Model
 Create the new entities and relationships and add them to the model
-![diagram](https://private-user-images.githubusercontent.com/43156212/273493228-e90bdf25-57e3-4811-b59e-ec3c2eb8eae2.png?jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJnaXRodWIuY29tIiwiYXVkIjoicmF3LmdpdGh1YnVzZXJjb250ZW50LmNvbSIsImtleSI6ImtleTEiLCJleHAiOjE2OTY4MjI2NDYsIm5iZiI6MTY5NjgyMjM0NiwicGF0aCI6Ii80MzE1NjIxMi8yNzM0OTMyMjgtZTkwYmRmMjUtNTdlMy00ODExLWI1OWUtZWMzYzJlYjhlYWUyLnBuZz9YLUFtei1BbGdvcml0aG09QVdTNC1ITUFDLVNIQTI1NiZYLUFtei1DcmVkZW50aWFsPUFLSUFJV05KWUFYNENTVkVINTNBJTJGMjAyMzEwMDklMkZ1cy1lYXN0LTElMkZzMyUyRmF3czRfcmVxdWVzdCZYLUFtei1EYXRlPTIwMjMxMDA5VDAzMzIyNlomWC1BbXotRXhwaXJlcz0zMDAmWC1BbXotU2lnbmF0dXJlPTcyOWJmMGY0MDY1OTc0YTlhODlkNjhiM2FmNTM0NGJlMTNiNTM5ZTlhYzgxMGRjNzZmNDc4OTVjMmU1NTZjMzQmWC1BbXotU2lnbmVkSGVhZGVycz1ob3N0JmFjdG9yX2lkPTAma2V5X2lkPTAmcmVwb19pZD0wIn0.7KR0K-ts3gRqP8n1eXklx-HxKqXsp3Iobpzvj1ZWxII)
+![diagram](https://user-images.githubusercontent.com/43156212/274053323-31bbdb41-15bf-45f2-8c8e-0b04b71c5b0b.png)
 
 ### 9.2 SQLAlchemy Model
 Inside **app/models**, create a new **entity.py** for each new entity (replacing entity with the name) and define the attributes according to [SQLAlchemy 2.0 standards](https://docs.sqlalchemy.org/en/20/orm/mapping_styles.html#orm-mapping-styles):
