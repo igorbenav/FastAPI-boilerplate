@@ -17,6 +17,7 @@
 
 ### 1.1 To do
 - [ ] Redis cache
+- [ ] Google SSO
 - [ ] Arq job queues
 
 ## 2. Contents
