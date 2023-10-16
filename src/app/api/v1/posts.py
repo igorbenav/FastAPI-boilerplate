@@ -1,6 +1,6 @@
 from typing import List, Annotated
 
-from fastapi import Depends, HTTPException
+from fastapi import Request, Depends, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 import fastapi
 
@@ -16,6 +16,7 @@ router = fastapi.APIRouter(tags=["posts"])
 
 @router.post("/{username}/post", response_model=PostRead, status_code=201)
 async def write_post(
+    request: Request, 
     username: str,
     post: PostCreate, 
     current_user: Annotated[UserRead, Depends(get_current_user)],
@@ -36,6 +37,7 @@ async def write_post(
 
 @router.get("/{username}/posts", response_model=List[PostRead])
 async def read_posts(
+    request: Request, 
     username: str, 
     db: Annotated[AsyncSession, Depends(async_get_db)]
 ):
@@ -49,6 +51,7 @@ async def read_posts(
 
 @router.get("/{username}/post/{id}", response_model=PostRead)
 async def read_post(
+    request: Request, 
     username: str,
     id: int, 
     db: Annotated[AsyncSession, Depends(async_get_db)]
@@ -66,6 +69,7 @@ async def read_post(
 
 @router.patch("/{username}/post/{id}", response_model=PostRead)
 async def patch_post(
+    request: Request, 
     username: str,
     id: int,
     values: PostUpdate,
@@ -88,6 +92,7 @@ async def patch_post(
 
 @router.delete("/{username}/post/{id}")
 async def erase_post(
+    request: Request, 
     username: str,
     id: int,
     current_user: Annotated[UserRead, Depends(get_current_user)],
@@ -115,6 +120,7 @@ async def erase_post(
 
 @router.delete("/{username}/db_post/{id}", dependencies=[Depends(get_current_superuser)])
 async def erase_db_post(
+    request: Request, 
     username: str,
     id: int,
     db: Annotated[AsyncSession, Depends(async_get_db)]

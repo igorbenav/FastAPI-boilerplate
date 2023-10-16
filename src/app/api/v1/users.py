@@ -2,6 +2,7 @@ from typing import List, Annotated
 
 from fastapi import Depends, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
+from fastapi import Request
 import fastapi
 
 from app.schemas.user import UserCreate, UserCreateInternal, UserUpdate, UserRead, UserBase 
@@ -14,7 +15,7 @@ from app.api.exceptions import privileges_exception
 router = fastapi.APIRouter(tags=["users"])
 
 @router.post("/user", response_model=UserRead, status_code=201)
-async def write_user(user: UserCreate, db: AsyncSession = Depends(async_get_db)):
+async def write_user(request: Request, user: UserCreate, db: Annotated[AsyncSession, Depends(async_get_db)]):
     db_user = await crud_users.get(db=db, email=user.email)
     if db_user:
         raise HTTPException(status_code=400, detail="Email is already registered")
@@ -32,33 +33,34 @@ async def write_user(user: UserCreate, db: AsyncSession = Depends(async_get_db))
 
 
 @router.get("/users", response_model=List[UserRead])
-async def read_users(db: AsyncSession = Depends(async_get_db)):
+async def read_users(request: Request, db: Annotated[AsyncSession, Depends(async_get_db)]):
     users = await crud_users.get_multi(db=db, is_deleted=False)
     return users
 
 
 @router.get("/user/me/", response_model=UserRead)
 async def read_users_me(
-    current_user: Annotated[UserRead, Depends(get_current_user)]
+    request: Request, current_user: Annotated[UserRead, Depends(get_current_user)]
 ):
     return current_user
 
 
 @router.get("/user/{username}", response_model=UserRead)
-async def read_user(username: str, db: AsyncSession = Depends(async_get_db)):
+async def read_user(request: Request, username: str, db: Annotated[AsyncSession, Depends(async_get_db)]):
     db_user = await crud_users.get(db=db, username=username, is_deleted=False)
     if db_user is None:
         raise HTTPException(status_code=404, detail="User not found")
-    
+
     return db_user
 
 
 @router.patch("/user/{username}", response_model=UserRead)
 async def patch_user(
+    request: Request, 
     values: UserUpdate,
     username: str,
     current_user: Annotated[UserRead, Depends(get_current_user)],
-    db: AsyncSession = Depends(async_get_db)
+    db: Annotated[AsyncSession, Depends(async_get_db)]
 ):
     db_user = await crud_users.get(db=db, username=username)
     if db_user is None:
@@ -83,9 +85,10 @@ async def patch_user(
 
 @router.delete("/user/{username}")
 async def erase_user(
+    request: Request, 
     username: str, 
     current_user: Annotated[UserRead, Depends(get_current_user)],
-    db: AsyncSession = Depends(async_get_db)
+    db: Annotated[AsyncSession, Depends(async_get_db)]
 ):
     db_user = await crud_users.get(db=db, username=username)
     if db_user is None:
@@ -100,8 +103,9 @@ async def erase_user(
 
 @router.delete("/db_user/{username}", dependencies=[Depends(get_current_superuser)])
 async def erase_db_user(
+    request: Request, 
     username: str,
-    db: AsyncSession = Depends(async_get_db)
+    db: Annotated[AsyncSession, Depends(async_get_db)]
 ):
     db_user = await crud_users.get(db=db, username=username)
     if db_user is None:

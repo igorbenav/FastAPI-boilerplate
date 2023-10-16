@@ -1,16 +1,16 @@
 from fastapi.testclient import TestClient
-from decouple import config
 
 from src.app.main import app
+from src.app.core.config import settings
 from tests.helper import _get_token
 
-test_name = config("TEST_NAME")
-test_username = config("TEST_USERNAME")
-test_email = config("TEST_EMAIL")
-test_password = config("TEST_PASSWORD")
+test_name = settings.TEST_NAME
+test_username = settings.TEST_USERNAME
+test_email = settings.TEST_EMAIL
+test_password = settings.TEST_PASSWORD
 
-admin_username = config("ADMIN_USERNAME")
-admin_password = config("ADMIN_PASSWORD")
+admin_username = settings.ADMIN_USERNAME
+admin_password = settings.ADMIN_PASSWORD
 
 client = TestClient(app)
 

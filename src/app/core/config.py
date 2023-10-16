@@ -1,7 +1,4 @@
-from typing import Optional
-
 from decouple import config
-from pydantic import SecretStr
 from pydantic_settings import BaseSettings
 
 class AppSettings(BaseSettings):
@@ -37,11 +34,26 @@ class FirstUserSettings(BaseSettings):
     ADMIN_PASSWORD: str = config("ADMIN_PASSWORD", default="!Ch4ng3Th1sP4ssW0rd!")
 
 
+class TestSettings(BaseSettings):
+    TEST_NAME: str = config("TEST_NAME", default="Tester User")
+    TEST_EMAIL: str = config("TEST_EMAIL", default="test@tester.com")
+    TEST_USERNAME: str = config("TEST_USERNAME", default="testeruser")
+    TEST_PASSWORD: str = config("TEST_PASSWORD", default="Str1ng$t")
+
+
+class RedisCacheSettings(BaseSettings):
+    REDIS_CACHE_HOST: str = config("REDIS_CACHE_HOST", default="localhost")
+    REDIS_CACHE_PORT: int = config("REDIS_CACHE_PORT", default=6379)
+    REDIS_CACHE_URL: str = f"redis://{REDIS_CACHE_HOST}:{REDIS_CACHE_PORT}"
+
+
 class Settings(
     AppSettings, 
     PostgresSettings, 
     CryptSettings, 
-    FirstUserSettings
+    FirstUserSettings,
+    TestSettings,
+    RedisCacheSettings
 ):
     pass
 
