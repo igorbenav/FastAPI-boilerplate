@@ -11,6 +11,7 @@ from app.core.database import async_get_db
 from app.crud.crud_posts import crud_posts
 from app.crud.crud_users import crud_users
 from app.api.exceptions import privileges_exception
+from app.core.cache import cache
 
 router = fastapi.APIRouter(tags=["posts"])
 
@@ -36,8 +37,9 @@ async def write_post(
 
 
 @router.get("/{username}/posts", response_model=List[PostRead])
+@cache(key_prefix="{username}_posts", resource_id_name="username")
 async def read_posts(
-    request: Request, 
+    request: Request,
     username: str, 
     db: Annotated[AsyncSession, Depends(async_get_db)]
 ):
@@ -50,6 +52,7 @@ async def read_posts(
 
 
 @router.get("/{username}/post/{id}", response_model=PostRead)
+@cache(key_prefix="{username}_post_cache")
 async def read_post(
     request: Request, 
     username: str,
@@ -68,8 +71,9 @@ async def read_post(
 
 
 @router.patch("/{username}/post/{id}", response_model=PostRead)
+@cache("{username}_post_cache", resource_id_name="id")
 async def patch_post(
-    request: Request, 
+    request: Request,
     username: str,
     id: int,
     values: PostUpdate,
