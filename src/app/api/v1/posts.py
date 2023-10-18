@@ -52,7 +52,7 @@ async def read_posts(
 
 
 @router.get("/{username}/post/{id}", response_model=PostRead)
-@cache(key_prefix="{username}_post_cache")
+@cache(key_prefix="{username}_post_cache", resource_id_name="id")
 async def read_post(
     request: Request, 
     username: str,
@@ -71,7 +71,11 @@ async def read_post(
 
 
 @router.patch("/{username}/post/{id}", response_model=PostRead)
-@cache("{username}_post_cache", resource_id_name="id")
+@cache(
+    "{username}_post_cache", 
+    resource_id_name="id", 
+    to_invalidate_extra={"{username}_posts": "{username}"}
+)
 async def patch_post(
     request: Request,
     username: str,
@@ -95,6 +99,11 @@ async def patch_post(
 
 
 @router.delete("/{username}/post/{id}")
+@cache(
+    "{username}_post_cache", 
+    resource_id_name="id", 
+    to_invalidate_extra={"{username}_posts": "{username}"}
+)
 async def erase_post(
     request: Request, 
     username: str,
@@ -123,6 +132,11 @@ async def erase_post(
 
 
 @router.delete("/{username}/db_post/{id}", dependencies=[Depends(get_current_superuser)])
+@cache(
+    "{username}_post_cache", 
+    resource_id_name="id", 
+    to_invalidate_extra={"{username}_posts": "{username}"}
+)
 async def erase_db_post(
     request: Request, 
     username: str,

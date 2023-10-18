@@ -3,6 +3,7 @@ import functools
 import json
 from uuid import UUID
 from datetime import datetime
+import re
 
 from fastapi import Request, Response
 from redis.asyncio import Redis, ConnectionPool
@@ -86,11 +87,75 @@ def _infer_resource_id(kwargs: Dict[str, Any], resource_id_type: Union[type, str
     return resource_id
 
 
-def cache(key_prefix: str, resource_id_name: Any = None, expiration: int = 3600, resource_id_type: Union[type, List[type]] = int) -> Callable:
+def _extract_data_inside_brackets(input_string: str) -> List[str]:
+    # Use regular expressions to find data inside brackets
+    data_inside_brackets = re.findall(r'{(.*?)}', input_string)
+    return data_inside_brackets
+
+
+def _format_prefix(prefix: str, kwargs: Dict[str, Any]) -> str:
+    """
+    Format a prefix using keyword arguments.
+
+    Parameters
+    ----------
+    prefix: str
+        The prefix template to be formatted.
+    kwargs: Dict[str, Any]
+        A dictionary of keyword arguments.
+
+    Returns
+    -------
+    str: The formatted prefix.
+    """
+    data_inside_brackets = _extract_data_inside_brackets(prefix)
+    formatted_prefix = prefix.format(**{key: kwargs[key] for key in data_inside_brackets})
+    return formatted_prefix
+
+
+def _format_extra_data(
+    to_invalidate_extra: Dict[str, str], 
+    kwargs: Dict[str, Any]
+) -> Dict[str, Any]:
+    """
+    Format extra data based on provided templates and keyword arguments.
+
+    This function takes a dictionary of templates and their associated values and a dictionary of keyword arguments.
+    It formats the templates with the corresponding values from the keyword arguments and returns a dictionary
+    where keys are the formatted templates and values are the associated keyword argument values.
+
+    Parameters
+    ----------
+    to_invalidate_extra: Dict[str, str] 
+        A dictionary where keys are templates and values are the associated values.
+    kwargs: Dict[str, Any]
+        A dictionary of keyword arguments.
+
+    Returns
+    -------
+        Dict[str, Any]: A dictionary where keys are formatted templates and values are associated keyword argument values.
+    """
+    formatted_extra = {}
+    for prefix, id_template in to_invalidate_extra.items():
+        formatted_prefix = _format_prefix(prefix, kwargs)
+        id = _extract_data_inside_brackets(id_template)[0]
+        formatted_extra[formatted_prefix] = kwargs[id]
+    
+    return formatted_extra
+
+
+def cache(
+        key_prefix: str, 
+        resource_id_name: Any = None, 
+        expiration: int = 3600, 
+        resource_id_type: Union[type, List[type]] = int,
+        to_invalidate_extra: Dict[str, Any] | None = None
+) -> Callable:
     """
     Cache decorator for FastAPI endpoints.
 
-    This decorator allows you to cache the results of FastAPI endpoint functions, improving response times and reducing the load on the application by storing and retrieving data in a cache.
+    This decorator allows you to cache the results of FastAPI endpoint functions, improving response times and 
+    reducing the load on the application by storing and retrieving data in a cache.
 
     Parameters
     ----------
@@ -140,7 +205,8 @@ def cache(key_prefix: str, resource_id_name: Any = None, expiration: int = 3600,
             else:
                 resource_id = _infer_resource_id(kwargs=kwargs, resource_id_type=resource_id_type)
             
-            cache_key = f"{key_prefix}:{resource_id}"
+            formatted_key_prefix = _format_prefix(key_prefix, kwargs)
+            cache_key = f"{formatted_key_prefix}:{resource_id}"
             
             if request.method == "GET":
                 cached_data = await client.get(cache_key)
@@ -163,6 +229,11 @@ def cache(key_prefix: str, resource_id_name: Any = None, expiration: int = 3600,
                 await client.expire(cache_key, expiration)
             else:
                 await client.delete(cache_key)
+                if to_invalidate_extra:
+                    formatted_extra = _format_extra_data(to_invalidate_extra, kwargs)
+                    for prefix, id in formatted_extra.items():
+                        extra_cache_key = f"{prefix}:{id}"
+                        await client.delete(extra_cache_key)
             
             return result
         

@@ -48,7 +48,6 @@ from app.core.cache import cache
 
 
 @router.get("/user/{username}", response_model=UserRead)
-@cache("user_cache", resource_id_type=str)
 async def read_user(request: Request, username: str, db: Annotated[AsyncSession, Depends(async_get_db)]):
     db_user = await crud_users.get(db=db, username=username, is_deleted=False)
     if db_user is None:
