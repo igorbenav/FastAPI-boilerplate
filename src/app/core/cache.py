@@ -9,7 +9,7 @@ from fastapi import Request, Response
 from redis.asyncio import Redis, ConnectionPool
 from sqlalchemy.orm import class_mapper, DeclarativeBase
 
-from app.core.exceptions import CacheIdentificationInferenceError
+from app.core.exceptions import CacheIdentificationInferenceError, InvalidRequestError
 
 pool: ConnectionPool | None = None
 client: Redis | None = None
@@ -209,6 +209,9 @@ def cache(
             cache_key = f"{formatted_key_prefix}:{resource_id}"
             
             if request.method == "GET":
+                if to_invalidate_extra:
+                    raise InvalidRequestError
+
                 cached_data = await client.get(cache_key)
                 if cached_data:
                     return json.loads(cached_data.decode())
@@ -216,6 +219,9 @@ def cache(
             result = await func(request, *args, **kwargs)
 
             if request.method == "GET":
+                if to_invalidate_extra:
+                    raise InvalidRequestError
+
                 if isinstance(result, list):
                     serialized_data = json.dumps(
                         [_serialize_sqlalchemy_object(obj) for obj in result]

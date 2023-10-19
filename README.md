@@ -7,18 +7,20 @@
 - [`Pydantic V2`](https://docs.pydantic.dev/2.4/): the most widely used data validation library for Python, now rewritten in Rust [`(5x to 50x speed improvement)`](https://docs.pydantic.dev/latest/blog/pydantic-v2-alpha/)
 - [`SQLAlchemy 2.0`](https://docs.sqlalchemy.org/en/20/changelog/whatsnew_20.html): Python SQL toolkit and Object Relational Mapper
 - [`PostgreSQL`](https://www.postgresql.org): The World's Most Advanced Open Source Relational Database
+- [`Redis`](https://redis.io): The open source, in-memory data store used by millions of developers as a database, cache, streaming engine, and message broker.
 
 ## 1. Features
   - Fully async
   - Pydantic V2 and SQLAlchemy 2.0
   - User authentication with JWT
+  - Easy redis caching
   - Easily extendable
   - Flexible
 
 ### 1.1 To do
-- [ ] Redis cache
-- [ ] Google SSO
+- [x] Redis cache
 - [ ] Arq job queues
+- [ ] App settings (such as database connection, etc) only for what's inherited in core.config.Settings
 
 ## 2. Contents
 0. [About](#0-about)
@@ -29,7 +31,9 @@
 4. [Requirements](#4-requirements)
     1. [Packages](#41-packages)
     2. [Environment Variables](#42-environment-variables)
-5. [Running PostgreSQL with docker](#5-running-postgresql-with-docker)
+5. [Running Databases With Docker](#5-running-databases-with-docker)
+    1. [PostgreSQL](#51-postgresql-main-database)
+    2. [Redis](#52-redis-for-caching)
 6. [Running the api](#6-running-the-api)
 7. [Creating the first superuser](#7-creating-the-first-superuser)
 8. [Database Migrations](#8-database-migrations)
@@ -40,7 +44,9 @@
     4. [Alembic Migrations](#94-alembic-migration)
     5. [CRUD](#95-crud)
     6. [Routes](#96-routes)
-    7. [Running](#97-running)
+    7. [Caching](#97-caching)
+    8. [More Advanced Caching](#98-more-advanced-caching)
+    9. [Running](#99-running)
 10. [Testing](#10-testing)
 11. [Contributing](#11-contributing)
 12. [References](#12-references)
@@ -116,8 +122,15 @@ ADMIN_USERNAME="your_username"
 ADMIN_PASSWORD="your_password"
 ```
 
+Optionally, for redis caching:
+```
+# ------------- redis -------------
+REDIS_CACHE_HOST="your_host" # default localhost
+REDIS_CACHE_PORT=6379
+```
 ___
-## 5. Running PostgreSQL with docker:
+## 5. Running Databases With Docker:
+### 5.1 PostgreSQL (main database)
 Install docker if you don't have it yet, then run:
 ```sh
 docker pull postgres
@@ -145,6 +158,29 @@ docker run -d \
 
 [`If you didn't create the .env variables yet, click here.`](#environment-variables)
 
+### 5.2 Redis (for caching)
+Install docker if you don't have it yet, then run:
+```sh
+docker pull redis:alpine
+```
+
+And pick the name and port, replacing the fields:
+```sh
+docker run -d \
+  --name {NAME}  \
+  -p {PORT}:{PORT} \
+redis:alpine
+```
+
+Such as
+```sh
+docker run -d \
+  --name redis  \
+  -p 6379:6379 \
+redis:alpine
+```
+
+[`If you didn't create the .env variables yet, click here.`](#environment-variables)
 ___
 ## 6. Running the api
 While in the **src** folder, run to start the application with uvicorn server:
@@ -290,7 +326,109 @@ router = APIRouter(prefix="/v1") # this should be there already
 router.include_router(entity_router)
 ```
 
-### 9.7 Running
+### 9.7 Caching
+The cache decorator allows you to cache the results of FastAPI endpoint functions, enhancing response times and reducing the load on your application by storing and retrieving data in a cache.
+
+Caching the response of an endpoint is really simple, just apply the cache decorator to the endpoint function. 
+Note that you should always pass request as a variable to your endpoint function.
+```python
+...
+from app.core.cache import cache
+
+@app.get("/sample/{my_id}")
+@cache(
+    key_prefix="sample_data",
+    expiration=3600,
+    resource_id_name="my_id"
+)
+async def sample_endpoint(request: Request, my_id: int):
+    # Endpoint logic here
+    return {"data": "my_data"}
+```
+
+The way it works is:
+- the data is saved in redis with the following cache key: "sample_data:{my_id}" 
+- then the the time to expire is set as 3600 seconds (that's the default)
+
+Another option is not passing the resource_id_name, but passing the resource_id_type (default int):
+```python
+...
+from app.core.cache import cache
+
+@app.get("/sample/{my_id}")
+@cache(
+    key_prefix="sample_data",
+    resource_id_type=int
+)
+async def sample_endpoint(request: Request, my_id: int):
+    # Endpoint logic here
+    return {"data": "my_data"}
+```
+In this case, what will happen is:
+- the resource_id will be inferred from the keyword arguments (my_id in this case)
+- the data is saved in redis with the following cache key: "sample_data:{my_id}" 
+- then the the time to expire is set as 3600 seconds (that's the default)
+
+Passing resource_id_name is usually preferred.
+
+### 9.8 More Advanced Caching
+The behaviour of the `cache` decorator changes based on the request method of your endpoint. 
+It caches the result if you are passing it to a **GET** endpoint, and it invalidates the cache with this key_prefix and id if passed to other endpoints (**PATCH**, **DELETE**).
+
+If you also want to invalidate cache with a different key, you can use the decorator with the "to_invalidate_extra" variable.
+
+In the following example, I want to invalidate the cache for a certain user_id, since I'm deleting it, but I also want to invalidate the cache for the list of users, so it will not be out of sync.
+
+```python
+# The cache here will be saved as "{username}_posts:{username}":
+@router.get("/{username}/posts", response_model=List[PostRead])
+@cache(key_prefix="{username}_posts", resource_id_name="username")
+async def read_posts(
+    request: Request,
+    username: str, 
+    db: Annotated[AsyncSession, Depends(async_get_db)]
+):
+    ...
+
+...
+
+# I'll invalidate the cache for the former endpoint by just passing the key_prefix and id as a dictionary:
+@router.delete("/{username}/post/{id}")
+@cache(
+    "{username}_post_cache", 
+    resource_id_name="id", 
+    to_invalidate_extra={"{username}_posts": "{username}"} # Now it will also invalidate the cache with id "{username}_posts:{username}"
+)
+async def erase_post(
+    request: Request, 
+    username: str,
+    id: int,
+    current_user: Annotated[UserRead, Depends(get_current_user)],
+    db: Annotated[AsyncSession, Depends(async_get_db)]
+):
+    ...
+
+# And now I'll also invalidate when I update the user:
+@router.patch("/{username}/post/{id}", response_model=PostRead)
+@cache(
+    "{username}_post_cache", 
+    resource_id_name="id", 
+    to_invalidate_extra={"{username}_posts": "{username}"} 
+)
+async def patch_post(
+    request: Request,
+    username: str,
+    id: int,
+    values: PostUpdate,
+    current_user: Annotated[UserRead, Depends(get_current_user)],
+    db: Annotated[AsyncSession, Depends(async_get_db)]
+):
+    ...
+```
+
+Note that this will not work for **GET** requests.
+
+### 9.9 Running
 While in the **src** folder, run to start the application with uvicorn server:
 ```sh
 poetry run uvicorn app.main:app --reload
