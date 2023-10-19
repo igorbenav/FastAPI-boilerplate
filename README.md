@@ -392,12 +392,12 @@ async def read_posts(
 
 ...
 
-# I'll invalidate the cache for the former endpoint by just passing the key_prefix and id as a dictionary:
+# Invalidating cache for the former endpoint by just passing the key_prefix and id as a dictionary:
 @router.delete("/{username}/post/{id}")
 @cache(
     "{username}_post_cache", 
     resource_id_name="id", 
-    to_invalidate_extra={"{username}_posts": "{username}"} # Now it will also invalidate the cache with id "{username}_posts:{username}"
+    to_invalidate_extra={"{username}_posts": "{username}"} # also invalidate "{username}_posts:{username}" cache
 )
 async def erase_post(
     request: Request, 
