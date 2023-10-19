@@ -16,7 +16,7 @@ router = fastapi.APIRouter(tags=["login"])
 @router.post("/login", response_model=Token)
 async def login_for_access_token(
     form_data: Annotated[OAuth2PasswordRequestForm, Depends()],
-    db: AsyncSession = Depends(async_get_db)
+    db: Annotated[AsyncSession, Depends(async_get_db)]
 ):
     
     user = await authenticate_user(

@@ -1,6 +1,6 @@
 from typing import List, Annotated
 
-from fastapi import Depends, HTTPException
+from fastapi import Request, Depends, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 import fastapi
 
@@ -11,11 +11,13 @@ from app.core.database import async_get_db
 from app.crud.crud_posts import crud_posts
 from app.crud.crud_users import crud_users
 from app.api.exceptions import privileges_exception
+from app.core.cache import cache
 
 router = fastapi.APIRouter(tags=["posts"])
 
 @router.post("/{username}/post", response_model=PostRead, status_code=201)
 async def write_post(
+    request: Request, 
     username: str,
     post: PostCreate, 
     current_user: Annotated[UserRead, Depends(get_current_user)],
@@ -35,7 +37,9 @@ async def write_post(
 
 
 @router.get("/{username}/posts", response_model=List[PostRead])
+@cache(key_prefix="{username}_posts", resource_id_name="username")
 async def read_posts(
+    request: Request,
     username: str, 
     db: Annotated[AsyncSession, Depends(async_get_db)]
 ):
@@ -48,7 +52,9 @@ async def read_posts(
 
 
 @router.get("/{username}/post/{id}", response_model=PostRead)
+@cache(key_prefix="{username}_post_cache", resource_id_name="id")
 async def read_post(
+    request: Request, 
     username: str,
     id: int, 
     db: Annotated[AsyncSession, Depends(async_get_db)]
@@ -65,7 +71,13 @@ async def read_post(
 
 
 @router.patch("/{username}/post/{id}", response_model=PostRead)
+@cache(
+    "{username}_post_cache", 
+    resource_id_name="id", 
+    to_invalidate_extra={"{username}_posts": "{username}"}
+)
 async def patch_post(
+    request: Request,
     username: str,
     id: int,
     values: PostUpdate,
@@ -87,7 +99,13 @@ async def patch_post(
 
 
 @router.delete("/{username}/post/{id}")
+@cache(
+    "{username}_post_cache", 
+    resource_id_name="id", 
+    to_invalidate_extra={"{username}_posts": "{username}"}
+)
 async def erase_post(
+    request: Request, 
     username: str,
     id: int,
     current_user: Annotated[UserRead, Depends(get_current_user)],
@@ -114,7 +132,13 @@ async def erase_post(
 
 
 @router.delete("/{username}/db_post/{id}", dependencies=[Depends(get_current_superuser)])
+@cache(
+    "{username}_post_cache", 
+    resource_id_name="id", 
+    to_invalidate_extra={"{username}_posts": "{username}"}
+)
 async def erase_db_post(
+    request: Request, 
     username: str,
     id: int,
     db: Annotated[AsyncSession, Depends(async_get_db)]

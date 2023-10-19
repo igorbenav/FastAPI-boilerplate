@@ -28,6 +28,8 @@ python-decouple = "^3.8"
 greenlet = "^2.0.2"
 httpx = "^0.25.0"
 pydantic-settings = "^2.0.3"
+arq = "^0.25.0"
+redis = "^5.0.1"
 
 
 [build-system]
