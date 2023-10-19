@@ -88,9 +88,47 @@ def _infer_resource_id(kwargs: Dict[str, Any], resource_id_type: Union[type, str
 
 
 def _extract_data_inside_brackets(input_string: str) -> List[str]:
-    # Use regular expressions to find data inside brackets
+    """
+    Extract data inside curly brackets from a given string using regular expressions.
+
+    Parameters
+    ----------
+    input_string: str
+        The input string in which to find data enclosed within curly brackets.
+
+    Returns
+    -------
+    List[str]
+        A list of strings containing the data found inside the curly brackets within the input string.
+
+    Example
+    -------
+    >>> _extract_data_inside_brackets("The {quick} brown {fox} jumps over the {lazy} dog.")
+    ['quick', 'fox', 'lazy']
+    """
     data_inside_brackets = re.findall(r'{(.*?)}', input_string)
     return data_inside_brackets
+
+
+def _construct_data_dict(data_inside_brackets: List[str], kwargs: Dict[str, Any]) -> Dict[str, Any]:
+    """
+    Construct a dictionary based on data inside brackets and keyword arguments.
+
+    Parameters
+    ----------
+    data_inside_brackets: List[str]
+        A list of keys inside brackets.
+    kwargs: Dict[str, Any]
+        A dictionary of keyword arguments.
+
+    Returns
+    -------
+    Dict[str, Any]: A dictionary with keys from data_inside_brackets and corresponding values from kwargs.
+    """
+    data_dict = {}
+    for key in data_inside_brackets:
+        data_dict[key] = kwargs[key]
+    return data_dict
 
 
 def _format_prefix(prefix: str, kwargs: Dict[str, Any]) -> str:
@@ -109,7 +147,8 @@ def _format_prefix(prefix: str, kwargs: Dict[str, Any]) -> str:
     str: The formatted prefix.
     """
     data_inside_brackets = _extract_data_inside_brackets(prefix)
-    formatted_prefix = prefix.format(**{key: kwargs[key] for key in data_inside_brackets})
+    data_dict = _construct_data_dict(data_inside_brackets, kwargs)
+    formatted_prefix = prefix.format(**data_dict)
     return formatted_prefix
 
 
