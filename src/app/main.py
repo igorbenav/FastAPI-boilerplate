@@ -3,7 +3,7 @@ import redis.asyncio as redis
 
 from app.core.database import Base
 from app.core.database import async_engine as engine
-from app.core.config import settings
+from app.core.config import settings, DatabaseSettings, RedisCacheSettings, AppSettings
 from app.api import router
 from app.core import cache
 
@@ -25,17 +25,24 @@ async def close_redis_cache_pool():
 
 # -------------- application --------------
 def create_application() -> FastAPI:
-    application = FastAPI(
-        title=settings.APP_NAME,
-        description=settings.APP_DESCRIPTION,
-        contact=settings.CONTACT,
-        license_info=settings.CONTACT
-    )
+    if isinstance(settings, AppSettings):
+        application = FastAPI(
+            title=settings.APP_NAME,
+            description=settings.APP_DESCRIPTION,
+            contact=settings.CONTACT,
+            license_info=settings.CONTACT
+        )
+    else:
+        application = FastAPI()
 
     application.include_router(router)
-    application.add_event_handler("startup", create_tables)
-    application.add_event_handler("startup", create_redis_cache_pool)
-    application.add_event_handler("shutdown", close_redis_cache_pool)
+    
+    if isinstance(settings, DatabaseSettings):
+        application.add_event_handler("startup", create_tables)
+    
+    if isinstance(settings, RedisCacheSettings):
+        application.add_event_handler("startup", create_redis_cache_pool)
+        application.add_event_handler("shutdown", close_redis_cache_pool)
 
     return application
 
