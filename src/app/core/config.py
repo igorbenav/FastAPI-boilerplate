@@ -72,13 +72,18 @@ class RedisCacheSettings(BaseSettings):
     REDIS_CACHE_URL: str = f"redis://{REDIS_CACHE_HOST}:{REDIS_CACHE_PORT}"
 
 
+class ClientSideCacheSettings(BaseSettings):
+    CLIENT_CACHE_MAX_AGE: int = config("CLIENT_CACHE_MAX_AGE", default=60)
+
+
 class Settings(
     AppSettings, 
     PostgresSettings, 
     CryptSettings, 
     FirstUserSettings,
     TestSettings,
-    RedisCacheSettings
+    RedisCacheSettings,
+    ClientSideCacheSettings
 ):
     pass
 

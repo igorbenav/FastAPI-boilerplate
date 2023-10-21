@@ -3,7 +3,7 @@ import redis.asyncio as redis
 
 from app.core.database import Base
 from app.core.database import async_engine as engine
-from app.core.config import settings, DatabaseSettings, RedisCacheSettings, AppSettings
+from app.core.config import settings, DatabaseSettings, RedisCacheSettings, AppSettings, ClientSideCacheSettings
 from app.api import router
 from app.core import cache
 
@@ -43,6 +43,9 @@ def create_application() -> FastAPI:
     if isinstance(settings, RedisCacheSettings):
         application.add_event_handler("startup", create_redis_cache_pool)
         application.add_event_handler("shutdown", close_redis_cache_pool)
+
+    if isinstance(settings, ClientSideCacheSettings):
+        application.add_middleware(cache.ClientCacheMiddleware, max_age=60)
 
     return application
 
