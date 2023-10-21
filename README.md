@@ -1,5 +1,14 @@
-# FastAPI-boilerplate
->A template to speed your FastAPI development up.
+<h1 align="center"> Fast FastAPI boilerplate</h1>
+<p align="center" markdown=1>
+  <i>Yet another template to speed your FastAPI development up.</i>
+</p>
+
+<p align="center">
+  <a href="https://github.com/igormagalhaesr/FastAPI-boilerplate">
+    <img src="https://user-images.githubusercontent.com/43156212/277095260-ef5d4496-8290-4b18-99b2-0c0b5500504e.png" width="30%" height="auto">
+  </a>
+</p>
+
 
 ## 0. About
 **FastAPI boilerplate** creates an extendable async API using FastAPI, Pydantic V2, SQLAlchemy 2.0 and PostgreSQL:
@@ -68,7 +77,7 @@ Then install poetry:
 pip install poetry
 ```
 
-In the **src** directory, run to install required packages:
+In the `src` directory, run to install required packages:
 ```sh
 poetry install
 ```
@@ -437,8 +446,9 @@ async def patch_post(
 ```
 
 > **Warning**
-> Note that this will not work for **GET** requests.
+> Note that adding `to_invalidate_extra` will not work for **GET** requests.
 
+#### Client-side Caching
 For `client-side caching`, all you have to do is let the `Settings` class defined in `app/core/config.py` inherit from the `ClientSideCacheSettings` class. You can set the `CLIENT_CACHE_MAX_AGE` value in `.env,` it defaults to 60 (seconds).
 
 ### 9.9 Running
