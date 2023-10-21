@@ -14,13 +14,14 @@
   - Pydantic V2 and SQLAlchemy 2.0
   - User authentication with JWT
   - Easy redis caching
+  - Easy client-side caching
   - Easily extendable
   - Flexible
 
 ### 1.1 To do
 - [x] Redis cache
 - [ ] Arq job queues
-- [ ] App settings (such as database connection, etc) only for what's inherited in core.config.Settings
+- [x] App settings (such as database connection, etc) only for what's inherited in core.config.Settings
 
 ## 2. Contents
 0. [About](#0-about)
@@ -73,12 +74,12 @@ poetry install
 ```
 
 ### 4.2 Environment Variables
-Then create a .env file:
+Then create a `.env` file:
 ```sh
 touch .env
 ```
 
-Inside of .env, create the following app settings variables:
+Inside of `.env`, create the following app settings variables:
 ```
 # ------------- app settings ------------- 
 APP_NAME="Your app name here"
@@ -105,7 +106,7 @@ Start by running
 openssl rand -hex 32
 ```
 
-And then create in .env:
+And then create in `.env`:
 ```
 # ------------- crypt -------------
 SECRET_KEY= # result of openssl rand -hex 32
@@ -123,6 +124,12 @@ ADMIN_PASSWORD="your_password"
 ```
 
 Optionally, for redis caching:
+```
+# ------------- redis -------------
+REDIS_CACHE_HOST="your_host" # default localhost
+REDIS_CACHE_PORT=6379
+
+And for client-side caching:
 ```
 # ------------- redis -------------
 REDIS_CACHE_HOST="your_host" # default localhost
@@ -183,14 +190,14 @@ redis:alpine
 [`If you didn't create the .env variables yet, click here.`](#environment-variables)
 ___
 ## 6. Running the api
-While in the **src** folder, run to start the application with uvicorn server:
+While in the `src` folder, run to start the application with uvicorn server:
 ```sh
 poetry run uvicorn app.main:app --reload
 ```
 
 ___
 ## 7. Creating the first superuser:
-While in the **src** folder, run (after you started the application at least once to create the tables):
+While in the `src` folder, run (after you started the application at least once to create the tables):
 ```sh
 poetry run python -m scripts.create_first_superuser
 ```
@@ -199,7 +206,7 @@ ___
 ## 8. Database Migrations
 Migrations done via [Alembic](https://alembic.sqlalchemy.org/en/latest/):
 
-Whenever you change something in the database, in the **src** directory, run to create the script:
+Whenever you change something in the database, in the `src` directory, run to create the script:
 ```sh
 poetry run alembic revision --autogenerate
 ```
@@ -216,7 +223,7 @@ Create the new entities and relationships and add them to the model
 ![diagram](https://user-images.githubusercontent.com/43156212/274053323-31bbdb41-15bf-45f2-8c8e-0b04b71c5b0b.png)
 
 ### 9.2 SQLAlchemy Model
-Inside **app/models**, create a new **entity.py** for each new entity (replacing entity with the name) and define the attributes according to [SQLAlchemy 2.0 standards](https://docs.sqlalchemy.org/en/20/orm/mapping_styles.html#orm-mapping-styles):
+Inside `app/models`, create a new `entity.py` for each new entity (replacing entity with the name) and define the attributes according to [SQLAlchemy 2.0 standards](https://docs.sqlalchemy.org/en/20/orm/mapping_styles.html#orm-mapping-styles):
 ```python
 from sqlalchemy import String, DateTime
 from sqlalchemy.orm import Mapped, mapped_column, relationship
@@ -234,7 +241,7 @@ class Entity(Base):
 ```
 
 ### 9.3 Pydantic Schemas
-Inside app/schemas, create a new entity.py for for each new entity (replacing entity with the name) and create the schemas according to [Pydantic V2](https://docs.pydantic.dev/latest/#pydantic-examples) standards:
+Inside `app/schemas`, create a new `entity.py` for for each new entity (replacing entity with the name) and create the schemas according to [Pydantic V2](https://docs.pydantic.dev/latest/#pydantic-examples) standards:
 ```python
 from typing import Annotated
 
@@ -274,7 +281,7 @@ class EntityDelete(BaseModel):
 ```
 
 ### 9.4 Alembic Migration
-Then, while in the **src** folder, run Alembic migrations:
+Then, while in the `src` folder, run Alembic migrations:
 ```sh
 poetry run alembic revision --autogenerate
 ```
@@ -285,7 +292,7 @@ poetry run alembic upgrade head
 ```
 
 ### 9.5 CRUD
-Inside **app/crud**, create a new crud_entities.py inheriting from CRUDBase for each new entity:
+Inside `app/crud`, create a new `crud_entities.py` inheriting from `CRUDBase` for each new entity:
 ```python
 from app.crud.crud_base import CRUDBase
 from app.models.entity import Entity
@@ -296,7 +303,7 @@ crud_entity = CRUDEntity(Entity)
 ```
 
 ### 9.6 Routes
-Inside **app/api/v1**, create a new entities.py file and create the desired routes
+Inside `app/api/v1`, create a new `entities.py` file and create the desired routes
 ```python
 from typing import Annotated
 
@@ -315,7 +322,7 @@ async def read_entities(db: Annotated[AsyncSession, Depends(async_get_db)]):
 
 ...
 ```
-Then in **app/api/v1/__init__.py** add the router such as:
+Then in `app/api/v1/__init__.py` add the router such as:
 ```python
 from fastapi import APIRouter
 from app.api.v1.entity import router as entity_router
@@ -327,10 +334,13 @@ router.include_router(entity_router)
 ```
 
 ### 9.7 Caching
-The cache decorator allows you to cache the results of FastAPI endpoint functions, enhancing response times and reducing the load on your application by storing and retrieving data in a cache.
+The `cache` decorator allows you to cache the results of FastAPI endpoint functions, enhancing response times and reducing the load on your application by storing and retrieving data in a cache.
 
-Caching the response of an endpoint is really simple, just apply the cache decorator to the endpoint function. 
-Note that you should always pass request as a variable to your endpoint function.
+Caching the response of an endpoint is really simple, just apply the `cache` decorator to the endpoint function. 
+
+> **Warning**
+> Note that you should always pass request as a variable to your endpoint function if you plan to use the cache decorator.
+
 ```python
 ...
 from app.core.cache import cache
@@ -347,10 +357,10 @@ async def sample_endpoint(request: Request, my_id: int):
 ```
 
 The way it works is:
-- the data is saved in redis with the following cache key: "sample_data:{my_id}" 
+- the data is saved in redis with the following cache key: `sample_data:{my_id}`
 - then the the time to expire is set as 3600 seconds (that's the default)
 
-Another option is not passing the resource_id_name, but passing the resource_id_type (default int):
+Another option is not passing the `resource_id_name`, but passing the `resource_id_type` (default int):
 ```python
 ...
 from app.core.cache import cache
@@ -365,8 +375,8 @@ async def sample_endpoint(request: Request, my_id: int):
     return {"data": "my_data"}
 ```
 In this case, what will happen is:
-- the resource_id will be inferred from the keyword arguments (my_id in this case)
-- the data is saved in redis with the following cache key: "sample_data:{my_id}" 
+- the `resource_id` will be inferred from the keyword arguments (`my_id` in this case)
+- the data is saved in redis with the following cache key: `sample_data:{my_id}`
 - then the the time to expire is set as 3600 seconds (that's the default)
 
 Passing resource_id_name is usually preferred.
@@ -375,9 +385,9 @@ Passing resource_id_name is usually preferred.
 The behaviour of the `cache` decorator changes based on the request method of your endpoint. 
 It caches the result if you are passing it to a **GET** endpoint, and it invalidates the cache with this key_prefix and id if passed to other endpoints (**PATCH**, **DELETE**).
 
-If you also want to invalidate cache with a different key, you can use the decorator with the "to_invalidate_extra" variable.
+If you also want to invalidate cache with a different key, you can use the decorator with the `to_invalidate_extra` variable.
 
-In the following example, I want to invalidate the cache for a certain user_id, since I'm deleting it, but I also want to invalidate the cache for the list of users, so it will not be out of sync.
+In the following example, I want to invalidate the cache for a certain `user_id`, since I'm deleting it, but I also want to invalidate the cache for the list of users, so it will not be out of sync.
 
 ```python
 # The cache here will be saved as "{username}_posts:{username}":
@@ -426,17 +436,20 @@ async def patch_post(
     ...
 ```
 
-Note that this will not work for **GET** requests.
+> **Warning**
+> Note that this will not work for **GET** requests.
+
+For `client-side caching`, all you have to do is let the `Settings` class defined in `app/core/config.py` inherit from the `ClientSideCacheSettings` class. You can set the `CLIENT_CACHE_MAX_AGE` value in `.env,` it defaults to 60 (seconds).
 
 ### 9.9 Running
-While in the **src** folder, run to start the application with uvicorn server:
+While in the `src` folder, run to start the application with uvicorn server:
 ```sh
 poetry run uvicorn app.main:app --reload
 ```
 
 ___
 ## 10. Testing
-For tests, create in .env:
+For tests, create in `.env`:
 ```
 # ------------- test -------------
 TEST_NAME="Tester User"
