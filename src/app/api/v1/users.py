@@ -5,7 +5,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from fastapi import Request
 import fastapi
 
-from app.schemas.user import UserCreate, UserCreateInternal, UserUpdate, UserRead, UserBase 
+from app.schemas.user import UserCreate, UserCreateInternal, UserUpdate, UserRead 
 from app.api.dependencies import get_current_user, get_current_superuser
 from app.core.database import async_get_db
 from app.core.security import get_password_hash
