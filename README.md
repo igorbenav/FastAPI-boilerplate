@@ -236,70 +236,70 @@ ___
 ### 9.1 Project Structure
 ```sh
 .
-├── .env                                   # Environment variables file for configuration and secrets.
-├── __init__.py                            # An initialization file for the package.
-├── alembic.ini                            # Configuration file for Alembic (database migration tool).
-├── app                                    # Main application directory.
-│   ├── __init__.py                        # Initialization file for the app package.
-│   ├── api                                # Folder containing API-related logic.
-│   │   ├── __init__.py                    # Initialization file for the api package.
-│   │   ├── dependencies.py                # Defines dependencies that can be reused across the API endpoints.
-│   │   ├── exceptions.py                  # Contains custom exceptions for the API.
-│   │   └── v1                             # Version 1 of the API.
-│   │       ├── __init__.py                # Initialization file for the v1 package.
-│   │       ├── login.py                   # API routes related to user login.
-│   │       ├── posts.py                   # API routes related to posts.
-│   │       ├── tasks.py                   # API routes related to background tasks.
-│   │       └── users.py                   # API routes related to user management.
+├── .env                              # Environment variables file for configuration and secrets.
+├── __init__.py                       # An initialization file for the package.
+├── alembic.ini                       # Configuration file for Alembic (database migration tool).
+├── app                               # Main application directory.
+│   ├── __init__.py                   # Initialization file for the app package.
+│   ├── api                           # Folder containing API-related logic.
+│   │   ├── __init__.py               # Initialization file for the api package.
+│   │   ├── dependencies.py           # Defines dependencies that can be reused across the API endpoints.
+│   │   ├── exceptions.py             # Contains custom exceptions for the API.
+│   │   └── v1                        # Version 1 of the API.
+│   │       ├── __init__.py           # Initialization file for the v1 package.
+│   │       ├── login.py              # API routes related to user login.
+│   │       ├── posts.py              # API routes related to posts.
+│   │       ├── tasks.py              # API routes related to background tasks.
+│   │       └── users.py              # API routes related to user management.
 │   │
-│   ├── core                               # Core utilities and configurations for the application.
-│   │   ├── __init__.py                    # Initialization file for the core package.
-│   │   ├── cache.py                       # Utilities related to caching.
-│   │   ├── config.py                      # Application configuration settings.
-│   │   ├── database.py                    # Database connectivity and session management.
-│   │   ├── exceptions.py                  # Contains core custom exceptions for the application.
-│   │   ├── models.py                      # Base models for the application.
-│   │   ├── queue.py                       # Utilities related to task queues.
-│   │   └── security.py                    # Security utilities like password hashing and token generation.
+│   ├── core                          # Core utilities and configurations for the application.
+│   │   ├── __init__.py               # Initialization file for the core package.
+│   │   ├── cache.py                  # Utilities related to caching.
+│   │   ├── config.py                 # Application configuration settings.
+│   │   ├── database.py               # Database connectivity and session management.
+│   │   ├── exceptions.py             # Contains core custom exceptions for the application.
+│   │   ├── models.py                 # Base models for the application.
+│   │   ├── queue.py                  # Utilities related to task queues.
+│   │   └── security.py               # Security utilities like password hashing and token generation.
 │   │
-│   ├── crud                               # CRUD operations for the application.
-│   │   ├── __init__.py                    # Initialization file for the crud package.
-│   │   ├── crud_base.py                   # Base CRUD operations class that can be extended by other CRUD modules.
-│   │   ├── crud_posts.py                  # CRUD operations for posts.
-│   │   └── crud_users.py                  # CRUD operations for users.
+│   ├── crud                          # CRUD operations for the application.
+│   │   ├── __init__.py               # Initialization file for the crud package.
+│   │   ├── crud_base.py              # Base CRUD operations class that can be extended by other CRUD modules.
+│   │   ├── crud_posts.py             # CRUD operations for posts.
+│   │   └── crud_users.py             # CRUD operations for users.
 │   │
-│   ├── main.py                            # Entry point for the FastAPI application. 
+│   ├── main.py                       # Entry point for the FastAPI application. 
 │   │
-│   ├── models                             # ORM models for the application.
-│   │   ├── __init__.py                    # Initialization file for the models package.
-│   │   ├── post.py                        # ORM model for posts.
-│   │   └── user.py                        # ORM model for users.
+│   ├── models                        # ORM models for the application.
+│   │   ├── __init__.py               # Initialization file for the models package.
+│   │   ├── post.py                   # ORM model for posts.
+│   │   └── user.py                   # ORM model for users.
 │   │
-│   ├── schemas                            # Pydantic schemas for data validation.
-│   │   ├── __init__.py                    # Initialization file for the schemas package.
-│   │   ├── job.py                         # Schemas related to background jobs.
-│   │   ├── post.py                        # Schemas related to posts.
-│   │   └── user.py                        # Schemas related to users.
+│   ├── schemas                       # Pydantic schemas for data validation.
+│   │   ├── __init__.py               # Initialization file for the schemas package.
+│   │   ├── job.py                    # Schemas related to background jobs.
+│   │   ├── post.py                   # Schemas related to posts.
+│   │   └── user.py                   # Schemas related to users.
 │   │
-│   └── worker.py                          # Worker script for handling background tasks.
+│   └── worker.py                     # Worker script for handling background tasks.
 │
-├── migrations                             # Directory for Alembic migrations.
-│   ├── README                             # General info and guidelines for migrations.
-│   ├── env.py                             # Environment configurations for Alembic.
-│   ├── script.py.mako                     # Template script for migration generation.
-│   └── versions                           # Folder containing individual migration scripts.
-│       └── README.MD                      # Readme for the versions directory.
+├── migrations                        # Directory for Alembic migrations.
+│   ├── README                        # General info and guidelines for migrations.
+│   ├── env.py                        # Environment configurations for Alembic.
+│   ├── script.py.mako                # Template script for migration generation.
+│   └── versions                      # Folder containing individual migration scripts.
+│       └── README.MD                 # Readme for the versions directory.
 │
-├── poetry.lock                            # Lock file for Poetry, ensuring consistent dependencies.
-├── pyproject.toml                         # Configuration file for Poetry, lists project dependencies.
-├── scripts                                # Utility scripts for the project.
-│   └── create_first_superuser.py          # Script to create the first superuser in the application.
+├── poetry.lock                       # Lock file for Poetry, ensuring consistent dependencies.
+├── pyproject.toml                    # Configuration file for Poetry, lists project dependencies.
+├── scripts                           # Utility scripts for the project.
+│   └── create_first_superuser.py     # Script to create the first superuser in the application.
 │
-└── tests                                  # Directory containing all the tests.
-    ├── __init__.py                        # Initialization file for the tests package.
-    ├── conftest.py                        # Configuration and fixtures for pytest.
-    ├── helper.py                          # Helper functions for writing tests.
-    └── test_user.py                       # Tests related to the user model and endpoints.
+└── tests                             # Directory containing all the tests.
+    ├── __init__.py                   # Initialization file for the tests package.
+    ├── conftest.py                   # Configuration and fixtures for pytest.
+    ├── helper.py                     # Helper functions for writing tests.
+    └── test_user.py                  # Tests related to the user model and endpoints.
 ```
 
 ### 9.2 Database Model
