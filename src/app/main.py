@@ -1,11 +1,20 @@
 from fastapi import FastAPI
 import redis.asyncio as redis
+from arq import create_pool
+from arq.connections import RedisSettings
 
+from app.api import router
+from app.core import cache, queue
 from app.core.database import Base
 from app.core.database import async_engine as engine
-from app.core.config import settings, DatabaseSettings, RedisCacheSettings, AppSettings, ClientSideCacheSettings
-from app.api import router
-from app.core import cache
+from app.core.config import (
+    settings, 
+    DatabaseSettings, 
+    RedisCacheSettings, 
+    AppSettings, 
+    ClientSideCacheSettings, 
+    RedisQueueSettings
+)
 
 # -------------- database --------------
 async def create_tables():
@@ -21,6 +30,17 @@ async def create_redis_cache_pool():
 
 async def close_redis_cache_pool():
     await cache.client.close()
+
+
+# -------------- queue --------------
+async def create_redis_queue_pool():
+    queue.pool = await create_pool(
+        RedisSettings(host=settings.REDIS_QUEUE_HOST, port=settings.REDIS_QUEUE_PORT)
+    )
+
+
+async def close_redis_queue_pool():
+    await queue.pool.close()
 
 
 # -------------- application --------------
@@ -46,6 +66,10 @@ def create_application() -> FastAPI:
 
     if isinstance(settings, ClientSideCacheSettings):
         application.add_middleware(cache.ClientCacheMiddleware, max_age=60)
+
+    if isinstance(settings, RedisQueueSettings):
+        application.add_event_handler("startup", create_redis_queue_pool)
+        application.add_event_handler("shutdown", close_redis_queue_pool)
 
     return application
 

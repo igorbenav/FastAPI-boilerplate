@@ -76,6 +76,11 @@ class ClientSideCacheSettings(BaseSettings):
     CLIENT_CACHE_MAX_AGE: int = config("CLIENT_CACHE_MAX_AGE", default=60)
 
 
+class RedisQueueSettings(BaseSettings):
+    REDIS_QUEUE_HOST: str = config("REDIS_QUEUE_HOST", default="localhost")
+    REDIS_QUEUE_PORT: str = config("REDIS_QUEUE_PORT", default=6379)
+
+
 class Settings(
     AppSettings, 
     PostgresSettings, 
@@ -83,7 +88,8 @@ class Settings(
     FirstUserSettings,
     TestSettings,
     RedisCacheSettings,
-    ClientSideCacheSettings
+    ClientSideCacheSettings,
+    RedisQueueSettings
 ):
     pass
 
