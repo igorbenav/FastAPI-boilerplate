@@ -135,6 +135,7 @@ Optionally, for redis caching:
 # ------------- redis -------------
 REDIS_CACHE_HOST="your_host" # default localhost
 REDIS_CACHE_PORT=6379
+```
 
 And for client-side caching:
 ```
