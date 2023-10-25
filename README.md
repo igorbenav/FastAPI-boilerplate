@@ -98,7 +98,7 @@ CONTACT_EMAIL="Your email"
 LICENSE_NAME="The license you picked"
 ```
 
-For the database ([`if you don't have a database yet, click here`]()), create: -------------------------------------
+For the database ([`if you don't have a database yet, click here`]()), create:
 ```
 # ------------- database -------------
 POSTGRES_USER="your_postgres_user"
