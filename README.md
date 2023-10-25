@@ -13,11 +13,12 @@
 ## 0. About
 **FastAPI boilerplate** creates an extendable async API using FastAPI, Pydantic V2, SQLAlchemy 2.0 and PostgreSQL:
 - [`FastAPI`](https://fastapi.tiangolo.com): modern Python web framework for building APIs
-- [`Pydantic V2`](https://docs.pydantic.dev/2.4/): the most widely used data validation library for Python, now rewritten in Rust [`(5x to 50x speed improvement)`](https://docs.pydantic.dev/latest/blog/pydantic-v2-alpha/)
+- [`Pydantic V2`](https://docs.pydantic.dev/2.4/): the most widely used data validation library for Python, rewritten in Rust [`(5x to 50x speed improvement)`](https://docs.pydantic.dev/latest/blog/pydantic-v2-alpha/)
 - [`SQLAlchemy 2.0`](https://docs.sqlalchemy.org/en/20/changelog/whatsnew_20.html): Python SQL toolkit and Object Relational Mapper
 - [`PostgreSQL`](https://www.postgresql.org): The World's Most Advanced Open Source Relational Database
-- [`Redis`](https://redis.io): The open source, in-memory data store used by millions of developers as a database, cache, streaming engine, and message broker
+- [`Redis`](https://redis.io): Open source, in-memory data store used by millions as a database, cache, streaming engine, and message broker
 - [`ARQ`](https://arq-docs.helpmanual.io) Job queues and RPC in python with asyncio and redis.
+- [`Docker Compose`](https://docs.docker.com/compose/) With a single command, create and start all the services from your configuration.
 
 ## 1. Features
   - Fully async
@@ -28,59 +29,59 @@
   - ARQ integration for task queue
   - Easily extendable
   - Flexible
+  - Easy running with docker compose
 
 ## 2. Contents
 0. [About](#0-about)
 1. [Features](#1-features)
 2. [Contents](#2-contents)
-3. [Usage](#3-usage)
-4. [Requirements](#4-requirements)
-    1. [Packages](#41-packages)
-    2. [Environment Variables](#42-environment-variables)
-5. [Running Databases With Docker](#5-running-databases-with-docker)
-    1. [PostgreSQL](#51-postgresql-main-database)
-    2. [Redis](#52-redis-for-caching)
-6. [Running the api](#6-running-the-api)
-7. [Creating the first superuser](#7-creating-the-first-superuser)
-8. [Database Migrations](#8-database-migrations)
-9. [Extending](#9-extending)
-    1. [Project Structure](#91-project-structure)
-    2. [Database Model](#92-database-model)
-    3. [SQLAlchemy Models](#93-sqlalchemy-model)
-    4. [Pydantic Schemas](#94-pydantic-schemas)
-    5. [Alembic Migrations](#95-alembic-migration)
-    6. [CRUD](#96-crud)
-    7. [Routes](#97-routes)
-    8. [Caching](#98-caching)
-    9. [More Advanced Caching](#99-more-advanced-caching)
-    10. [ARQ Job Queues](#910-arq-job-queues)
-    11. [Running](#911-running)
-10. [Testing](#10-testing)
-11. [Contributing](#11-contributing)
-12. [References](#12-references)
-13. [License](#13-license)
-14. [Contact](#14-contact)
+3. [Prerequisites](#3-prerequisites)
+    1. [Environment Variables (.env)](#31-environment-variables-env)
+    2. [Docker Compose](#32-docker-compose-preferred)
+    3. [From Scratch](#33-from-scratch)
+4. [Usage](#4-usage)
+    1. [Docker Compose](#41-docker-compose)
+    2. [From Scratch](#42-from-scratch)
+        1. [Packages](#421-packages)
+        2. [Running PostgreSQL With Docker](#422-running-postgresql-with-docker)
+        3. [Running Redis with Docker](#423-running-redis-with-docker)
+        4. [Running the API](#424-running-the-api)
+    3. [Creating the first superuser](#43-creating-the-first-superuser)
+    4. [Database Migrations](#44-database-migrations)
+5. [Extending](#5-extending)
+    1. [Project Structure](#51-project-structure)
+    2. [Database Model](#52-database-model)
+    3. [SQLAlchemy Models](#53-sqlalchemy-models)
+    4. [Pydantic Schemas](#54-pydantic-schemas)
+    5. [Alembic Migrations](#55-alembic-migrations)
+    6. [CRUD](#56-crud)
+    7. [Routes](#57-routes)
+    8. [Caching](#58-caching)
+    9. [More Advanced Caching](#59-more-advanced-caching)
+    10. [ARQ Job Queues](#510-arq-job-queues)
+    11. [Running](#511-running)
+6. [Running in Production](#6-running-in-production)
+7. [Testing](#7-testing)
+8. [Contributing](#8-contributing)
+9. [References](#9-references)
+10. [License](#10-license)
+11. [Contact](#11-contact)
 
 ___
-## 3. Usage
-Start by cloning the repository
+## 3. Prerequisites
+Start by using the template, and naming the repository to what you want.
+<p align="left">
+    <img src="https://user-images.githubusercontent.com/43156212/277866726-975d1c98-b1c9-4c8e-b4bd-001c8a5728cb.png" width="35%" height="auto">
+</p>
+
+Then clone your created repository (I'm using the base for the example)
 ```sh
 git clone https://github.com/igormagalhaesr/FastAPI-boilerplate
 ```
-___
-## 4. Requirements
-### 4.1 Packages
-Then install poetry:
-```sh
-pip install poetry
-```
 
-In the `src` directory, run to install required packages:
-```sh
-poetry install
-```
+### 3.1 Environment Variables (.env)
+And create a ".env" file:
 
-### 4.2 Environment Variables
 Then create a `.env` file:
 ```sh
 touch .env
@@ -97,9 +98,9 @@ CONTACT_EMAIL="Your email"
 LICENSE_NAME="The license you picked"
 ```
 
-For the database ([`if you don't have a database yet, click here`](#running-postgresql-with-docker)), create: 
+For the database ([`if you don't have a database yet, click here`]()), create: -------------------------------------
 ```
-# ------------- database ------------- 
+# ------------- database -------------
 POSTGRES_USER="your_postgres_user"
 POSTGRES_PASSWORD="your_password"
 POSTGRES_SERVER="your_server" # default localhost
@@ -121,7 +122,7 @@ ALGORITHM= # pick an algorithm, default HS256
 ACCESS_TOKEN_EXPIRE_MINUTES= # minutes until token expires, default 30
 ```
 
-And finally for the first admin user:
+Then for the first admin user:
 ```
 # ------------- admin -------------
 ADMIN_NAME="your_name"
@@ -130,29 +131,87 @@ ADMIN_USERNAME="your_username"
 ADMIN_PASSWORD="your_password"
 ```
 
-Optionally, for redis caching:
+For redis caching:
 ```
 # ------------- redis -------------
-REDIS_CACHE_HOST="your_host" # default localhost
+REDIS_CACHE_HOST="your_host" # default "localhost", if using docker compose you should user "redis"
 REDIS_CACHE_PORT=6379
+```
 
 And for client-side caching:
 ```
 # ------------- redis cache -------------
-REDIS_CACHE_HOST="your_host" # default localhost
+REDIS_CACHE_HOST="your_host" # default "localhost", if using docker compose you should user "redis"
 REDIS_CACHE_PORT=6379
 ```
 
 For ARQ Job Queues:
 ```
 # ------------- redis queue -------------
-REDIS_CACHE_HOST="your_host" # default localhost
+REDIS_CACHE_HOST="your_host" # default "localhost", if using docker compose you should use "db"
 REDIS_CACHE_PORT=6379
 ```
+> **Warning** 
+> You may use the same redis for both caching and queue while developing, but the recommendation is using two separate containers for production.
 
-___
-## 5. Running Databases With Docker:
-### 5.1 PostgreSQL (main database)
+For tests (optional to run):
+```
+# ------------- test -------------
+TEST_NAME="Tester User"
+TEST_EMAIL="test@tester.com"
+TEST_USERNAME="testeruser"
+TEST_PASSWORD="Str1ng$t"
+```
+
+### 3.2 Docker Compose (preferred)
+To do it using docker compose, ensure you have docker and docker compose installed, then:
+While in the base project directory (FastAPI-boilerplate here), run:
+
+```sh
+docker compose up
+```
+
+You should have a `web` container, `postgres` container, a `worker` container and a `redis` container running.  
+Then head to `http://127.0.0.1:8000/docs`.
+
+### 3.3 From Scratch
+Install poetry:
+```sh
+pip install poetry
+```
+
+## 4. Usage
+
+### 4.1 Docker Compose
+If you used docker compose, your setup is done. You just need to ensure that when you run (while in the base folder):
+
+```sh
+docker compose up
+```
+
+You get the following outputs (in addition to many other outputs):
+```sh
+fastapi-boilerplate-worker-1  | ... redis_version=x.x.x mem_usage=999K clients_connected=1 db_keys=0
+...
+fastapi-boilerplate-db-1      | ... [1] LOG:  database system is ready to accept connections
+...
+fastapi-boilerplate-web-1     | INFO:     Application startup complete.
+```
+
+So you may skip to [5. Extending](#5-extending).
+
+### 4.2 From Scratch
+
+#### 4.2.1. Packages
+In the `src` directory, run to install required packages:
+```sh
+poetry install
+```
+Ensuring it ran without any problem.
+
+#### 4.2.2. Running PostgreSQL With Docker
+> If you already have a PostgreSQL running, you may skip this step.
+
 Install docker if you don't have it yet, then run:
 ```sh
 docker pull postgres
@@ -178,9 +237,9 @@ docker run -d \
     postgres
 ```
 
-[`If you didn't create the .env variables yet, click here.`](#environment-variables)
+#### 4.2.3. Running redis With Docker
+> If you already have a redis running, you may skip this step.
 
-### 5.2 Redis (for caching and job queue)
 Install docker if you don't have it yet, then run:
 ```sh
 docker pull redis:alpine
@@ -202,111 +261,161 @@ docker run -d \
 redis:alpine
 ```
 
-[`If you didn't create the .env variables yet, click here.`](#environment-variables)
-___
-## 6. Running the api
+#### 4.2.4. Running the API
 While in the `src` folder, run to start the application with uvicorn server:
 ```sh
 poetry run uvicorn app.main:app --reload
 ```
+> The --reload flag enables auto-reload once you change (and save) something in the project
 
-___
-## 7. Creating the first superuser:
+### 4.3 Creating the first superuser
+#### 4.3.1 Docker Compose
+If you are using docker compose, you should uncomment this part of the docker-compose.yml:
+```
+  # #-------- uncomment to create first superuser --------
+  # create_superuser:
+  #   build: 
+  #     context: .
+  #     dockerfile: Dockerfile
+  #   env_file:
+  #     - ./src/.env
+  #   depends_on:
+  #     - db
+  #   command: python -m src.scripts.create_first_superuser
+  #   volumes:
+  #     - ./src:/code/src
+```
+
+Getting:
+```
+  #-------- uncomment to create first superuser --------
+  create_superuser:
+    build: 
+      context: .
+      dockerfile: Dockerfile
+    env_file:
+      - ./src/.env
+    depends_on:
+      - db
+    command: python -m src.scripts.create_first_superuser
+    volumes:
+      - ./src:/code/src
+```
+
+While in the base project folder run to start the services:
+```sh
+docker-compose up -d
+```
+
+It will automatically run the create_superuser script as well, but if you want to rerun eventually:
+```sh
+docker-compose run --rm create_superuser
+```
+
+to stop the create_superuser service:
+```sh
+docker-compose stop create_superuser
+```
+
+
+#### 4.3.2 From Scratch
 While in the `src` folder, run (after you started the application at least once to create the tables):
 ```sh
 poetry run python -m scripts.create_first_superuser
 ```
 
-___
-## 8. Database Migrations
-Migrations done via [Alembic](https://alembic.sqlalchemy.org/en/latest/):
-
-Whenever you change something in the database, in the `src` directory, run to create the script:
+### 4.4 Database Migrations
+While in the `src` folder, run Alembic migrations:
 ```sh
 poetry run alembic revision --autogenerate
 ```
 
-And to actually migrate:
+And to apply the migration
 ```sh
 poetry run alembic upgrade head
 ```
 
-___
-## 9. Extending
-### 9.1 Project Structure
+> If you do not have poetry, you may run it without poetry after running `pip install alembic`
+
+## 5. Extending 
+### 5.1 Project Structure
+First, you may want to take a look at the project structure and understand what each file is doing.
 ```sh
-.
-├── .env                              # Environment variables file for configuration and secrets.
-├── __init__.py                       # An initialization file for the package.
-├── alembic.ini                       # Configuration file for Alembic (database migration tool).
-├── app                               # Main application directory.
-│   ├── __init__.py                   # Initialization file for the app package.
-│   ├── api                           # Folder containing API-related logic.
-│   │   ├── __init__.py               # Initialization file for the api package.
-│   │   ├── dependencies.py           # Defines dependencies that can be reused across the API endpoints.
-│   │   ├── exceptions.py             # Contains custom exceptions for the API.
-│   │   └── v1                        # Version 1 of the API.
-│   │       ├── __init__.py           # Initialization file for the v1 package.
-│   │       ├── login.py              # API routes related to user login.
-│   │       ├── posts.py              # API routes related to posts.
-│   │       ├── tasks.py              # API routes related to background tasks.
-│   │       └── users.py              # API routes related to user management.
-│   │
-│   ├── core                          # Core utilities and configurations for the application.
-│   │   ├── __init__.py               # Initialization file for the core package.
-│   │   ├── cache.py                  # Utilities related to caching.
-│   │   ├── config.py                 # Application configuration settings.
-│   │   ├── database.py               # Database connectivity and session management.
-│   │   ├── exceptions.py             # Contains core custom exceptions for the application.
-│   │   ├── models.py                 # Base models for the application.
-│   │   ├── queue.py                  # Utilities related to task queues.
-│   │   └── security.py               # Security utilities like password hashing and token generation.
-│   │
-│   ├── crud                          # CRUD operations for the application.
-│   │   ├── __init__.py               # Initialization file for the crud package.
-│   │   ├── crud_base.py              # Base CRUD operations class that can be extended by other CRUD modules.
-│   │   ├── crud_posts.py             # CRUD operations for posts.
-│   │   └── crud_users.py             # CRUD operations for users.
-│   │
-│   ├── main.py                       # Entry point for the FastAPI application. 
-│   │
-│   ├── models                        # ORM models for the application.
-│   │   ├── __init__.py               # Initialization file for the models package.
-│   │   ├── post.py                   # ORM model for posts.
-│   │   └── user.py                   # ORM model for users.
-│   │
-│   ├── schemas                       # Pydantic schemas for data validation.
-│   │   ├── __init__.py               # Initialization file for the schemas package.
-│   │   ├── job.py                    # Schemas related to background jobs.
-│   │   ├── post.py                   # Schemas related to posts.
-│   │   └── user.py                   # Schemas related to users.
-│   │
-│   └── worker.py                     # Worker script for handling background tasks.
+.                                     # FastAPI-boilerplate folder. Rename it to suit your project name
+├── Dockerfile                        # Dockerfile for building the application container.
+├── LICENSE.md                        # License file for the project.
+├── README.md                         # Project README providing information and instructions.
+├── docker-compose.yml                # Docker Compose file for defining multi-container applications.
 │
-├── migrations                        # Directory for Alembic migrations.
-│   ├── README                        # General info and guidelines for migrations.
-│   ├── env.py                        # Environment configurations for Alembic.
-│   ├── script.py.mako                # Template script for migration generation.
-│   └── versions                      # Folder containing individual migration scripts.
-│       └── README.MD                 # Readme for the versions directory.
-│
-├── poetry.lock                       # Lock file for Poetry, ensuring consistent dependencies.
-├── pyproject.toml                    # Configuration file for Poetry, lists project dependencies.
-├── scripts                           # Utility scripts for the project.
-│   └── create_first_superuser.py     # Script to create the first superuser in the application.
-│
-└── tests                             # Directory containing all the tests.
-    ├── __init__.py                   # Initialization file for the tests package.
-    ├── conftest.py                   # Configuration and fixtures for pytest.
-    ├── helper.py                     # Helper functions for writing tests.
-    └── test_user.py                  # Tests related to the user model and endpoints.
+└── src                               # Source code directory.
+    ├── __init__.py                   # Initialization file for the src package.
+    ├── alembic.ini                   # Configuration file for Alembic (database migration tool).
+    ├── app                           # Main application directory.
+    │   ├── __init__.py               # Initialization file for the app package.
+    │   ├── api                       # Folder containing API-related logic.
+    │   │   ├── __init__.py
+    │   │   ├── dependencies.py       # Defines dependencies that can be reused across the API endpoints.
+    │   │   ├── exceptions.py         # Contains custom exceptions for the API.
+    │   │   └── v1                    # Version 1 of the API.
+    │   │       ├── __init__.py
+    │   │       ├── login.py          # API routes related to user login.
+    │   │       ├── posts.py          # API routes related to posts.
+    │   │       ├── tasks.py          # API routes related to background tasks.
+    │   │       └── users.py          # API routes related to user management.
+    │   │
+    │   ├── core                      # Core utilities and configurations for the application.
+    │   │   ├── __init__.py
+    │   │   ├── cache.py              # Utilities related to caching.
+    │   │   ├── config.py             # Application configuration settings.
+    │   │   ├── database.py           # Database connectivity and session management.
+    │   │   ├── exceptions.py         # Contains core custom exceptions for the application.
+    │   │   ├── models.py             # Base models for the application.
+    │   │   ├── queue.py              # Utilities related to task queues.
+    │   │   └── security.py           # Security utilities like password hashing and token generation.
+    │   │
+    │   ├── crud                      # CRUD operations for the application.
+    │   │   ├── __init__.py
+    │   │   ├── crud_base.py          # Base CRUD operations class that can be extended by other CRUD modules.
+    │   │   ├── crud_posts.py         # CRUD operations for posts.
+    │   │   └── crud_users.py         # CRUD operations for users.
+    │   │
+    │   ├── main.py                   # Entry point for the FastAPI application.
+    │   ├── models                    # ORM models for the application.
+    │   │   ├── __init__.py
+    │   │   ├── post.py               # ORM model for posts.
+    │   │   └── user.py               # ORM model for users.
+    │   │
+    │   ├── schemas                   # Pydantic schemas for data validation.
+    │   │   ├── __init__.py
+    │   │   ├── job.py                # Schemas related to background jobs.
+    │   │   ├── post.py               # Schemas related to posts.
+    │   │   └── user.py               # Schemas related to users.
+    │   │
+    │   └── worker.py                 # Worker script for handling background tasks.
+    │
+    ├── migrations                    # Directory for Alembic migrations.
+    │   ├── README                    # General info and guidelines for migrations.
+    │   ├── env.py                    # Environment configurations for Alembic.
+    │   ├── script.py.mako            # Template script for migration generation.
+    │   └── versions                  # Folder containing individual migration scripts.
+    │
+    ├── poetry.lock                   # Lock file for Poetry, ensuring consistent dependencies.
+    ├── pyproject.toml                # Configuration file for Poetry, lists project dependencies.
+    ├── scripts                       # Utility scripts for the project.
+    │   └── create_first_superuser.py # Script to create the first superuser in the application.
+    │
+    └── tests                         # Directory containing all the tests.
+        ├── __init__.py               # Initialization file for the tests package.
+        ├── conftest.py               # Configuration and fixtures for pytest.
+        ├── helper.py                 # Helper functions for writing tests.
+        └── test_user.py              # Tests related to the user model and endpoints.
 ```
 
-### 9.2 Database Model
+### 5.2 Database Model
 Create the new entities and relationships and add them to the model
 ![diagram](https://user-images.githubusercontent.com/43156212/274053323-31bbdb41-15bf-45f2-8c8e-0b04b71c5b0b.png)
 
-### 9.3 SQLAlchemy Model
+### 5.3 SQLAlchemy Models
 Inside `app/models`, create a new `entity.py` for each new entity (replacing entity with the name) and define the attributes according to [SQLAlchemy 2.0 standards](https://docs.sqlalchemy.org/en/20/orm/mapping_styles.html#orm-mapping-styles):
 ```python
 from sqlalchemy import String, DateTime
@@ -324,7 +433,7 @@ class Entity(Base):
   ...
 ```
 
-### 9.4 Pydantic Schemas
+### 5.4 Pydantic Schemas
 Inside `app/schemas`, create a new `entity.py` for for each new entity (replacing entity with the name) and create the schemas according to [Pydantic V2](https://docs.pydantic.dev/latest/#pydantic-examples) standards:
 ```python
 from typing import Annotated
@@ -364,7 +473,7 @@ class EntityDelete(BaseModel):
 
 ```
 
-### 9.5 Alembic Migration
+### 5.5 Alembic Migrations
 Then, while in the `src` folder, run Alembic migrations:
 ```sh
 poetry run alembic revision --autogenerate
@@ -375,7 +484,7 @@ And to apply the migration
 poetry run alembic upgrade head
 ```
 
-### 9.6 CRUD
+### 5.6 CRUD
 Inside `app/crud`, create a new `crud_entities.py` inheriting from `CRUDBase` for each new entity:
 ```python
 from app.crud.crud_base import CRUDBase
@@ -386,7 +495,7 @@ CRUDEntity = CRUDBase[Entity, EntityCreateInternal, EntityUpdate, EntityUpdateIn
 crud_entity = CRUDEntity(Entity)
 ```
 
-### 9.7 Routes
+### 5.7 Routes
 Inside `app/api/v1`, create a new `entities.py` file and create the desired routes
 ```python
 from typing import Annotated
@@ -417,7 +526,7 @@ router = APIRouter(prefix="/v1") # this should be there already
 router.include_router(entity_router)
 ```
 
-### 9.8 Caching
+### 5.8 Caching
 The `cache` decorator allows you to cache the results of FastAPI endpoint functions, enhancing response times and reducing the load on your application by storing and retrieving data in a cache.
 
 Caching the response of an endpoint is really simple, just apply the `cache` decorator to the endpoint function. 
@@ -465,7 +574,7 @@ In this case, what will happen is:
 
 Passing resource_id_name is usually preferred.
 
-### 9.9 More Advanced Caching
+### 5.9 More Advanced Caching
 The behaviour of the `cache` decorator changes based on the request method of your endpoint. 
 It caches the result if you are passing it to a **GET** endpoint, and it invalidates the cache with this key_prefix and id if passed to other endpoints (**PATCH**, **DELETE**).
 
@@ -526,7 +635,7 @@ async def patch_post(
 #### Client-side Caching
 For `client-side caching`, all you have to do is let the `Settings` class defined in `app/core/config.py` inherit from the `ClientSideCacheSettings` class. You can set the `CLIENT_CACHE_MAX_AGE` value in `.env,` it defaults to 60 (seconds).
 
-### 9.10 ARQ Job Queues
+### 5.10 ARQ Job Queues
 Create the background task in `app/worker.py`:
 ```python
 ...
@@ -562,20 +671,56 @@ async def get_task(task_id: str):
 ```
 
 And finally run the worker in parallel to your fastapi application.
-While in the `src` folder:
+
+If you are using `docker compose`, the worker is already running.
+If you are doing it from scratch, run while in the `src` folder:
 ```sh
 poetry run arq app.worker.WorkerSettings
 ```
 
-### 9.11 Running
-While in the `src` folder, run to start the application with uvicorn server:
+### 5.11 Running
+If you are using docker compose, just running the following command should ensure everything is working:
+```sh
+docker compose up
+```
+
+If you are doing it from scratch, ensure your postgres and your redis are running, then
+while in the `src` folder, run to start the application with uvicorn server:
 ```sh
 poetry run uvicorn app.main:app --reload
 ```
 
-___
-## 10. Testing
-For tests, create in `.env`:
+And for the worker:
+```sh
+poetry run arq app.worker.WorkerSettings
+```
+
+## 6. Running in Production
+In production you probably should run using gunicorn workers:
+```sh
+command: gunicorn app.main:app -w 4 -k uvicorn.workers.UvicornWorker -b 0.0.0.0:8000
+``` 
+Here it's running with 4 workers, but you should test it depending on how many cores your machine has.
+
+To do this if you are using docker compose, just replace the comment:
+This part in docker-compose.yml:
+```python
+# -------- replace with comment to run with gunicorn --------
+command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+# command: gunicorn app.main:app -w 4 -k uvicorn.workers.UvicornWorker -b 0.0.0.0:8000
+```
+
+Should be changed to:
+```python
+# -------- replace with comment to run with uvicorn --------
+# command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+command: gunicorn app.main:app -w 4 -k uvicorn.workers.UvicornWorker -b 0.0.0.0:8000
+```
+
+More on running it in production later.
+
+## 7. Testing
+For tests, ensure you have in `.env`:
 ```
 # ------------- test -------------
 TEST_NAME="Tester User"
@@ -589,12 +734,66 @@ While in the tests folder, create your test file with the name "test_{entity}.py
 touch test_items.py
 ```
 
-Finally create your tests (you may want to copy the structure in test_user.py), then run:
+Finally create your tests (you may want to copy the structure in test_user.py)
+
+Now, to run:
+
+### 7.1  Docker Compose
+First you need to uncomment the following part in the `docker-compose.yml` file:
+```
+  # #-------- uncomment to run tests --------
+  # pytest:
+  #   build: 
+  #     context: .
+  #     dockerfile: Dockerfile 
+  #   env_file:
+  #     - ./src/.env 
+  #   depends_on:
+  #     - db
+  #     - create_superuser
+  #     - redis
+  #   command: python -m pytest
+  #   volumes:
+  #     - ./src:/code/src
+```
+
+You'll get:
+```
+  #-------- uncomment to run tests --------
+  pytest:
+    build: 
+      context: .
+      dockerfile: Dockerfile 
+    env_file:
+      - ./src/.env 
+    depends_on:
+      - db
+      - create_superuser
+      - redis
+    command: python -m pytest
+    volumes:
+      - ./src:/code/src
+```
+
+Start the Docker Compose services:
+
+```sh
+docker-compose up -d
+```
+
+It will automatically run the tests, but if you want to run again later:
+```sh
+docker-compose run --rm pytest
+```
+
+### 7.2  From Scratch
+
+While in the `src` folder, run:
 ```sh
 poetry run python -m pytest
 ```
-___
-## 11. Contributing
+
+## 8. Contributing
 Contributions are appreciated, even if just reporting bugs, documenting stuff or answering questions. To contribute with a feature:
 1. Fork it (https://github.com/igormagalhaesr/FastAPI-boilerplate)
 2. Create your feature branch (`git checkout -b feature/fooBar`)
@@ -603,15 +802,16 @@ Contributions are appreciated, even if just reporting bugs, documenting stuff or
 5. Push to the branch (`git push origin feature/fooBar`)
 6. Create a new Pull Request
 
-## 12. References
+## 9. References
 This project was inspired by a few projects, it's based on them with things changed to the way I like (and pydantic, sqlalchemy updated)
 * [`Full Stack FastAPI and PostgreSQL`](https://github.com/tiangolo/full-stack-fastapi-postgresql) by @tiangolo himself
 * [`FastAPI Microservices`](https://github.com/Kludex/fastapi-microservices) by @kludex which heavily inspired this boilerplate
 * [`Async Web API with FastAPI + SQLAlchemy 2.0`](https://github.com/rhoboro/async-fastapi-sqlalchemy) for sqlalchemy 2.0 ORM examples
+* [`FastaAPI Rocket Boilerplate`](https://github.com/asacristani/fastapi-rocket-boilerplate/tree/main) for docker compose
 
-## 13. License
+## 10. License
 [`MIT`](LICENSE.md)
 
-## 14. Contact
+## 11. Contact
 Igor Magalhaes – [@igormagalhaesr](https://twitter.com/igormagalhaesr) – igormagalhaesr@gmail.com
 [github.com/igormagalhaesr](https://github.com/igormagalhaesr/)
