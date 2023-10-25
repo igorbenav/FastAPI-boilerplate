@@ -2,14 +2,12 @@ from decouple import config
 from pydantic_settings import BaseSettings
 
 class AppSettings(BaseSettings):
-    APP_NAME: str = config("APP_NAME")
-    APP_DESCRIPTION: str = config("APP_DESCRIPTION")
-    APP_VERSION: str = config("APP_VERSION")
-    CONTACT: dict = {
-        "name": config("CONTACT_NAME"),
-        "email": config("CONTACT_EMAIL")
-    }
-    LICENSE_NAME: dict = {"name": config("LICENSE_NAME")}
+    APP_NAME: str = config("APP_NAME", default="FastAPI app")
+    APP_DESCRIPTION: str | None = config("APP_DESCRIPTION", default=None)
+    APP_VERSION: str | None = config("APP_VERSION", default=None)
+    LICENSE_NAME: str | None = config("LICENSE", default=None)
+    CONTACT_NAME: str | None = config("CONTACT_NAME", default=None)
+    CONTACT_EMAIL: str | None = config("CONTACT_EMAIL", default=None)
 
 
 class CryptSettings(BaseSettings):

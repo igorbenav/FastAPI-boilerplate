@@ -29,7 +29,7 @@ async def create_redis_cache_pool():
 
 
 async def close_redis_cache_pool():
-    await cache.client.close()
+    await cache.client.aclose()
 
 
 # -------------- queue --------------
@@ -40,7 +40,7 @@ async def create_redis_queue_pool():
 
 
 async def close_redis_queue_pool():
-    await queue.pool.close()
+    await queue.pool.aclose()
 
 
 # -------------- application --------------
@@ -49,8 +49,13 @@ def create_application() -> FastAPI:
         application = FastAPI(
             title=settings.APP_NAME,
             description=settings.APP_DESCRIPTION,
-            contact=settings.CONTACT,
-            license_info=settings.CONTACT
+            contact={
+                "name": settings.CONTACT_NAME,
+                "email": settings.CONTACT_EMAIL
+            },
+            license_info={
+                "name": settings.LICENSE_NAME
+            }
         )
     else:
         application = FastAPI()
