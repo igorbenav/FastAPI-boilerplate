@@ -410,7 +410,6 @@ First, you may want to take a look at the project structure and understand what 
     │   ├── script.py.mako            # Template script for migration generation.
     │   └── versions                  # Folder containing individual migration scripts.
     │
-    ├── poetry.lock                   # Lock file for Poetry, ensuring consistent dependencies.
     ├── pyproject.toml                # Configuration file for Poetry, lists project dependencies.
     ├── scripts                       # Utility scripts for the project.
     │   └── create_first_superuser.py # Script to create the first superuser in the application.
