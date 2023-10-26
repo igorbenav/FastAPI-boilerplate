@@ -21,25 +21,36 @@
 - [`Docker Compose`](https://docs.docker.com/compose/) With a single command, create and start all the services from your configuration.
 
 ## 1. Features
-  - Fully async
-  - Pydantic V2 and SQLAlchemy 2.0
-  - User authentication with JWT
-  - Easy redis caching
-  - Easy client-side caching
-  - ARQ integration for task queue
-  - Easily extendable
-  - Flexible
-  - Easy running with docker compose
+- Fully async
+- Pydantic V2 and SQLAlchemy 2.0
+- User authentication with JWT
+- Easy redis caching
+- Easy client-side caching
+- ARQ integration for task queue
+- Easily extendable
+- Flexible
+- Easy running with docker compose
 
+### 1.1 To Do
+- [ ] Remove python-decouple in favor of starlette.config
+- [ ] FastAPI docs behind authentication and hidden based on the environment
+- [ ] Add mongoDB support
+- [ ] Docs for other databases (MysQL, SQLite)
+- [ ] Add a photo upload endpoint for users
+- [ ] Add possibility of comments in posts
+- [ ] Add webhook to notify when a new comment is added in post
+- [ ] Add Ruff linting
+ 
 ## 2. Contents
 0. [About](#0-about)
 1. [Features](#1-features)
-2. [Contents](#2-contents)
-3. [Prerequisites](#3-prerequisites)
+    1. [To Do](#11-to-do)
+3. [Contents](#2-contents)
+4. [Prerequisites](#3-prerequisites)
     1. [Environment Variables (.env)](#31-environment-variables-env)
     2. [Docker Compose](#32-docker-compose-preferred)
     3. [From Scratch](#33-from-scratch)
-4. [Usage](#4-usage)
+5. [Usage](#4-usage)
     1. [Docker Compose](#41-docker-compose)
     2. [From Scratch](#42-from-scratch)
         1. [Packages](#421-packages)
@@ -48,7 +59,7 @@
         4. [Running the API](#424-running-the-api)
     3. [Creating the first superuser](#43-creating-the-first-superuser)
     4. [Database Migrations](#44-database-migrations)
-5. [Extending](#5-extending)
+6. [Extending](#5-extending)
     1. [Project Structure](#51-project-structure)
     2. [Database Model](#52-database-model)
     3. [SQLAlchemy Models](#53-sqlalchemy-models)
@@ -60,12 +71,12 @@
     9. [More Advanced Caching](#59-more-advanced-caching)
     10. [ARQ Job Queues](#510-arq-job-queues)
     11. [Running](#511-running)
-6. [Running in Production](#6-running-in-production)
-7. [Testing](#7-testing)
-8. [Contributing](#8-contributing)
-9. [References](#9-references)
-10. [License](#10-license)
-11. [Contact](#11-contact)
+7. [Running in Production](#6-running-in-production)
+8. [Testing](#7-testing)
+9. [Contributing](#8-contributing)
+10. [References](#9-references)
+11. [License](#10-license)
+12. [Contact](#11-contact)
 
 ___
 ## 3. Prerequisites
