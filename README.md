@@ -9,11 +9,31 @@
   </a>
 </p>
 
+<p align="center">
+  <a href="">
+      <img src="https://img.shields.io/badge/Python-3776AB?style=for-the-badge&logo=python&logoColor=white" alt="Python">
+  </a>
+  <a href="https://fastapi.tiangolo.com">
+      <img src="https://img.shields.io/badge/FastAPI-005571?style=for-the-badge&logo=fastapi" alt="FastAPI">
+  </a>
+  <a href="https://docs.pydantic.dev/2.4/">
+      <img src="https://img.shields.io/badge/Pydantic-E92063?logo=pydantic&logoColor=fff&style=for-the-badge" alt="Pydantic">
+  </a>
+  <a href="https://www.postgresql.org">
+      <img src="https://img.shields.io/badge/PostgreSQL-316192?style=for-the-badge&logo=postgresql&logoColor=white" alt="PostgreSQL">
+  </a>
+  <a href="https://redis.io">
+      <img src="https://img.shields.io/badge/Redis-DC382D?logo=redis&logoColor=fff&style=for-the-badge" alt="Redis">
+  </a>
+  <a href="https://docs.docker.com/compose/">
+      <img src="https://img.shields.io/badge/Docker-2496ED?logo=docker&logoColor=fff&style=for-the-badge" alt="Docker">
+  </a>
+</p>
 
 ## 0. About
 **FastAPI boilerplate** creates an extendable async API using FastAPI, Pydantic V2, SQLAlchemy 2.0 and PostgreSQL:
 - [`FastAPI`](https://fastapi.tiangolo.com): modern Python web framework for building APIs
-- [`Pydantic V2`](https://docs.pydantic.dev/2.4/): the most widely used data validation library for Python, rewritten in Rust [`(5x to 50x speed improvement)`](https://docs.pydantic.dev/latest/blog/pydantic-v2-alpha/)
+- [`Pydantic V2`](https://docs.pydantic.dev/2.4/): the most widely used data validation library for Python, rewritten in Rust [`(5x-50x faster)`](https://docs.pydantic.dev/latest/blog/pydantic-v2-alpha/)
 - [`SQLAlchemy 2.0`](https://docs.sqlalchemy.org/en/20/changelog/whatsnew_20.html): Python SQL toolkit and Object Relational Mapper
 - [`PostgreSQL`](https://www.postgresql.org): The World's Most Advanced Open Source Relational Database
 - [`Redis`](https://redis.io): Open source, in-memory data store used by millions as a database, cache, streaming engine, and message broker
@@ -32,15 +52,27 @@
 - Easy running with docker compose
 
 ### 1.1 To Do
-- [ ] Remove python-decouple in favor of starlette.config
-- [ ] FastAPI docs behind authentication and hidden based on the environment
-- [ ] Add mongoDB support
-- [ ] Docs for other databases (MysQL, SQLite)
+#### API
 - [ ] Add a photo upload endpoint for users
 - [ ] Add possibility of comments in posts
 - [ ] Add webhook to notify when a new comment is added in post
-- [ ] Add Ruff linting
+
+#### Docs
+- [ ] Docs for other databases (MysQL, SQLite)
+
+#### Features
+- [ ] Add a Rate Limiter decorator
+- [ ] Add mongoDB support
+
+#### Security
+- [ ] FastAPI docs behind authentication and hidden based on the environment
  
+#### Structure
+- [ ] Remove python-decouple in favor of starlette.config
+
+#### Tests
+- [ ] Add Ruff linter
+
 ## 2. Contents
 0. [About](#0-about)
 1. [Features](#1-features)
