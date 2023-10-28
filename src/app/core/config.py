@@ -1,7 +1,10 @@
 from enum import Enum
 
-from decouple import config
+#from decouple import config
+from starlette.config import Config
 from pydantic_settings import BaseSettings
+
+config = Config(".env")
 
 class AppSettings(BaseSettings):
     APP_NAME: str = config("APP_NAME", default="FastAPI app")

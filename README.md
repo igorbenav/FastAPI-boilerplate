@@ -68,7 +68,7 @@
 - [x] FastAPI docs behind authentication and hidden based on the environment
  
 #### Structure
-- [ ] Remove python-decouple in favor of starlette.config
+- [x] Remove python-decouple in favor of starlette.config
 
 #### Tests
 - [ ] Add Ruff linter
@@ -424,7 +424,8 @@ First, you may want to take a look at the project structure and understand what 
     │   │   ├── exceptions.py         # Contains core custom exceptions for the application.
     │   │   ├── models.py             # Base models for the application.
     │   │   ├── queue.py              # Utilities related to task queues.
-    │   │   └── security.py           # Security utilities like password hashing and token generation.
+    │   │   ├── security.py           # Security utilities like password hashing and token generation.
+    │   │   └── setup.py              # File defining settings and FastAPI application instance definition.
     │   │
     │   ├── crud                      # CRUD operations for the application.
     │   │   ├── __init__.py
@@ -432,7 +433,7 @@ First, you may want to take a look at the project structure and understand what 
     │   │   ├── crud_posts.py         # CRUD operations for posts.
     │   │   └── crud_users.py         # CRUD operations for users.
     │   │
-    │   ├── main.py                   # Entry point for the FastAPI application.
+    │   ├── main.py                   # Entry point that imports and creates the FastAPI application instance.
     │   ├── models                    # ORM models for the application.
     │   │   ├── __init__.py
     │   │   ├── post.py               # ORM model for posts.
