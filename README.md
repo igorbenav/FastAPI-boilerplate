@@ -65,7 +65,7 @@
 - [ ] Add mongoDB support
 
 #### Security
-- [ ] FastAPI docs behind authentication and hidden based on the environment
+- [x] FastAPI docs behind authentication and hidden based on the environment
  
 #### Structure
 - [ ] Remove python-decouple in favor of starlette.config
@@ -205,6 +205,16 @@ TEST_EMAIL="test@tester.com"
 TEST_USERNAME="testeruser"
 TEST_PASSWORD="Str1ng$t"
 ```
+
+And Finally the environment:
+```
+# ------------- environment -------------
+ENVIRONMENT="local"
+```
+`ENVIRONMENT` can be one of `local`, `staging` and `production`, defaults to local, and changes the behavior of api `docs` endpoints:
+- **local:** `/docs`, `/redoc` and `/openapi.json` available
+- **staging:** `/docs`, `/redoc` and `/openapi.json` available for superusers
+- **production:** `/docs`, `/redoc` and `/openapi.json` not available
 
 ### 3.2 Docker Compose (preferred)
 To do it using docker compose, ensure you have docker and docker compose installed, then:
@@ -762,6 +772,9 @@ Should be changed to:
 # command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
 command: gunicorn app.main:app -w 4 -k uvicorn.workers.UvicornWorker -b 0.0.0.0:8000
 ```
+
+> **Warning**
+> Do not forget to set the `ENVIRONMENT` in `.env` to `production` unless you want the API docs to be public.
 
 More on running it in production later.
 
