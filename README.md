@@ -68,7 +68,7 @@
 - [x] FastAPI docs behind authentication and hidden based on the environment
  
 #### Structure
-- [ ] Remove python-decouple in favor of starlette.config
+- [x] Remove python-decouple in favor of starlette.config
 
 #### Tests
 - [ ] Add Ruff linter
