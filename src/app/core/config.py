@@ -1,3 +1,5 @@
+from enum import Enum
+
 from decouple import config
 from pydantic_settings import BaseSettings
 
@@ -79,6 +81,16 @@ class RedisQueueSettings(BaseSettings):
     REDIS_QUEUE_PORT: str = config("REDIS_QUEUE_PORT", default=6379)
 
 
+class EnvironmentOption(Enum):
+    LOCAL = "local"
+    STAGING = "staging"
+    PRODUCTION = "production"
+
+
+class EnvironmentSettings(BaseSettings):
+    ENVIRONMENT: EnvironmentOption = config("ENVIRONMENT", default="local")
+
+
 class Settings(
     AppSettings, 
     PostgresSettings, 
@@ -87,7 +99,8 @@ class Settings(
     TestSettings,
     RedisCacheSettings,
     ClientSideCacheSettings,
-    RedisQueueSettings
+    RedisQueueSettings,
+    EnvironmentSettings
 ):
     pass
 
