@@ -4,6 +4,7 @@ from fastapi.openapi.utils import get_openapi
 import redis.asyncio as redis
 from arq import create_pool
 from arq.connections import RedisSettings
+import anyio
 
 from app.api import router
 from app.api.dependencies import get_current_superuser
@@ -49,31 +50,43 @@ async def close_redis_queue_pool():
 
 
 # -------------- application --------------
-def create_application(settings, **kwargs) -> FastAPI:
-    """
-    Creates and configures a FastAPI application based on the provided keyword arguments.
+async def set_threadpool_tokens(number_of_tokens=100):
+    limiter = anyio.to_thread.current_default_thread_limiter()
+    limiter.total_tokens = number_of_tokens
 
-    The function initializes a FastAPI application and conditionally configures it
-    with various settings and handlers. The configuration is determined by the type 
-    of settings object provided.
+
+# -------------- application --------------
+def create_application(router: APIRouter, settings, **kwargs) -> FastAPI:
+    """
+    Creates and configures a FastAPI application based on the provided settings.
+
+    This function initializes a FastAPI application, then conditionally configures 
+    it with various settings and handlers. The specific configuration is determined 
+    by the type of the `settings` object provided.
 
     Parameters
     ----------
+    router : APIRouter
+        The APIRouter object that contains the routes to be included in the FastAPI application.
+
     settings
-        The settings object can be an instance of one or more of the following:
-        - AppSettings: Configures basic app information like name, description, contact, and license info.
-        - DatabaseSettings: Adds event handlers related to database tables during startup.
-        - RedisCacheSettings: Adds event handlers for creating and closing Redis cache pool.
-        - ClientSideCacheSettings: Adds middleware for client-side caching.
-        - RedisQueueSettings: Adds event handlers for creating and closing Redis queue pool.
-        - EnvironmentSettings: Sets documentation URLs and sets up custom routes for documentation.
-    
-    **kwargs
-        Additional keyword arguments that are passed directly to the FastAPI constructor.
-        
+        An instance representing the settings for configuring the FastAPI application. It determines the configuration applied:
+
+        - AppSettings: Configures basic app metadata like name, description, contact, and license info.
+        - DatabaseSettings: Adds event handlers for initializing database tables during startup.
+        - RedisCacheSettings: Sets up event handlers for creating and closing a Redis cache pool.
+        - ClientSideCacheSettings: Integrates middleware for client-side caching.
+        - RedisQueueSettings: Sets up event handlers for creating and closing a Redis queue pool.
+        - EnvironmentSettings: Conditionally sets documentation URLs and integrates custom routes for API documentation based on environment type.
+
+    **kwargs 
+        Extra keyword arguments passed directly to the FastAPI constructor.
+
     Returns
     -------
-        FastAPI: A configured FastAPI application instance.
+    FastAPI
+        A fully configured FastAPI application instance.
+
     """
 
     # --- before creating application ---
@@ -104,7 +117,8 @@ def create_application(settings, **kwargs) -> FastAPI:
 
     # --- application created ---
     application.include_router(router)
-    
+    application.add_event_handler("startup", set_threadpool_tokens)
+
     if isinstance(settings, DatabaseSettings):
         application.add_event_handler("startup", create_tables)
     
@@ -120,9 +134,9 @@ def create_application(settings, **kwargs) -> FastAPI:
         application.add_event_handler("shutdown", close_redis_queue_pool)
 
     if isinstance(settings, EnvironmentSettings):
-        if settings.ENVIRONMENT is not EnvironmentOption.PRODUCTION:
+        if settings.ENVIRONMENT != EnvironmentOption.PRODUCTION:
             docs_router = APIRouter()
-            if settings.ENVIRONMENT is not EnvironmentOption.LOCAL:
+            if settings.ENVIRONMENT != EnvironmentOption.LOCAL:
                 docs_router = APIRouter(dependencies=[Depends(get_current_superuser)])
             
             @docs_router.get("/docs", include_in_schema=False)
@@ -137,12 +151,11 @@ def create_application(settings, **kwargs) -> FastAPI:
 
             @docs_router.get("/openapi.json", include_in_schema=False)
             async def openapi():
-                return get_openapi(title=app.title, version=app.version, routes=app.routes)
-            
+                return get_openapi(title=application.title, version=application.version, routes=application.routes)
             
             application.include_router(docs_router)
             
     return application
 
 
-app = create_application(settings=settings)
+app = create_application(router=router, settings=settings)
