@@ -15,13 +15,17 @@ from app.api.exceptions import privileges_exception
 router = fastapi.APIRouter(tags=["users"])
 
 @router.post("/user", response_model=UserRead, status_code=201)
-async def write_user(request: Request, user: UserCreate, db: Annotated[AsyncSession, Depends(async_get_db)]):
-    db_user = await crud_users.get(db=db, email=user.email)
-    if db_user:
+async def write_user(
+    request: Request, 
+    user: UserCreate, 
+    db: Annotated[AsyncSession, Depends(async_get_db)]
+):
+    email_row = await crud_users.exists(db=db, email=user.email)
+    if email_row:
         raise HTTPException(status_code=400, detail="Email is already registered")
 
-    db_user = await crud_users.get(db=db, username=user.username)
-    if db_user:
+    username_row = await crud_users.exists(db=db, username=user.username)
+    if username_row:
         raise HTTPException(status_code=400, detail="Username not available")
     
     user_internal_dict = user.model_dump()
@@ -56,7 +60,7 @@ async def read_user(request: Request, username: str, db: Annotated[AsyncSession,
     return db_user
 
 
-@router.patch("/user/{username}", response_model=UserRead)
+@router.patch("/user/{username}")
 async def patch_user(
     request: Request, 
     values: UserUpdate,
@@ -72,17 +76,17 @@ async def patch_user(
         raise privileges_exception
     
     if values.username != db_user.username:
-        existing_username = await crud_users.get(db=db, username=values.username)
-        if existing_username is not None:
+        existing_username = await crud_users.exists(db=db, username=values.username)
+        if existing_username:
             raise HTTPException(status_code=400, detail="Username not available")
 
     if values.email != db_user.email:
-        existing_email = await crud_users.get(db=db, email=values.email)
+        existing_email = await crud_users.exists(db=db, email=values.email)
         if existing_email:
             raise HTTPException(status_code=400, detail="Email is already registered")
 
-    db_user = await crud_users.update(db=db, object=values, db_object=db_user)
-    return db_user
+    await crud_users.update(db=db, object=values, username=username)
+    return {"message": "User updated"}
 
 
 @router.delete("/user/{username}")
@@ -99,8 +103,8 @@ async def erase_user(
     if db_user.username != current_user.username:
         raise privileges_exception
 
-    db_user = await crud_users.delete(db=db, db_object=db_user, username=username)
-    return db_user
+    await crud_users.delete(db=db, db_row=db_user, username=username)
+    return {"message": "User deleted"}
 
 
 @router.delete("/db_user/{username}", dependencies=[Depends(get_current_superuser)])
@@ -109,9 +113,9 @@ async def erase_db_user(
     username: str,
     db: Annotated[AsyncSession, Depends(async_get_db)]
 ):
-    db_user = await crud_users.get(db=db, username=username)
-    if db_user is None:
+    db_user = await crud_users.exists(db=db, username=username)
+    if not db_user:
         raise HTTPException(status_code=404, detail="User not found")
     
-    db_user = await crud_users.db_delete(db=db, db_object=db_user, username=username)
-    return db_user
+    db_user = await crud_users.db_delete(db=db, username=username)
+    return {"message": "User deleted from the database"}
