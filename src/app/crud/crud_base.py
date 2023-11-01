@@ -6,7 +6,7 @@ from sqlalchemy import select, update, delete
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.engine.row import Row
 
-from .helper import _extract_matching_columns_from_schema, _extract_matching_columns_from_kwargs
+from .helper import _extract_matching_columns_from_schema, _extract_matching_columns_from_kwargs, _extract_matching_columns_from_column_names
 
 ModelType = TypeVar("ModelType")
 CreateSchemaType = TypeVar("CreateSchemaType", bound=BaseModel)

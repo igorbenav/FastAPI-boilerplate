@@ -23,7 +23,7 @@ async def write_post(
     current_user: Annotated[UserRead, Depends(get_current_user)],
     db: Annotated[AsyncSession, Depends(async_get_db)]
 ):
-    db_user = await crud_users.get(db=db, username=username, is_deleted=False)
+    db_user = await crud_users.get(db=db, schema_to_select=UserRead, username=username, is_deleted=False)
     if db_user is None:
         raise HTTPException(status_code=404, detail="User not found")
     
@@ -44,11 +44,11 @@ async def read_posts(
     username: str, 
     db: Annotated[AsyncSession, Depends(async_get_db)]
 ):
-    db_user = await crud_users.get(db=db, username=username, is_deleted=False)
+    db_user = await crud_users.get(db=db, schema_to_select=UserRead, username=username, is_deleted=False)
     if db_user is None:
         raise HTTPException(status_code=404, detail="User not found")
     
-    posts = await crud_posts.get_multi(db=db, created_by_user_id=db_user.id, is_deleted=False)
+    posts = await crud_posts.get_multi(db=db, schema_to_select=PostRead, created_by_user_id=db_user.id, is_deleted=False)
     return posts
 
 
@@ -60,11 +60,11 @@ async def read_post(
     id: int, 
     db: Annotated[AsyncSession, Depends(async_get_db)]
 ):
-    db_user = await crud_users.get(db=db, username=username, is_deleted=False)
+    db_user = await crud_users.get(db=db, schema_to_select=UserRead, username=username, is_deleted=False)
     if db_user is None:
         raise HTTPException(status_code=404, detail="User not found")
     
-    db_post = await crud_posts.get(db=db, id=id, created_by_user_id=db_user.id, is_deleted=False)
+    db_post = await crud_posts.get(db=db, schema_to_select=PostRead, id=id, created_by_user_id=db_user.id, is_deleted=False)
     if db_post is None:
         raise HTTPException(status_code=404, detail="Post not found")
 
@@ -85,14 +85,14 @@ async def patch_post(
     current_user: Annotated[UserRead, Depends(get_current_user)],
     db: Annotated[AsyncSession, Depends(async_get_db)]
 ):
-    db_user = await crud_users.get(db=db, username=username, is_deleted=False)
+    db_user = await crud_users.get(db=db, schema_to_select=UserRead, username=username, is_deleted=False)
     if db_user is None:
         raise HTTPException(status_code=404, detail="User not found")
     
     if current_user.id != db_user.id:
         raise privileges_exception
 
-    db_post = await crud_posts.get(db=db, id=id, is_deleted=False)
+    db_post = await crud_posts.get(db=db, schema_to_select=PostRead, id=id, is_deleted=False)
     if db_post is None:
         raise HTTPException(status_code=404, detail="Post not found")
     
@@ -113,14 +113,14 @@ async def erase_post(
     current_user: Annotated[UserRead, Depends(get_current_user)],
     db: Annotated[AsyncSession, Depends(async_get_db)]
 ):
-    db_user = await crud_users.get(db=db, username=username, is_deleted=False)
+    db_user = await crud_users.get(db=db, schema_to_select=UserRead, username=username, is_deleted=False)
     if db_user is None:
         raise HTTPException(status_code=404, detail="User not found")
     
     if current_user.id != db_user.id:
         raise privileges_exception
 
-    db_post = await crud_posts.get(db=db, id=id, is_deleted=False)
+    db_post = await crud_posts.get(db=db, schema_to_select=PostRead, id=id, is_deleted=False)
     if db_post is None:
         raise HTTPException(status_code=404, detail="Post not found")
     
@@ -141,11 +141,11 @@ async def erase_db_post(
     id: int,
     db: Annotated[AsyncSession, Depends(async_get_db)]
 ):
-    db_user = await crud_users.get(db=db, username=username, is_deleted=False)
+    db_user = await crud_users.get(db=db, schema_to_select=UserRead, username=username, is_deleted=False)
     if db_user is None:
         raise HTTPException(status_code=404, detail="User not found")
     
-    db_post = await crud_posts.get(db=db, id=id, is_deleted=False)
+    db_post = await crud_posts.get(db=db, schema_to_select=PostRead, id=id, is_deleted=False)
     if db_post is None:
         raise HTTPException(status_code=404, detail="Post not found")
     

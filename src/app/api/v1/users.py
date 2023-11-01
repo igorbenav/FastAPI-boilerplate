@@ -38,7 +38,7 @@ async def write_user(
 
 @router.get("/users", response_model=List[UserRead])
 async def read_users(request: Request, db: Annotated[AsyncSession, Depends(async_get_db)]):
-    users = await crud_users.get_multi(db=db, is_deleted=False)
+    users = await crud_users.get_multi(db=db, schema_to_select=UserRead, is_deleted=False)
     return users
 
 
@@ -48,12 +48,10 @@ async def read_users_me(
 ):
     return current_user
 
-from app.core.cache import cache
-
 
 @router.get("/user/{username}", response_model=UserRead)
 async def read_user(request: Request, username: str, db: Annotated[AsyncSession, Depends(async_get_db)]):
-    db_user = await crud_users.get(db=db, username=username, is_deleted=False)
+    db_user = await crud_users.get(db=db, schema_to_select=UserRead, username=username, is_deleted=False)
     if db_user is None:
         raise HTTPException(status_code=404, detail="User not found")
 
@@ -68,7 +66,7 @@ async def patch_user(
     current_user: Annotated[UserRead, Depends(get_current_user)],
     db: Annotated[AsyncSession, Depends(async_get_db)]
 ):
-    db_user = await crud_users.get(db=db, username=username)
+    db_user = await crud_users.get(db=db, schema_to_select=UserRead, username=username)
     if db_user is None:
         raise HTTPException(status_code=404, detail="User not found")
     
@@ -96,11 +94,11 @@ async def erase_user(
     current_user: Annotated[UserRead, Depends(get_current_user)],
     db: Annotated[AsyncSession, Depends(async_get_db)]
 ):
-    db_user = await crud_users.get(db=db, username=username)
-    if db_user is None:
+    db_user = await crud_users.get(db=db, schema_to_select=UserRead, username=username)
+    if not db_user:
         raise HTTPException(status_code=404, detail="User not found")
     
-    if db_user.username != current_user.username:
+    if username != current_user.username:
         raise privileges_exception
 
     await crud_users.delete(db=db, db_row=db_user, username=username)

@@ -40,3 +40,12 @@ def _extract_matching_columns_from_kwargs(model: Type[Base], kwargs: dict) -> Li
                 column_list.append(getattr(model, column_name))
     
     return column_list
+
+
+def _extract_matching_columns_from_column_names(model: Type[Base], column_names: List) -> List[Any]:
+    column_list = []
+    for column_name in column_names:
+        if hasattr(model, column_name):
+            column_list.append(getattr(model, column_name))
+
+    return column_list
