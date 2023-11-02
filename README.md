@@ -589,7 +589,7 @@ user = await crud_users.get_multi(
 )
 ```
 
-To create, you pass a `CreateSchemaType` object with the attributes, such as a `CreateUser` pydantic schema:
+To create, you pass a `CreateSchemaType` object with the attributes, such as a `UserCreate` pydantic schema:
 ```python
 from app.core.schemas.user import UserCreate
 
@@ -606,14 +606,16 @@ crud_users.create(db=db, object=user_internal)
 
 To just check if there is at least one row that matches a certain set of attributes, you should use `exists`
 ```python
-# This queries only the email variable, and returns True if there's at least one or False if there is none
+# This queries only the email variable
+# It returns True if there's at least one or False if there is none
 crud_users.exists(db=db, email=user@example.com)
 ```
 
 To update you pass an `object` which may be a `pydantic schema` or just a regular `dict`, and the kwargs.
 You will update with `objects` the rows that match your `kwargs`.
 ```python
-# Here I'm updating the user with username == "myusername". I'll change his name to "Updated Name"
+# Here I'm updating the user with username == "myusername". 
+# #I'll change his name to "Updated Name"
 crud_users.update(db=db, object={name="Updated Name"}, username="myusername")
 ```
 
@@ -631,14 +633,15 @@ crud_users.delete(db=db, username="myusername")
 crud_users.db_delete(db=db, username="myusername")
 ```
 
-#### Advanced - Efficient Get
+#### More Efficient Selecting
 For the `get` and `get_multi` methods we have the option to define a `schema_to_select` attribute, which is what actually makes the queries more efficient. When you pass a pydantic schema in `schema_to_select` to the `get` or `get_multi` methods, only the attributes in the schema will be selected.
 ```python
 from app.schemas.user import UserRead
-# Here it's selecting all of the user's data, but maybe I just need what I'll return, the UserRead
+# Here it's selecting all of the user's data
 crud_user.get(db=db, username="myusername")
 
-# Now it's only selecting the data that is in UserRead. Since that's my response_model, it's all I need
+# Now it's only selecting the data that is in UserRead. 
+# Since that's my response_model, it's all I need
 crud_user.get(db=db, username="myusername", schema_to_select=UserRead)
 ```
 
