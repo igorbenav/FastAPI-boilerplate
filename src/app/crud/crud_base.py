@@ -57,7 +57,7 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType, UpdateSche
             db: AsyncSession, 
             schema_to_select: Type[BaseModel] | None = None, 
             **kwargs
-    ) -> ModelType | None:
+    ) -> Row | None:
         """
         Fetch a single record based on filters.
 
@@ -72,7 +72,7 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType, UpdateSche
 
         Returns
         -------
-        ModelType | None
+        Row | None
             The fetched database row or None if not found.
         """
         to_select = _extract_matching_columns_from_schema(model=self._model, schema=schema_to_select)
@@ -89,7 +89,7 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType, UpdateSche
             limit: int = 100, 
             schema_to_select: Type[BaseModel] | None = None, 
             **kwargs
-    ) -> List[ModelType]:
+    ) -> List[Row]:
         """
         Fetch multiple records based on filters.
 
@@ -108,7 +108,7 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType, UpdateSche
 
         Returns
         -------
-        List[ModelType]
+        List[Row]
             List of fetched database rows.
         """
         to_select = _extract_matching_columns_from_schema(model=self._model, schema=schema_to_select)
