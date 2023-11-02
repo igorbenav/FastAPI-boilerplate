@@ -22,7 +22,7 @@ def _extract_matching_columns_from_schema(model: Type[Base], schema: Type[BaseMo
     """
     column_list = list(model.__table__.columns)
     if schema is not None:
-        schema_fields = schema.__fields__.keys()
+        schema_fields = schema.model_fields.keys()
         column_list = []
         for column_name in schema_fields:
             if hasattr(model, column_name):

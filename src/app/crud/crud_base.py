@@ -228,9 +228,9 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType, UpdateSche
         -------
         None
         """
-        db_row = db_row or await self.get(db=db, **kwargs)
+        db_row = db_row or await self.exists(db=db, **kwargs)
         if db_row:
-            if "is_deleted" in db_row:
+            if "is_deleted" in self._model.__table__.columns:
                 object_dict = {
                     "is_deleted": True,
                     "deleted_at": datetime.utcnow()
