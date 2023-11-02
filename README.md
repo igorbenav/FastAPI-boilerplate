@@ -562,6 +562,16 @@ CRUDEntity = CRUDBase[Entity, EntityCreateInternal, EntityUpdate, EntityUpdateIn
 crud_entity = CRUDEntity(Entity)
 ```
 
+So, for users:
+```python
+# crud_users.py
+from app.model.user import User
+from app.schemas.user import UserCreateInternal, UserUpdate, UserUpdateInternal, UserDelete
+
+CRUDUser = CRUDBase[User, UserCreateInternal, UserUpdate, UserUpdateInternal, UserDelete]
+crud_users = CRUDUser(User)
+```
+
 When actually using the crud in an endpoint, to get data you just pass the database connection and the attributes as kwargs:
 ```python
 # Here I'm getting the users with email == user.email
