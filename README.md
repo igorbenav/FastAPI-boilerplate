@@ -47,6 +47,7 @@
 - Easy redis caching
 - Easy client-side caching
 - ARQ integration for task queue
+- Efficient querying (only queries what's needed)
 - Easily extendable
 - Flexible
 - Easy running with docker compose
@@ -63,6 +64,7 @@
 #### Features
 - [ ] Add a Rate Limiter decorator
 - [ ] Add mongoDB support
+- [ ] Add support in schema_to_select for dict as well as Pydantic Schema
 
 #### Security
 - [x] FastAPI docs behind authentication and hidden based on the environment
@@ -403,12 +405,19 @@ First, you may want to take a look at the project structure and understand what 
 └── src                               # Source code directory.
     ├── __init__.py                   # Initialization file for the src package.
     ├── alembic.ini                   # Configuration file for Alembic (database migration tool).
+    ├── poetry.lock
+    ├── pyproject.toml                # Configuration file for Poetry, lists project dependencies.
+    │
     ├── app                           # Main application directory.
     │   ├── __init__.py               # Initialization file for the app package.
+    │   ├── main.py                   # Entry point that imports and creates the FastAPI application instance.
+    │   ├── worker.py                 # Worker script for handling background tasks.
+    │   │
     │   ├── api                       # Folder containing API-related logic.
     │   │   ├── __init__.py
     │   │   ├── dependencies.py       # Defines dependencies that can be reused across the API endpoints.
     │   │   ├── exceptions.py         # Contains custom exceptions for the API.
+    │   │   │
     │   │   └── v1                    # Version 1 of the API.
     │   │       ├── __init__.py
     │   │       ├── login.py          # API routes related to user login.
@@ -431,30 +440,30 @@ First, you may want to take a look at the project structure and understand what 
     │   │   ├── __init__.py
     │   │   ├── crud_base.py          # Base CRUD operations class that can be extended by other CRUD modules.
     │   │   ├── crud_posts.py         # CRUD operations for posts.
-    │   │   └── crud_users.py         # CRUD operations for users.
+    │   │   ├── crud_users.py         # CRUD operations for users.
+    │   │   └── helper.py             # Helper functions for CRUD operations.
     │   │
-    │   ├── main.py                   # Entry point that imports and creates the FastAPI application instance.
     │   ├── models                    # ORM models for the application.
     │   │   ├── __init__.py
     │   │   ├── post.py               # ORM model for posts.
     │   │   └── user.py               # ORM model for users.
     │   │
-    │   ├── schemas                   # Pydantic schemas for data validation.
-    │   │   ├── __init__.py
-    │   │   ├── job.py                # Schemas related to background jobs.
-    │   │   ├── post.py               # Schemas related to posts.
-    │   │   └── user.py               # Schemas related to users.
-    │   │
-    │   └── worker.py                 # Worker script for handling background tasks.
+    │   └── schemas                   # Pydantic schemas for data validation.
+    │       ├── __init__.py
+    │       ├── job.py                # Schemas related to background jobs.
+    │       ├── post.py               # Schemas related to posts.
+    │       └── user.py               # Schemas related to users.
     │
     ├── migrations                    # Directory for Alembic migrations.
     │   ├── README                    # General info and guidelines for migrations.
     │   ├── env.py                    # Environment configurations for Alembic.
     │   ├── script.py.mako            # Template script for migration generation.
+    │   │
     │   └── versions                  # Folder containing individual migration scripts.
+    │       └── README.MD
     │
-    ├── pyproject.toml                # Configuration file for Poetry, lists project dependencies.
     ├── scripts                       # Utility scripts for the project.
+    │   ├── __init__.py
     │   └── create_first_superuser.py # Script to create the first superuser in the application.
     │
     └── tests                         # Directory containing all the tests.
@@ -462,6 +471,7 @@ First, you may want to take a look at the project structure and understand what 
         ├── conftest.py               # Configuration and fixtures for pytest.
         ├── helper.py                 # Helper functions for writing tests.
         └── test_user.py              # Tests related to the user model and endpoints.
+
 ```
 
 ### 5.2 Database Model
@@ -550,6 +560,76 @@ from app.schemas.entity import EntityCreateInternal, EntityUpdate, EntityUpdateI
 
 CRUDEntity = CRUDBase[Entity, EntityCreateInternal, EntityUpdate, EntityUpdateInternal, EntityDelete]
 crud_entity = CRUDEntity(Entity)
+```
+
+When actually using the crud in an endpoint, to get data you just pass the database connection and the attributes as kwargs:
+```python
+# Here I'm getting the users with email == user.email
+user = await crud_users.get(db=db, email=user.email)
+```
+
+To get a list of objects with the attributes, you should use the get_multi:
+```python
+# Here I'm getting 100 users with the name David except for the first 3
+user = await crud_users.get_multi(
+  db=db,
+  offset=3,
+  limit=100,
+  name="David"
+)
+```
+
+To create, you pass a `CreateSchemaType` object with the attributes, such as a `CreateUser` pydantic schema:
+```python
+from app.core.schemas.user import UserCreate
+
+# Creating the object
+user_internal = UserCreate(
+  name="user",
+  username="myusername",
+  email="user@example.com"
+)
+
+# Passing the object to be created
+crud_users.create(db=db, object=user_internal)
+```
+
+To just check if there is at least one row that matches a certain set of attributes, you should use `exists`
+```python
+# This queries only the email variable, and returns True if there's at least one or False if there is none
+crud_users.exists(db=db, email=user@example.com)
+```
+
+To update you pass an `object` which may be a `pydantic schema` or just a regular `dict`, and the kwargs.
+You will update with `objects` the rows that match your `kwargs`.
+```python
+# Here I'm updating the user with username == "myusername". I'll change his name to "Updated Name"
+crud_users.update(db=db, object={name="Updated Name"}, username="myusername")
+```
+
+To delete we have two options:
+- db_delete: actually deletes the row from the database
+- delete: 
+    - adds `"is_deleted": True` and `deleted_at: datetime.utcnow()` if the model inherits from `PersistentDeletion` (performs a soft delete), but keeps the object in the database.
+    - actually deletes the row from the database if the model does not inherit from `PersistentDeletion`
+
+```python
+# Here I'll just change is_deleted to True
+crud_users.delete(db=db, username="myusername")
+
+# Here I actually delete it from the database
+crud_users.db_delete(db=db, username="myusername")
+```
+
+#### Advanced - Efficient Get
+For the `get` and `get_multi` methods we have the option to define a `schema_to_select` attribute, which is what actually makes the queries more efficient. When you pass a pydantic schema in `schema_to_select` to the `get` or `get_multi` methods, only the attributes in the schema will be selected.
+```python
+from app.schemas.user import UserRead
+# Here it's selecting all of the user's data, but maybe I just need what I'll return, the UserRead
+crud_user.get(db=db, username="myusername")
+
+# Now it's only selecting the data that is in UserRead. Since that's my response_model, it's all I need
+crud_user.get(db=db, username="myusername", schema_to_select=UserRead)
 ```
 
 ### 5.7 Routes
