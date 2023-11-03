@@ -33,24 +33,25 @@
 ## 0. About
 **FastAPI boilerplate** creates an extendable async API using FastAPI, Pydantic V2, SQLAlchemy 2.0 and PostgreSQL:
 - [`FastAPI`](https://fastapi.tiangolo.com): modern Python web framework for building APIs
-- [`Pydantic V2`](https://docs.pydantic.dev/2.4/): the most widely used data validation library for Python, rewritten in Rust [`(5x-50x faster)`](https://docs.pydantic.dev/latest/blog/pydantic-v2-alpha/)
+- [`Pydantic V2`](https://docs.pydantic.dev/2.4/): the most widely used data Python validation library, rewritten in Rust [`(5x-50x faster)`](https://docs.pydantic.dev/latest/blog/pydantic-v2-alpha/)
 - [`SQLAlchemy 2.0`](https://docs.sqlalchemy.org/en/20/changelog/whatsnew_20.html): Python SQL toolkit and Object Relational Mapper
 - [`PostgreSQL`](https://www.postgresql.org): The World's Most Advanced Open Source Relational Database
-- [`Redis`](https://redis.io): Open source, in-memory data store used by millions as a database, cache, streaming engine, and message broker
+- [`Redis`](https://redis.io): Open source, in-memory data store used by millions as a cache, message broker and more.
 - [`ARQ`](https://arq-docs.helpmanual.io) Job queues and RPC in python with asyncio and redis.
 - [`Docker Compose`](https://docs.docker.com/compose/) With a single command, create and start all the services from your configuration.
 
 ## 1. Features
-- Fully async
-- Pydantic V2 and SQLAlchemy 2.0
-- User authentication with JWT
-- Easy redis caching
-- Easy client-side caching
-- ARQ integration for task queue
-- Efficient querying (only queries what's needed)
-- Easily extendable
-- Flexible
-- Easy running with docker compose
+- ⚡️ Fully async
+- 🚀 Pydantic V2 and SQLAlchemy 2.0
+- 🔐 User authentication with JWT
+- 🏬 Easy redis caching
+- 👜 Easy client-side caching
+- 🚦 ARQ integration for task queue
+- ⚙️ Efficient querying (only queries what's needed)
+- 👮 FastAPI docs behind authentication and hidden based on the environment
+- 🦾 Easily extendable
+- 🤸‍♂️ Flexible
+- 🚚 Easy running with docker compose
 
 ### 1.1 To Do
 #### API
@@ -64,13 +65,7 @@
 #### Features
 - [ ] Add a Rate Limiter decorator
 - [ ] Add mongoDB support
-- [ ] Add support in schema_to_select for dict as well as Pydantic Schema
-
-#### Security
-- [x] FastAPI docs behind authentication and hidden based on the environment
- 
-#### Structure
-- [x] Remove python-decouple in favor of starlette.config
+- [x] Add support in schema_to_select for a list of column names
 
 #### Tests
 - [ ] Add Ruff linter
@@ -634,7 +629,7 @@ crud_users.db_delete(db=db, username="myusername")
 ```
 
 #### More Efficient Selecting
-For the `get` and `get_multi` methods we have the option to define a `schema_to_select` attribute, which is what actually makes the queries more efficient. When you pass a pydantic schema in `schema_to_select` to the `get` or `get_multi` methods, only the attributes in the schema will be selected.
+For the `get` and `get_multi` methods we have the option to define a `schema_to_select` attribute, which is what actually makes the queries more efficient. When you pass a `pydantic schema` (preferred) or a list of the names of the attributes in `schema_to_select` to the `get` or `get_multi` methods, only the attributes in the schema will be selected.
 ```python
 from app.schemas.user import UserRead
 # Here it's selecting all of the user's data
