@@ -1,10 +1,10 @@
-from typing import Any, List, Type
+from typing import Any, List, Type, Union, Dict
 
 from pydantic import BaseModel
 
 from app.core.database import Base
 
-def _extract_matching_columns_from_schema(model: Type[Base], schema: Type[BaseModel] | None) -> List[Any]:
+def _extract_matching_columns_from_schema(model: Type[Base], schema: Union[Type[BaseModel], List, None]) -> List[Any]:
     """
     Retrieves a list of ORM column objects from a SQLAlchemy model that match the field names in a given Pydantic schema.
 
@@ -22,7 +22,11 @@ def _extract_matching_columns_from_schema(model: Type[Base], schema: Type[BaseMo
     """
     column_list = list(model.__table__.columns)
     if schema is not None:
-        schema_fields = schema.model_fields.keys()
+        if isinstance(schema, list):
+            schema_fields = schema
+        else:
+            schema_fields = schema.model_fields.keys()
+        
         column_list = []
         for column_name in schema_fields:
             if hasattr(model, column_name):

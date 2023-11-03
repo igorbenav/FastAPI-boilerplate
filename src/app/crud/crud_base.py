@@ -55,7 +55,7 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType, UpdateSche
     async def get(
             self, 
             db: AsyncSession, 
-            schema_to_select: Type[BaseModel] | None = None, 
+            schema_to_select: Union[Type[BaseModel], List, None] = None, 
             **kwargs
     ) -> Row | None:
         """
@@ -65,7 +65,7 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType, UpdateSche
         ----------
         db : AsyncSession
             The SQLAlchemy async session.
-        schema_to_select : Type[BaseModel] | None, optional
+        schema_to_select : Union[Type[BaseModel], List, None], optional
             Pydantic schema for selecting specific columns. Default is None to select all columns.
         kwargs : dict
             Filters to apply to the query.
@@ -87,7 +87,7 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType, UpdateSche
             db: AsyncSession, 
             offset: int = 0, 
             limit: int = 100, 
-            schema_to_select: Type[BaseModel] | None = None, 
+            schema_to_select: Union[Type[BaseModel], List, None] = None,
             **kwargs
     ) -> List[Row]:
         """
@@ -101,7 +101,7 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType, UpdateSche
             Number of rows to skip before fetching. Default is 0.
         limit : int, optional
             Maximum number of rows to fetch. Default is 100.
-        schema_to_select : Type[BaseModel] | None, optional
+        schema_to_select : Union[Type[BaseModel], List, None], optional
             Pydantic schema for selecting specific columns. Default is None to select all columns.
         kwargs : dict
             Filters to apply to the query.
