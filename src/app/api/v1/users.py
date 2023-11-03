@@ -117,8 +117,3 @@ async def erase_db_user(
     
     db_user = await crud_users.db_delete(db=db, username=username)
     return {"message": "User deleted from the database"}
-
-@router.get("/deleted_users")
-async def read_users(request: Request, db: Annotated[AsyncSession, Depends(async_get_db)]):
-    users = await crud_users.get_multi(db=db, schema_to_select=UserRead, is_deleted=True)
-    return users
