@@ -45,33 +45,33 @@ services:
     volumes:
       - redis-data:/data
 
-  #-------- uncomment to create first superuser --------
-  create_superuser:
-    build: 
-      context: .
-      dockerfile: Dockerfile
-    env_file:
-      - ./src/.env
-    depends_on:
-      - db
-    command: python -m src.scripts.create_first_superuser
-    volumes:
-      - ./src:/code/src
+  # #-------- uncomment to create first superuser --------
+  # create_superuser:
+  #   build: 
+  #     context: .
+  #     dockerfile: Dockerfile
+  #   env_file:
+  #     - ./src/.env
+  #   depends_on:
+  #     - db
+  #   command: python -m src.scripts.create_first_superuser
+  #   volumes:
+  #     - ./src:/code/src
 
-  #-------- uncomment to run tests --------
-  pytest:
-    build: 
-      context: .
-      dockerfile: Dockerfile 
-    env_file:
-      - ./src/.env 
-    depends_on:
-      - db
-      - create_superuser
-      - redis
-    command: python -m pytest
-    volumes:
-      - ./src:/code/src
+  # #-------- uncomment to run tests --------
+  # pytest:
+  #   build: 
+  #     context: .
+  #     dockerfile: Dockerfile 
+  #   env_file:
+  #     - ./src/.env 
+  #   depends_on:
+  #     - db
+  #     - create_superuser
+  #     - redis
+  #   command: python -m pytest
+  #   volumes:
+  #     - ./src:/code/src
 
 volumes:
   postgres-data:
