@@ -12,6 +12,7 @@ from app.crud.crud_posts import crud_posts
 from app.crud.crud_users import crud_users
 from app.api.exceptions import privileges_exception
 from app.core.cache import cache
+from app.core.models import PaginatedListResponse
 
 router = fastapi.APIRouter(tags=["posts"])
 
@@ -27,29 +28,45 @@ async def write_post(
     if db_user is None:
         raise HTTPException(status_code=404, detail="User not found")
     
-    if current_user.id != db_user.id:
+    if current_user.id != db_user["id"]:
         raise privileges_exception
 
     post_internal_dict = post.model_dump()
-    post_internal_dict["created_by_user_id"] = db_user.id
+    post_internal_dict["created_by_user_id"] = db_user["id"]
 
     post_internal = PostCreateInternal(**post_internal_dict)
     return await crud_posts.create(db=db, object=post_internal)
 
 
-@router.get("/{username}/posts", response_model=List[PostRead])
+@router.get("/{username}/posts", response_model=PaginatedListResponse[PostRead])
 @cache(key_prefix="{username}_posts", resource_id_name="username")
 async def read_posts(
     request: Request,
-    username: str, 
-    db: Annotated[AsyncSession, Depends(async_get_db)]
+    username: str,
+    db: Annotated[AsyncSession, Depends(async_get_db)],
+    page: int = 1,
+    items_per_page: int = 10
 ):
     db_user = await crud_users.get(db=db, schema_to_select=UserRead, username=username, is_deleted=False)
-    if db_user is None:
+    if not db_user:
         raise HTTPException(status_code=404, detail="User not found")
-    
-    posts = await crud_posts.get_multi(db=db, schema_to_select=PostRead, created_by_user_id=db_user.id, is_deleted=False)
-    return posts
+
+    posts_data = await crud_posts.get_multi(
+        db=db,
+        offset=(page - 1) * items_per_page,
+        limit=items_per_page,
+        schema_to_select=PostRead,
+        created_by_user_id=db_user["id"],
+        is_deleted=False
+    )
+
+    return {
+        "data": posts_data["data"],
+        "total_count": posts_data["total_count"],
+        "has_more": (page * items_per_page) < posts_data["total_count"],
+        "page": page,
+        "items_per_page": items_per_page
+    }
 
 
 @router.get("/{username}/post/{id}", response_model=PostRead)
@@ -64,10 +81,10 @@ async def read_post(
     if db_user is None:
         raise HTTPException(status_code=404, detail="User not found")
     
-    db_post = await crud_posts.get(db=db, schema_to_select=PostRead, id=id, created_by_user_id=db_user.id, is_deleted=False)
+    db_post = await crud_posts.get(db=db, schema_to_select=PostRead, id=id, created_by_user_id=db_user["id"], is_deleted=False)
     if db_post is None:
         raise HTTPException(status_code=404, detail="Post not found")
-
+    
     return db_post
 
 
@@ -89,7 +106,7 @@ async def patch_post(
     if db_user is None:
         raise HTTPException(status_code=404, detail="User not found")
     
-    if current_user.id != db_user.id:
+    if current_user.id != db_user["id"]:
         raise privileges_exception
 
     db_post = await crud_posts.get(db=db, schema_to_select=PostRead, id=id, is_deleted=False)

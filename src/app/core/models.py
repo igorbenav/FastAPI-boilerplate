@@ -1,10 +1,22 @@
+from typing import TypeVar, Generic, List
 import uuid as uuid_pkg
 from datetime import datetime
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_serializer
 from sqlalchemy import text
 
-from app.core.database import Base
+ReadSchemaType = TypeVar("ReadSchemaType", bound=BaseModel)
+
+class ListResponse(BaseModel, Generic[ReadSchemaType]):
+    data: List[ReadSchemaType]
+
+
+class PaginatedListResponse(ListResponse[ReadSchemaType]):
+    total_count: int
+    has_more: bool
+    page: int | None = None
+    items_per_page: int | None = None
+
 
 class HealthCheck(BaseModel):
     name: str
@@ -47,7 +59,16 @@ class TimestampModel(BaseModel):
        }
     )
 
-    
+    @field_serializer("created_at")
+    def serialize_dt(self, created_at: datetime | None, _info):
+        return created_at.isoformat()
+
+    @field_serializer("updated_at")
+    def serialize_updated_at(self, updated_at: datetime | None, _info):
+        if updated_at is not None:
+            return updated_at.isoformat()
+
+
 class PersistentDeletion(BaseModel):
     deleted_at: datetime | None = Field(
         default=None,
@@ -58,3 +79,8 @@ class PersistentDeletion(BaseModel):
     )
 
     is_deleted: bool = False
+
+    @field_serializer('deleted_at')
+    def serialize_dates(self, deleted_at: datetime | None, _info):
+        if deleted_at is not None:
+            return deleted_at.isoformat()

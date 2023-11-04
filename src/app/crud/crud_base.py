@@ -2,11 +2,16 @@ from typing import Any, Dict, Generic, List, Type, TypeVar, Union
 from datetime import datetime
 
 from pydantic import BaseModel
-from sqlalchemy import select, update, delete
+from sqlalchemy import select, update, delete, func, and_
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.engine.row import Row
 
-from .helper import _extract_matching_columns_from_schema, _extract_matching_columns_from_kwargs
+from .helper import (
+    _extract_matching_columns_from_schema, 
+    _extract_matching_columns_from_kwargs
+)
+from app.core.exceptions import InvalidOutputTypeError
+
 
 ModelType = TypeVar("ModelType")
 CreateSchemaType = TypeVar("CreateSchemaType", bound=BaseModel)
@@ -55,9 +60,9 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType, UpdateSche
     async def get(
             self, 
             db: AsyncSession, 
-            schema_to_select: Union[Type[BaseModel], List, None] = None, 
+            schema_to_select: Union[Type[BaseModel], List, None] = None,
             **kwargs
-    ) -> Row | None:
+    ) -> Dict | None:
         """
         Fetch a single record based on filters.
 
@@ -72,53 +77,19 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType, UpdateSche
 
         Returns
         -------
-        Row | None
+        Dict | None
             The fetched database row or None if not found.
         """
         to_select = _extract_matching_columns_from_schema(model=self._model, schema=schema_to_select)
         stmt = select(*to_select) \
             .filter_by(**kwargs)
         
-        result = await db.execute(stmt)
-        return result.first()
-    
-    async def get_multi(
-            self, 
-            db: AsyncSession, 
-            offset: int = 0, 
-            limit: int = 100, 
-            schema_to_select: Union[Type[BaseModel], List, None] = None,
-            **kwargs
-    ) -> List[Row]:
-        """
-        Fetch multiple records based on filters.
-
-        Parameters
-        ----------
-        db : AsyncSession
-            The SQLAlchemy async session.
-        offset : int, optional
-            Number of rows to skip before fetching. Default is 0.
-        limit : int, optional
-            Maximum number of rows to fetch. Default is 100.
-        schema_to_select : Union[Type[BaseModel], List, None], optional
-            Pydantic schema for selecting specific columns. Default is None to select all columns.
-        kwargs : dict
-            Filters to apply to the query.
-
-        Returns
-        -------
-        List[Row]
-            List of fetched database rows.
-        """
-        to_select = _extract_matching_columns_from_schema(model=self._model, schema=schema_to_select)
-        stmt = select(*to_select) \
-            .filter_by(**kwargs) \
-            .offset(offset) \
-            .limit(limit)
+        db_row = await db.execute(stmt)
+        result = db_row.first()
+        if result:
+            result = result._mapping    
         
-        result = await db.execute(stmt)
-        return result.all()
+        return result
     
     async def exists(
             self, 
@@ -144,9 +115,97 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType, UpdateSche
         stmt = select(*to_select) \
             .filter_by(**kwargs) \
             .limit(1)
-        result = await db.execute(stmt)
         
+        result = await db.execute(stmt)
         return result.first() is not None
+    
+    async def count(
+        self, 
+        db: AsyncSession,
+        **kwargs: Any
+    ) -> int:
+        """
+        Count the records based on filters.
+
+        Parameters
+        ----------
+        db : AsyncSession
+            The SQLAlchemy async session.
+        kwargs : dict
+            Filters to apply to the query.
+
+        Returns
+        -------
+        int
+            Total count of records that match the applied filters.
+
+        Note
+        ----
+        This method provides a quick way to get the count of records without retrieving the actual data.
+        """
+        conditions = [getattr(self._model, key) == value for key, value in kwargs.items()]
+        combined_conditions = and_(*conditions)
+
+        count_query = select(func.count()).filter(combined_conditions)
+        total_count = await db.scalar(count_query)
+
+        return total_count
+
+    async def get_multi(
+            self, 
+            db: AsyncSession, 
+            offset: int = 0, 
+            limit: int = 100, 
+            schema_to_select: Union[Type[BaseModel], List[Type[BaseModel]], None] = None,
+            output_type: Union[Type[dict], Type[list]] = dict,
+            **kwargs: Any
+    ) -> Dict[str, Any]:
+        """
+        Fetch multiple records based on filters.
+
+        Parameters
+        ----------
+        db : AsyncSession
+            The SQLAlchemy async session.
+        offset : int, optional
+            Number of rows to skip before fetching. Default is 0.
+        limit : int, optional
+            Maximum number of rows to fetch. Default is 100.
+        schema_to_select : Union[Type[BaseModel], List[Type[BaseModel]], None], optional
+            Pydantic schema for selecting specific columns. Default is None to select all columns.
+        output_type : Union[Type[dict], Type[list]], optional
+            Desired output type of the result. Default is dict.
+        kwargs : dict
+            Filters to apply to the query.
+
+        Returns
+        -------
+        Dict[str, Any]
+            Dictionary containing the fetched rows under 'data' key and total count under 'total_count'.
+
+        Note
+        ----
+            -  The cache decorator only works with output_type=dict (default)
+        """
+        to_select = _extract_matching_columns_from_schema(model=self._model, schema=schema_to_select)
+        stmt = select(*to_select) \
+            .filter_by(**kwargs) \
+            .offset(offset) \
+            .limit(limit)
+        
+        result = await db.execute(stmt)
+        row_data = result
+
+        if output_type == dict:
+            data = [dict(row) for row in row_data.mappings()]
+        elif output_type == list:
+            data = row_data.all()
+        else:
+            raise InvalidOutputTypeError
+
+        total_count = await self.count(db=db, **kwargs)
+
+        return {"data": data, "total_count": total_count}
         
     async def update(
             self, 

@@ -15,7 +15,10 @@ from app.models.user import *
 # access to the values within the .ini file in use.
 config = context.config
 
-config.set_main_option("sqlalchemy.url", f"postgresql+asyncpg://{settings.POSTGRES_URI}")
+config.set_main_option(
+    "sqlalchemy.url", 
+    f"{settings.POSTGRES_ASYNC_PREFIX}{settings.POSTGRES_USER}:{settings.POSTGRES_PASSWORD}@localhost/{settings.POSTGRES_DB}"
+)
 
 # Interpret the config file for Python logging.
 # This line sets up loggers basically.
