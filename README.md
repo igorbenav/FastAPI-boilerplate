@@ -66,7 +66,6 @@
 #### Features
 - [ ] Add a Rate Limiter decorator
 - [ ] Add mongoDB support
-- [x] Add support in schema_to_select for a list of column names
 
 #### Tests
 - [ ] Add Ruff linter
