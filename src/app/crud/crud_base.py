@@ -10,8 +10,6 @@ from .helper import (
     _extract_matching_columns_from_schema, 
     _extract_matching_columns_from_kwargs
 )
-from app.core.exceptions import InvalidOutputTypeError
-
 
 ModelType = TypeVar("ModelType")
 CreateSchemaType = TypeVar("CreateSchemaType", bound=BaseModel)
@@ -157,7 +155,6 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType, UpdateSche
             offset: int = 0, 
             limit: int = 100, 
             schema_to_select: Union[Type[BaseModel], List[Type[BaseModel]], None] = None,
-            output_type: Union[Type[dict], Type[list]] = dict,
             **kwargs: Any
     ) -> Dict[str, Any]:
         """
@@ -173,8 +170,6 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType, UpdateSche
             Maximum number of rows to fetch. Default is 100.
         schema_to_select : Union[Type[BaseModel], List[Type[BaseModel]], None], optional
             Pydantic schema for selecting specific columns. Default is None to select all columns.
-        output_type : Union[Type[dict], Type[list]], optional
-            Desired output type of the result. Default is dict.
         kwargs : dict
             Filters to apply to the query.
 
@@ -182,10 +177,6 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType, UpdateSche
         -------
         Dict[str, Any]
             Dictionary containing the fetched rows under 'data' key and total count under 'total_count'.
-
-        Note
-        ----
-            -  The cache decorator only works with output_type=dict (default)
         """
         to_select = _extract_matching_columns_from_schema(model=self._model, schema=schema_to_select)
         stmt = select(*to_select) \
@@ -194,14 +185,7 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType, UpdateSche
             .limit(limit)
         
         result = await db.execute(stmt)
-        row_data = result
-
-        if output_type == dict:
-            data = [dict(row) for row in row_data.mappings()]
-        elif output_type == list:
-            data = row_data.all()
-        else:
-            raise InvalidOutputTypeError
+        data = [dict(row) for row in result.mappings()]
 
         total_count = await self.count(db=db, **kwargs)
 

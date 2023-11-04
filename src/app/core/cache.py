@@ -11,7 +11,7 @@ from redis.asyncio import Redis, ConnectionPool
 from fastapi import FastAPI
 from starlette.middleware.base import BaseHTTPMiddleware, RequestResponseEndpoint
 
-from app.core.exceptions import CacheIdentificationInferenceError, InvalidRequestError, InvalidOutputTypeError
+from app.core.exceptions import CacheIdentificationInferenceError, InvalidRequestError
 
 # --------------- server side caching ---------------
 
@@ -209,9 +209,6 @@ def cache(
     def wrapper(func: Callable) -> Callable:
         @functools.wraps(func)
         async def inner(request: Request, *args, **kwargs) -> Response:
-            if "output_type" in kwargs.keys() and kwargs["output_type"] == list:
-                raise InvalidOutputTypeError
-            
             if resource_id_name:
                 resource_id = kwargs[resource_id_name]
             else:
