@@ -29,7 +29,7 @@ class User(Base):
     )
     updated_at: Mapped[Optional[datetime]] = mapped_column(default=None)
     deleted_at: Mapped[Optional[datetime]] = mapped_column(default=None)
-    is_deleted: Mapped[bool] = mapped_column(default=False)
+    is_deleted: Mapped[bool] = mapped_column(default=False, index=True)
     is_superuser: Mapped[bool] = mapped_column(default=False)
 
     posts: Mapped[List[Post]] = relationship(back_populates="user", cascade="all, delete", lazy="selectin", default_factory=list)

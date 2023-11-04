@@ -11,6 +11,7 @@ from app.core.database import async_get_db
 from app.core.security import get_password_hash
 from app.crud.crud_users import crud_users
 from app.api.exceptions import privileges_exception
+from app.core.models import PaginatedListResponse
 
 router = fastapi.APIRouter(tags=["users"])
 
@@ -36,10 +37,28 @@ async def write_user(
     return await crud_users.create(db=db, object=user_internal)
 
 
-@router.get("/users", response_model=List[UserRead])
-async def read_users(request: Request, db: Annotated[AsyncSession, Depends(async_get_db)]):
-    users = await crud_users.get_multi(db=db, schema_to_select=UserRead, is_deleted=False)
-    return users
+@router.get("/users", response_model=PaginatedListResponse[UserRead])
+async def read_users(
+    request: Request, 
+    db: Annotated[AsyncSession, Depends(async_get_db)],
+    page: int = 1,
+    items_per_page: int = 10
+):
+    users_data = await crud_users.get_multi(
+        db=db,
+        offset=(page - 1) * items_per_page,
+        limit=items_per_page,
+        schema_to_select=UserRead, 
+        is_deleted=False
+    )
+    
+    return {
+        "data": users_data["data"],
+        "total_count": users_data["total_count"],
+        "has_more": (page * items_per_page) < users_data["total_count"],
+        "page": page,
+        "items_per_page": items_per_page
+    }
 
 
 @router.get("/user/me/", response_model=UserRead)

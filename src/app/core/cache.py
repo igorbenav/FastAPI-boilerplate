@@ -6,8 +6,8 @@ from datetime import datetime
 import re
 
 from fastapi import Request, Response
+from fastapi.encoders import jsonable_encoder
 from redis.asyncio import Redis, ConnectionPool
-from sqlalchemy.orm import class_mapper, DeclarativeBase
 from fastapi import FastAPI
 from starlette.middleware.base import BaseHTTPMiddleware, RequestResponseEndpoint
 
@@ -17,40 +17,6 @@ from app.core.exceptions import CacheIdentificationInferenceError, InvalidReques
 
 pool: ConnectionPool | None = None
 client: Redis | None = None
-
-def _serialize_sqlalchemy_object(obj: DeclarativeBase) -> Dict[str, Any]:
-    """
-    Serialize a SQLAlchemy DeclarativeBase object to a dictionary.
-
-    Parameters
-    ----------
-    obj: DeclarativeBase
-        The SQLAlchemy DeclarativeBase object to be serialized.
-        
-    Returns
-    -------
-    Dict[str, Any] 
-        A dictionary containing the serialized attributes of the object.
-    
-    Note
-    ----
-        - Datetime objects are converted to ISO 8601 string format.
-        - UUID objects are converted to strings before serializing to JSON.
-    """
-    if isinstance(obj, DeclarativeBase):
-        data = {}
-        for column in class_mapper(obj.__class__).columns:
-            value = getattr(obj, column.name)
-
-            if isinstance(value, datetime):
-                value = value.isoformat()
-            
-            if isinstance(value, UUID):
-                value = str(value)
-
-            data[column.name] = value
-        return data
-
 
 def _infer_resource_id(kwargs: Dict[str, Any], resource_id_type: Union[type, str]) -> Union[None, int, str]:
     """
@@ -236,8 +202,8 @@ def cache(
     This decorator caches the response data of the endpoint function using a unique cache key.
     The cached data is retrieved for GET requests, and the cache is invalidated for other types of requests.
 
-    Note:
-        - For caching lists of objects, ensure that the response is a list of objects, and the decorator will handle caching accordingly.
+    Note
+    ----
         - resource_id_type is used only if resource_id is not passed.
     """
     def wrapper(func: Callable) -> Callable:
@@ -250,32 +216,26 @@ def cache(
             
             formatted_key_prefix = _format_prefix(key_prefix, kwargs)
             cache_key = f"{formatted_key_prefix}:{resource_id}"
-            
             if request.method == "GET":
                 if to_invalidate_extra:
                     raise InvalidRequestError
 
                 cached_data = await client.get(cache_key)
                 if cached_data:
+                    print("cache hit")
                     return json.loads(cached_data.decode())
-            
+                
             result = await func(request, *args, **kwargs)
 
             if request.method == "GET":
-                if to_invalidate_extra:
-                    raise InvalidRequestError
+                serializable_data = jsonable_encoder(result)
+                serialized_data = json.dumps(serializable_data)
 
-                if isinstance(result, list):
-                    serialized_data = json.dumps(
-                        [_serialize_sqlalchemy_object(obj) for obj in result]
-                    )
-                else:
-                    serialized_data = json.dumps(
-                        _serialize_sqlalchemy_object(result)
-                    )
-                
                 await client.set(cache_key, serialized_data)
                 await client.expire(cache_key, expiration)
+
+                serialized_data = json.loads(serialized_data)
+                
             else:
                 await client.delete(cache_key)
                 if to_invalidate_extra:

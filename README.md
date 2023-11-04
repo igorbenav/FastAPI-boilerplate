@@ -48,6 +48,7 @@
 - 👜 Easy client-side caching
 - 🚦 ARQ integration for task queue
 - ⚙️ Efficient querying (only queries what's needed)
+- ⎘ Out of the box pagination support
 - 👮 FastAPI docs behind authentication and hidden based on the environment
 - 🦾 Easily extendable
 - 🤸‍♂️ Flexible
@@ -65,7 +66,6 @@
 #### Features
 - [ ] Add a Rate Limiter decorator
 - [ ] Add mongoDB support
-- [x] Add support in schema_to_select for a list of column names
 
 #### Tests
 - [ ] Add Ruff linter
@@ -569,19 +569,47 @@ crud_users = CRUDUser(User)
 
 When actually using the crud in an endpoint, to get data you just pass the database connection and the attributes as kwargs:
 ```python
-# Here I'm getting the users with email == user.email
+# Here I'm getting the first user with email == user.email (email is unique in this case)
 user = await crud_users.get(db=db, email=user.email)
 ```
 
 To get a list of objects with the attributes, you should use the get_multi:
 ```python
-# Here I'm getting 100 users with the name David except for the first 3
+# Here I'm getting at most 10 users with the name 'User Userson' except for the first 3
 user = await crud_users.get_multi(
   db=db,
   offset=3,
   limit=100,
-  name="David"
+  name="User Userson"
 )
+```
+> **Warning**
+> Note that get_multi returns a python `dict`.
+
+Which will return a python dict with the following structure:
+```javascript
+{
+  "data": [
+    {
+      "id": 4,
+      "name": "User Userson",
+      "username": "userson4",
+      "email": "user.userson4@example.com",
+      "profile_image_url": "https://profileimageurl.com"
+    },
+    {
+      "id": 5,
+      "name": "User Userson",
+      "username": "userson5",
+      "email": "user.userson5@example.com",
+      "profile_image_url": "https://profileimageurl.com"
+    }
+  ],
+  "total_count": 2,
+  "has_more": false,
+  "page": 1,
+  "items_per_page": 10
+}
 ```
 
 To create, you pass a `CreateSchemaType` object with the attributes, such as a `UserCreate` pydantic schema:
@@ -604,6 +632,15 @@ To just check if there is at least one row that matches a certain set of attribu
 # This queries only the email variable
 # It returns True if there's at least one or False if there is none
 crud_users.exists(db=db, email=user@example.com)
+```
+
+You can also get the count of a certain object with the specified filter:
+```python
+# Here I'm getting the count of users with the name 'User Userson'
+user = await crud_users.count(
+  db=db,
+  name="User Userson"
+)
 ```
 
 To update you pass an `object` which may be a `pydantic schema` or just a regular `dict`, and the kwargs.
@@ -696,7 +733,7 @@ async def sample_endpoint(request: Request, my_id: int):
 
 The way it works is:
 - the data is saved in redis with the following cache key: `sample_data:{my_id}`
-- then the the time to expire is set as 3600 seconds (that's the default)
+- then the time to expire is set as 3600 seconds (that's the default)
 
 Another option is not passing the `resource_id_name`, but passing the `resource_id_type` (default int):
 ```python
