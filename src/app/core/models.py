@@ -1,22 +1,8 @@
-from typing import TypeVar, Generic, List
 import uuid as uuid_pkg
 from datetime import datetime
 
 from pydantic import BaseModel, Field, field_serializer
 from sqlalchemy import text
-
-ReadSchemaType = TypeVar("ReadSchemaType", bound=BaseModel)
-
-class ListResponse(BaseModel, Generic[ReadSchemaType]):
-    data: List[ReadSchemaType]
-
-
-class PaginatedListResponse(ListResponse[ReadSchemaType]):
-    total_count: int
-    has_more: bool
-    page: int | None = None
-    items_per_page: int | None = None
-
 
 class HealthCheck(BaseModel):
     name: str
