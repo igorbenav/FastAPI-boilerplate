@@ -12,7 +12,7 @@ from app.crud.crud_posts import crud_posts
 from app.crud.crud_users import crud_users
 from app.api.exceptions import privileges_exception
 from app.core.cache import cache
-from app.core.models import PaginatedListResponse
+from app.api.paginated import PaginatedListResponse, paginated_response, compute_offset
 
 router = fastapi.APIRouter(tags=["posts"])
 
@@ -53,22 +53,20 @@ async def read_posts(
 
     posts_data = await crud_posts.get_multi(
         db=db,
-        offset=(page - 1) * items_per_page,
+        offset=compute_offset(page, items_per_page),
         limit=items_per_page,
         schema_to_select=PostRead,
         created_by_user_id=db_user["id"],
         is_deleted=False
     )
 
-    return {
-        "data": posts_data["data"],
-        "total_count": posts_data["total_count"],
-        "has_more": (page * items_per_page) < posts_data["total_count"],
-        "page": page,
-        "items_per_page": items_per_page
-    }
-
-
+    return paginated_response(
+        crud_data=posts_data, 
+        page=page, 
+        items_per_page=items_per_page
+    )
+    
+    
 @router.get("/{username}/post/{id}", response_model=PostRead)
 @cache(key_prefix="{username}_post_cache", resource_id_name="id")
 async def read_post(

@@ -96,6 +96,7 @@
     5. [Alembic Migrations](#55-alembic-migrations)
     6. [CRUD](#56-crud)
     7. [Routes](#57-routes)
+        1. [Paginated Responses](#571-paginated-responses)
     8. [Caching](#58-caching)
     9. [More Advanced Caching](#59-more-advanced-caching)
     10. [ARQ Job Queues](#510-arq-job-queues)
@@ -412,6 +413,7 @@ First, you may want to take a look at the project structure and understand what 
     │   │   ├── __init__.py
     │   │   ├── dependencies.py       # Defines dependencies that can be reused across the API endpoints.
     │   │   ├── exceptions.py         # Contains custom exceptions for the API.
+    │   │   ├── paginated.py          # Provides utilities for paginated responses in APIs
     │   │   │
     │   │   └── v1                    # Version 1 of the API.
     │   │       ├── __init__.py
@@ -690,10 +692,15 @@ from app.core.database import async_get_db
 
 router = fastapi.APIRouter(tags=["entities"])
 
-@router.get("/entities", response_model=List[EntityRead])
-async def read_entities(db: Annotated[AsyncSession, Depends(async_get_db)]):
-  entities = await crud_entities.get_multi(db=db)
-    return entities
+@router.get("/entities/{id}", response_model=List[EntityRead])
+async def read_entities(
+  request: Request,
+  id: int,
+  db: Annotated[AsyncSession, Depends(async_get_db)]
+):
+  entity = await crud_entities.get(db=db, id=id)  
+  
+  return entity
 
 ...
 ```
@@ -706,6 +713,71 @@ from app.api.v1.entity import router as entity_router
 router = APIRouter(prefix="/v1") # this should be there already
 ...
 router.include_router(entity_router)
+```
+
+#### 5.7.1 Paginated Responses
+With the `get_multi` method we get a python `dict` with full suport for pagination:
+```javascript
+{
+  "data": [
+    {
+      "id": 4,
+      "name": "User Userson",
+      "username": "userson4",
+      "email": "user.userson4@example.com",
+      "profile_image_url": "https://profileimageurl.com"
+    },
+    {
+      "id": 5,
+      "name": "User Userson",
+      "username": "userson5",
+      "email": "user.userson5@example.com",
+      "profile_image_url": "https://profileimageurl.com"
+    }
+  ],
+  "total_count": 2,
+  "has_more": false,
+  "page": 1,
+  "items_per_page": 10
+} 
+```
+
+And in the endpoint, we can import from `app/api/paginated` the following functions and Pydantic Schema:
+```python
+from app.api.paginated import (
+  PaginatedListResponse, # What you'll use as a response_model to validate
+  paginated_response,    # Creates a paginated response based on the parameters
+  compute_offset         # Calculate the offset for pagination ((page - 1) * items_per_page)
+)
+```
+
+Then let's create the endpoint:
+```python
+import fastapi
+
+from app.schemas.entity imoport EntityRead
+...
+
+@router.get("/entities", response_model=PaginatedListResponse[EntityRead])
+async def read_entities(
+    request: Request, 
+    db: Annotated[AsyncSession, Depends(async_get_db)],
+    page: int = 1,
+    items_per_page: int = 10
+):
+    entities_data = await crud_entity.get_multi(
+        db=db,
+        offset=compute_offset(page, items_per_page),
+        limit=items_per_page,
+        schema_to_select=UserRead, 
+        is_deleted=False
+    )
+    
+    return paginated_response(
+        crud_data=entities_data, 
+        page=page,
+        items_per_page=items_per_page
+    )
 ```
 
 ### 5.8 Caching
