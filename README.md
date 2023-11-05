@@ -413,6 +413,7 @@ First, you may want to take a look at the project structure and understand what 
     │   │   ├── __init__.py
     │   │   ├── dependencies.py       # Defines dependencies that can be reused across the API endpoints.
     │   │   ├── exceptions.py         # Contains custom exceptions for the API.
+    │   │   ├── paginated.py          # Provides utilities for paginated responses in APIs
     │   │   │
     │   │   └── v1                    # Version 1 of the API.
     │   │       ├── __init__.py
