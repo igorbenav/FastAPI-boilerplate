@@ -35,7 +35,7 @@ async def get_current_user(token: Annotated[str, Depends(oauth2_scheme)], db: An
 
     return user
 
-def get_current_superuser(current_user: Annotated[User, Depends(get_current_user)]) -> User:
+async def get_current_superuser(current_user: Annotated[User, Depends(get_current_user)]) -> User:
     if not current_user.is_superuser:
         raise privileges_exception
     

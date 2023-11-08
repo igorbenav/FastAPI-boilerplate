@@ -64,7 +64,7 @@
 - [ ] Docs for other databases (MysQL, SQLite)
 
 #### Features
-- [ ] Add a Rate Limiter decorator
+- [ ] Add a Rate Limiter dependency
 - [ ] Add mongoDB support
 
 #### Tests
