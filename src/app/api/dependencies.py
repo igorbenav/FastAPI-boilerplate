@@ -1,10 +1,16 @@
 from typing import Annotated
 
 from app.core.security import SECRET_KEY, ALGORITHM, oauth2_scheme
+from app.core.config import RedisRateLimiterSettings, settings
 
 from sqlalchemy.ext.asyncio import AsyncSession
 from jose import JWTError, jwt
-from fastapi import Depends, HTTPException
+from fastapi import (
+    Depends, 
+    HTTPException, 
+    Request, 
+    status
+)
 
 from app.core.database import async_get_db
 from app.core.models import TokenData

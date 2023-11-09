@@ -1,7 +1,7 @@
 from typing import Annotated, Optional
 from datetime import datetime
 
-from pydantic import BaseModel, EmailStr, Field, HttpUrl, ConfigDict
+from pydantic import BaseModel, EmailStr, Field, ConfigDict
 
 from app.core.models import UUIDModel, TimestampModel, PersistentDeletion
 
@@ -27,10 +27,13 @@ class User(TimestampModel, UserBase, UUIDModel, PersistentDeletion):
     ]
     hashed_password: str
     is_superuser: bool = False
+    tier_id: int | None = None
 
 
 class UserRead(BaseModel):
     id: int
+    tier_id: int
+    
     name: Annotated[
         str, 
         Field(min_length=2, max_length=30, examples=["User Userson"])
@@ -44,6 +47,7 @@ class UserRead(BaseModel):
         Field(examples=["user.userson@example.com"])
     ]
     profile_image_url: str
+    tier_id: int | None
 
 
 class UserCreate(UserBase):

@@ -85,9 +85,9 @@ class RedisQueueSettings(BaseSettings):
 
 
 class RedisRateLimiterSettings(BaseSettings):
-    REDIS_RATE_LIMITER_HOST: str = config("REDIS_RATE_LIMITER_HOST", default="localhost")
-    REDIS_RATE_LIMITER_PORT: int = config("REDIS_RATE_LIMITER_PORT", default=6379)
-    REDIS_RATE_LIMITER_URL: str = f"redis://{REDIS_RATE_LIMITER_HOST}:{REDIS_RATE_LIMITER_PORT}"
+    REDIS_RATE_LIMIT_HOST: str = config("REDIS_RATE_LIMIT_HOST", default="localhost")
+    REDIS_RATE_LIMIT_PORT: int = config("REDIS_RATE_LIMIT_PORT", default=6379)
+    REDIS_RATE_LIMIT_URL: str = f"redis://{REDIS_RATE_LIMIT_HOST}:{REDIS_RATE_LIMIT_PORT}"
 
 
 class EnvironmentOption(Enum):
