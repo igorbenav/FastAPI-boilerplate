@@ -220,7 +220,6 @@ def cache(
 
                 cached_data = await client.get(cache_key)
                 if cached_data:
-                    print("cache hit")
                     return json.loads(cached_data.decode())
                 
             result = await func(request, *args, **kwargs)

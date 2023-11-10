@@ -8,15 +8,17 @@ from jose import JWTError, jwt
 from fastapi import (
     Depends, 
     HTTPException, 
-    Request, 
+    Request,
     status
 )
 
 from app.core.database import async_get_db
 from app.core.models import TokenData
+# from app.core.rate_limit import is_rate_limited
 from app.models.user import User
-from app.crud.crud_users import crud_users
 from app.api.exceptions import credentials_exception, privileges_exception
+from app.crud.crud_users import crud_users
+from app.crud.crud_tier import crud_tiers
 
 async def get_current_user(token: Annotated[str, Depends(oauth2_scheme)], db: Annotated[AsyncSession, Depends(async_get_db)]) -> User:
     try:

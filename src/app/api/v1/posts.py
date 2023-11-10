@@ -39,7 +39,11 @@ async def write_post(
 
 
 @router.get("/{username}/posts", response_model=PaginatedListResponse[PostRead])
-@cache(key_prefix="{username}_posts", resource_id_name="username")
+@cache(
+    key_prefix="{username}_posts:page_{page}:items_per_page:{items_per_page}", 
+    resource_id_name="username",
+    expiration=60
+)
 async def read_posts(
     request: Request,
     username: str,
@@ -164,5 +168,5 @@ async def erase_db_post(
     if db_post is None:
         raise HTTPException(status_code=404, detail="Post not found")
     
-    await crud_posts.db_delete(db=db, db_object=db_post, id=id)
+    await crud_posts.db_delete(db=db, id=id)
     return {"message": "Post deleted from the database"}

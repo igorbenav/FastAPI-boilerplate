@@ -1,6 +1,5 @@
 from enum import Enum
 
-#from decouple import config
 from starlette.config import Config
 from pydantic_settings import BaseSettings
 

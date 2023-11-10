@@ -4,8 +4,7 @@ from fastapi import APIRouter, HTTPException
 from app.core import queue
 from app.schemas.job import Job
 
-router = APIRouter(prefix="/tasks", tags=["Tasks"])
-
+router = APIRouter(prefix="/tasks", tags=["tasks"])
 
 @router.post("/task", response_model=Job, status_code=201)
 async def create_task(message: str):
