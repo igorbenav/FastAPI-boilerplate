@@ -18,19 +18,19 @@ from app.api.paginated import PaginatedListResponse, paginated_response, compute
 
 router = fastapi.APIRouter(tags=["rate_limits"])
 
-@router.post("/tier/{tier_id}/rate_limit", dependencies=[Depends(get_current_superuser)], status_code=201)
+@router.post("/tier/{name}/rate_limit", dependencies=[Depends(get_current_superuser)], status_code=201)
 async def write_rate_limit(
     request: Request, 
-    tier_id: int,
+    name: str,
     rate_limit: RateLimitCreate, 
     db: Annotated[AsyncSession, Depends(async_get_db)]
 ):
-    db_tier = await crud_tiers.exists(db=db, id=tier_id)
+    db_tier = await crud_tiers.get(db=db, name=name)
     if not db_tier:
         raise HTTPException(status_code=404, detail="Tier not found")
 
     rate_limit_internal_dict = rate_limit.model_dump()
-    rate_limit_internal_dict["tier_id"] = tier_id
+    rate_limit_internal_dict["tier_id"] = db_tier["id"]
 
     db_rate_limit = await crud_rate_limits.exists(db=db, name=rate_limit_internal_dict["name"])
     if db_rate_limit:
@@ -40,15 +40,15 @@ async def write_rate_limit(
     return await crud_rate_limits.create(db=db, object=rate_limit_internal)
 
 
-@router.get("/tier/{tier_id}/rate_limits", response_model=PaginatedListResponse[RateLimitRead])
+@router.get("/tier/{name}/rate_limits", response_model=PaginatedListResponse[RateLimitRead])
 async def read_rate_limits(
     request: Request,
-    tier_id: int,
+    name: str,
     db: Annotated[AsyncSession, Depends(async_get_db)],
     page: int = 1,
     items_per_page: int = 10
 ):
-    db_tier = await crud_tiers.exists(db=db, id=tier_id)
+    db_tier = await crud_tiers.get(db=db, name=name)
     if not db_tier:
         raise HTTPException(status_code=404, detail="Tier not found")
 
@@ -57,7 +57,7 @@ async def read_rate_limits(
         offset=compute_offset(page, items_per_page),
         limit=items_per_page,
         schema_to_select=RateLimitRead,
-        tier_id=tier_id
+        tier_id=db_tier["id"]
     )
 
     return paginated_response(
@@ -67,58 +67,73 @@ async def read_rate_limits(
     )
 
 
-@router.get("/tier/{tier_id}/rate_limit/{id}", response_model=RateLimitRead)
+@router.get("/tier/{tier_name}/rate_limit/{id}", response_model=RateLimitRead)
 async def read_rate_limit(
     request: Request,
-    tier_id: int,
-    id: int, 
+    tier_name: str,
+    id: int,
     db: Annotated[AsyncSession, Depends(async_get_db)]
 ):
-    db_tier = await crud_tiers.exists(db=db, id=tier_id)
+    db_tier = await crud_tiers.get(db=db, name=tier_name)
     if not db_tier:
         raise HTTPException(status_code=404, detail="Tier not found")
     
-    db_rate_limit = await crud_rate_limits.get(db=db, schema_to_select=RateLimitRead, id=id)
+    db_rate_limit = await crud_rate_limits.get(
+        db=db, 
+        schema_to_select=RateLimitRead, 
+        tier_id=db_tier["id"],
+        id=id
+    )
     if db_rate_limit is None:
         raise HTTPException(status_code=404, detail="Rate Limit not found")
 
     return db_rate_limit
 
 
-@router.patch("/tier/{tier_id}/rate_limit/{id}", dependencies=[Depends(get_current_superuser)])
+@router.patch("/tier/{tier_name}/rate_limit/{path}", dependencies=[Depends(get_current_superuser)])
 async def patch_rate_limit(
     request: Request,
-    tier_id: int,
+    tier_name: str,
     id: int,
     values: RateLimitUpdate,
     db: Annotated[AsyncSession, Depends(async_get_db)]
 ):
-    db_tier = await crud_tiers.exists(db=db, id=tier_id)
+    db_tier = await crud_tiers.get(db=db, name=tier_name)
     if not db_tier:
         raise HTTPException(status_code=404, detail="Tier not found")
     
-    db_rate_limit = await crud_rate_limits.get(db=db, schema_to_select=RateLimitRead, id=id)
+    db_rate_limit = await crud_rate_limits.get(
+        db=db, 
+        schema_to_select=RateLimitRead, 
+        tier_id=db_tier["id"],
+        id=id
+    )
     if db_rate_limit is None:
         raise HTTPException(status_code=404, detail="Rate Limit not found")
     
-    await crud_rate_limits.update(db=db, object=values, id=id)
+    await crud_rate_limits.update(db=db, object=values, id=db_rate_limit["id"])
     return {"message": "Rate Limit updated"}
 
 
-@router.delete("/tier/{tier_id}/rate_limit/{id}", dependencies=[Depends(get_current_superuser)])
+@router.delete("/tier/{tier_name}/rate_limit/{path}", dependencies=[Depends(get_current_superuser)])
 async def erase_rate_limit(
     request: Request,
-    tier_id: int,
-    id: int, 
+    tier_name: str,
+    id: int,
     db: Annotated[AsyncSession, Depends(async_get_db)]
 ):
-    db_tier = await crud_tiers.exists(db=db, id=tier_id)
+    db_tier = await crud_tiers.get(db=db, name=tier_name)
     if not db_tier:
         raise HTTPException(status_code=404, detail="Tier not found")
     
-    db_rate_limit = await crud_rate_limits.get(db=db, schema_to_select=RateLimitRead, id=id)
+    db_rate_limit = await crud_rate_limits.get(
+        db=db, 
+        schema_to_select=RateLimitRead, 
+        tier_id=db_tier["id"],
+        id=id
+    )
     if db_rate_limit is None:
         raise HTTPException(status_code=404, detail="Rate Limit not found")
     
-    await crud_rate_limits.delete(db=db, db_row=db_rate_limit, id=id)
+    await crud_rate_limits.delete(db=db, db_row=db_rate_limit, id=db_rate_limit["id"])
     return {"message": "Rate Limit deleted"}

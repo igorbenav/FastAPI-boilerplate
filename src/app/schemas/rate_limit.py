@@ -8,7 +8,7 @@ from app.core.models import TimestampModel
 class RateLimitBase(BaseModel):
     path: Annotated[
         str, 
-        Field(examples=["/users"])
+        Field(examples=["users"])
     ]
     limit: Annotated[
         int,
@@ -26,13 +26,14 @@ class RateLimit(TimestampModel, RateLimitBase):
         str | None,
         Field(
             default=None,
-            examples=["/users:5:60"]
+            examples=["users:5:60"]
         )
     ]
 
 
 class RateLimitRead(RateLimitBase):
     id: int
+    tier_id: int
     name: str
 
 
@@ -43,7 +44,7 @@ class RateLimitCreate(RateLimitBase):
         str | None,
         Field(
             default=None,
-            examples=["/users:5:60"]
+            examples=["api_v1_users:5:60"]
         )
     ]
 

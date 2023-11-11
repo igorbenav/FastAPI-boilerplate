@@ -53,43 +53,43 @@ async def read_tiers(
     )
 
 
-@router.get("/tier/{id}", response_model=TierRead)
+@router.get("/tier/{name}", response_model=TierRead)
 async def read_tier(
     request: Request,
-    id: int, 
+    name: str, 
     db: Annotated[AsyncSession, Depends(async_get_db)]
 ):
-    db_tier = await crud_tiers.get(db=db, schema_to_select=TierRead, id=id)
+    db_tier = await crud_tiers.get(db=db, schema_to_select=TierRead, name=name)
     if db_tier is None:
         raise HTTPException(status_code=404, detail="Tier not found")
 
     return db_tier
 
 
-@router.patch("/tier/{id}", dependencies=[Depends(get_current_superuser)])
+@router.patch("/tier/{name}", dependencies=[Depends(get_current_superuser)])
 async def patch_tier(
     request: Request, 
     values: TierUpdate,
-    id: int,
+    name: str,
     db: Annotated[AsyncSession, Depends(async_get_db)]
 ):
-    db_tier = await crud_tiers.get(db=db, schema_to_select=TierRead, id=id)
+    db_tier = await crud_tiers.get(db=db, schema_to_select=TierRead, name=name)
     if db_tier is None:
         raise HTTPException(status_code=404, detail="Tier not found")
     
-    await crud_tiers.update(db=db, object=values, id=id)
+    await crud_tiers.update(db=db, object=values, name=name)
     return {"message": "Tier updated"}
 
 
-@router.delete("/tier/{id}", dependencies=[Depends(get_current_superuser)])
+@router.delete("/tier/{name}", dependencies=[Depends(get_current_superuser)])
 async def erase_tier(
     request: Request,
-    id: int, 
+    name: str, 
     db: Annotated[AsyncSession, Depends(async_get_db)]
 ):
-    db_tier = await crud_tiers.get(db=db, schema_to_select=TierRead, id=id)
+    db_tier = await crud_tiers.get(db=db, schema_to_select=TierRead, name=name)
     if db_tier is None:
         raise HTTPException(status_code=404, detail="Tier not found")
     
-    await crud_tiers.delete(db=db, db_row=db_tier, id=id)
+    await crud_tiers.delete(db=db, db_row=db_tier, name=name)
     return {"message": "Tier deleted"}

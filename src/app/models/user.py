@@ -35,5 +35,3 @@ class User(Base):
 
     tier_id: Mapped[int | None] = mapped_column(ForeignKey("tier.id"), index=True, default=None)
 
-    posts: Mapped[List[Post]] = relationship(back_populates="user", cascade="all, delete", lazy="selectin", default_factory=list)
-    #tier: Mapped[Tier | None] = relationship(back_populates="users", lazy="selectin", default=None)

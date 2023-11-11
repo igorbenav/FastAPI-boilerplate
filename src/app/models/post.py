@@ -20,8 +20,6 @@ class Post(Base):
     )
     media_url: Mapped[str | None] = mapped_column(String, default=None)
 
-    user: Mapped["User"] = relationship(back_populates="posts", lazy="selectin", init=False)
-
     created_at: Mapped[datetime] = mapped_column(
         DateTime, default_factory=datetime.utcnow
     )
