@@ -1,6 +1,5 @@
 from enum import Enum
 
-#from decouple import config
 from starlette.config import Config
 from pydantic_settings import BaseSettings
 
@@ -84,6 +83,17 @@ class RedisQueueSettings(BaseSettings):
     REDIS_QUEUE_PORT: str = config("REDIS_QUEUE_PORT", default=6379)
 
 
+class RedisRateLimiterSettings(BaseSettings):
+    REDIS_RATE_LIMIT_HOST: str = config("REDIS_RATE_LIMIT_HOST", default="localhost")
+    REDIS_RATE_LIMIT_PORT: int = config("REDIS_RATE_LIMIT_PORT", default=6379)
+    REDIS_RATE_LIMIT_URL: str = f"redis://{REDIS_RATE_LIMIT_HOST}:{REDIS_RATE_LIMIT_PORT}"
+
+
+class DefaultRateLimitSettings(BaseSettings):
+    DEFAULT_RATE_LIMIT_LIMIT: int = config("DEFAULT_RATE_LIMIT_LIMIT", default=10)
+    DEFAULT_RATE_LIMIT_PERIOD: int = config("DEFAULT_RATE_LIMIT_PERIOD", default=3600)
+
+
 class EnvironmentOption(Enum):
     LOCAL = "local"
     STAGING = "staging"
@@ -103,6 +113,8 @@ class Settings(
     RedisCacheSettings,
     ClientSideCacheSettings,
     RedisQueueSettings,
+    RedisRateLimiterSettings,
+    DefaultRateLimitSettings,
     EnvironmentSettings
 ):
     pass

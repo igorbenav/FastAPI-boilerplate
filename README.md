@@ -5,7 +5,7 @@
 
 <p align="center">
   <a href="https://github.com/igormagalhaesr/FastAPI-boilerplate">
-    <img src="https://user-images.githubusercontent.com/43156212/277095260-ef5d4496-8290-4b18-99b2-0c0b5500504e.png" width="35%" height="auto">
+    <img src="https://user-images.githubusercontent.com/43156212/277095260-ef5d4496-8290-4b18-99b2-0c0b5500504e.png" alt="Blue Rocket with FastAPI Logo as its window. There is a word FAST written" width="35%" height="auto">
   </a>
 </p>
 
@@ -49,6 +49,7 @@
 - 🚦 ARQ integration for task queue
 - ⚙️ Efficient querying (only queries what's needed)
 - ⎘ Out of the box pagination support
+- 🛑 Rate Limiter dependency
 - 👮 FastAPI docs behind authentication and hidden based on the environment
 - 🦾 Easily extendable
 - 🤸‍♂️ Flexible
@@ -64,7 +65,7 @@
 - [ ] Docs for other databases (MysQL, SQLite)
 
 #### Features
-- [ ] Add a Rate Limiter decorator
+- [x] Add a Rate Limiter dependency
 - [ ] Add mongoDB support
 
 #### Tests
@@ -100,7 +101,8 @@
     8. [Caching](#58-caching)
     9. [More Advanced Caching](#59-more-advanced-caching)
     10. [ARQ Job Queues](#510-arq-job-queues)
-    11. [Running](#511-running)
+    11. [Rate Limiting](#511-rate-limiting)
+    12. [Running](#512-running)
 7. [Running in Production](#6-running-in-production)
 8. [Testing](#7-testing)
 9. [Contributing](#8-contributing)
@@ -112,7 +114,7 @@ ___
 ## 3. Prerequisites
 Start by using the template, and naming the repository to what you want.
 <p align="left">
-    <img src="https://user-images.githubusercontent.com/43156212/277866726-975d1c98-b1c9-4c8e-b4bd-001c8a5728cb.png" width="35%" height="auto">
+    <img src="https://user-images.githubusercontent.com/43156212/277866726-975d1c98-b1c9-4c8e-b4bd-001c8a5728cb.png" alt="clicking use this template button, then create a new repository option" width="35%" height="auto">
 </p>
 
 Then clone your created repository (I'm using the base for the example)
@@ -194,6 +196,24 @@ REDIS_CACHE_PORT=6379
 ```
 > **Warning** 
 > You may use the same redis for both caching and queue while developing, but the recommendation is using two separate containers for production.
+
+To create the first tier:
+```
+# ------------- first tier -------------
+TIER_NAME="free"
+```
+
+For the rate limiter:
+```
+# ------------- redis rate limit -------------
+REDIS_RATE_LIMIT_HOST="localhost"   # default="localhost"
+REDIS_RATE_LIMIT_PORT=6379          # default=6379
+
+
+# ------------- default rate limit settings -------------
+DEFAULT_RATE_LIMIT_LIMIT=10         # default=10
+DEFAULT_RATE_LIMIT_PERIOD=3600      # default=3600
+```
 
 For tests (optional to run):
 ```
@@ -368,12 +388,14 @@ to stop the create_superuser service:
 docker-compose stop create_superuser
 ```
 
-
 #### 4.3.2 From Scratch
 While in the `src` folder, run (after you started the application at least once to create the tables):
 ```sh
 poetry run python -m scripts.create_first_superuser
 ```
+
+### 4.3.3 Creating the first tier
+To create the first tier it's similar, you just replace `create_superuser` for `create_tier`. If using `docker compose`, do not forget to uncomment the `create_tier` service in `docker-compose.yml`.
 
 ### 4.4 Database Migrations
 While in the `src` folder, run Alembic migrations:
@@ -473,7 +495,7 @@ First, you may want to take a look at the project structure and understand what 
 
 ### 5.2 Database Model
 Create the new entities and relationships and add them to the model
-![diagram](https://user-images.githubusercontent.com/43156212/274053323-31bbdb41-15bf-45f2-8c8e-0b04b71c5b0b.png)
+![diagram](https://user-images.githubusercontent.com/43156212/282272311-c7a36e26-dcd0-42cf-939d-6434b5579f29.png)
 
 ### 5.3 SQLAlchemy Models
 Inside `app/models`, create a new `entity.py` for each new entity (replacing entity with the name) and define the attributes according to [SQLAlchemy 2.0 standards](https://docs.sqlalchemy.org/en/20/orm/mapping_styles.html#orm-mapping-styles):
@@ -832,6 +854,8 @@ Passing resource_id_name is usually preferred.
 The behaviour of the `cache` decorator changes based on the request method of your endpoint. 
 It caches the result if you are passing it to a **GET** endpoint, and it invalidates the cache with this key_prefix and id if passed to other endpoints (**PATCH**, **DELETE**).
 
+
+#### Invalidating Extra Keys
 If you also want to invalidate cache with a different key, you can use the decorator with the `to_invalidate_extra` variable.
 
 In the following example, I want to invalidate the cache for a certain `user_id`, since I'm deleting it, but I also want to invalidate the cache for the list of users, so it will not be out of sync.
@@ -886,6 +910,68 @@ async def patch_post(
 > **Warning**
 > Note that adding `to_invalidate_extra` will not work for **GET** requests.
 
+#### Invalidate Extra By Pattern
+Let's assume we have an endpoint with a paginated response, such as:
+```python
+@router.get("/{username}/posts", response_model=PaginatedListResponse[PostRead])
+@cache(
+    key_prefix="{username}_posts:page_{page}:items_per_page:{items_per_page}", 
+    resource_id_name="username",
+    expiration=60
+)
+async def read_posts(
+    request: Request,
+    username: str,
+    db: Annotated[AsyncSession, Depends(async_get_db)],
+    page: int = 1,
+    items_per_page: int = 10
+):
+    db_user = await crud_users.get(db=db, schema_to_select=UserRead, username=username, is_deleted=False)
+    if not db_user:
+        raise HTTPException(status_code=404, detail="User not found")
+
+    posts_data = await crud_posts.get_multi(
+        db=db,
+        offset=compute_offset(page, items_per_page),
+        limit=items_per_page,
+        schema_to_select=PostRead,
+        created_by_user_id=db_user["id"],
+        is_deleted=False
+    )
+
+    return paginated_response(
+        crud_data=posts_data, 
+        page=page, 
+        items_per_page=items_per_page
+    )
+```
+
+Just passing `to_invalidate_extra` will not work to invalidate this cache, since the key will change based on the `page` and `items_per_page` values.
+To overcome this we may use the `pattern_to_invalidate_extra` parameter:
+
+```python
+@router.patch("/{username}/post/{id}")
+@cache(
+    "{username}_post_cache", 
+    resource_id_name="id", 
+    pattern_to_invalidate_extra=["{username}_posts:*"]
+)
+async def patch_post(
+    request: Request,
+    username: str,
+    id: int,
+    values: PostUpdate,
+    current_user: Annotated[UserRead, Depends(get_current_user)],
+    db: Annotated[AsyncSession, Depends(async_get_db)]
+):
+...
+```
+
+Now it will invalidate all caches with a key that matches the pattern `"{username}_posts:*`, which will work for the paginated responses.
+
+> **Warning**
+> Using `pattern_to_invalidate_extra` can be resource-intensive on large datasets. Use it judiciously and consider the potential impact on Redis performance. Be cautious with patterns that could match a large number of keys, as deleting many keys simultaneously may impact the performance of the Redis server.
+
 #### Client-side Caching
 For `client-side caching`, all you have to do is let the `Settings` class defined in `app/core/config.py` inherit from the `ClientSideCacheSettings` class. You can set the `CLIENT_CACHE_MAX_AGE` value in `.env,` it defaults to 60 (seconds).
 
@@ -931,8 +1017,115 @@ If you are doing it from scratch, run while in the `src` folder:
 ```sh
 poetry run arq app.worker.WorkerSettings
 ```
+### 5.11 Rate Limiting
+To limit how many times a user can make a request in a certain interval of time (very useful to create subscription plans or just to protect your API against DDOS), you may just use the `rate_limiter` dependency:
 
-### 5.11 Running
+```python
+from fastapi import Depends
+
+from app.api.dependencies import rate_limiter
+from app.core import queue
+from app.schemas.job import Job
+
+@router.post("/task", response_model=Job, status_code=201, dependencies=[Depends(rate_limiter)])
+async def create_task(message: str):
+    job = await queue.pool.enqueue_job("sample_background_task", message)
+    return {"id": job.job_id}
+```
+
+By default, if no token is passed in the header (that is - the user is not authenticated), the user will be limited by his IP address with the default `limit` (how many times the user can make this request every period) and `period` (time in seconds) defined in `.env`.
+
+Even though this is useful, real power comes from creating `tiers` (categories of users) and standard `rate_limits` (`limits` and `periods` defined for specific `paths` - that is - endpoints) for these tiers. 
+
+All of the `tier` and `rate_limit` models, schemas, and endpoints are already created in the respective folders (and usable only by superusers). You may use the `create_tier` script to create the first tier (it uses the `.env` variable `TIER_NAME`, which is all you need to create a tier) or just use the api:
+
+Here I'll create a `free` tier:
+
+<p align="left">
+    <img src="https://user-images.githubusercontent.com/43156212/282275103-d9c4f511-4cfa-40c6-b882-5b09df9f62b9.png" alt="passing name = free to api request body" width="70%" height="auto">
+</p>
+
+And a `pro` tier:
+
+<p align="left">
+    <img src="https://user-images.githubusercontent.com/43156212/282275107-5a6ca593-ccc0-4965-b2db-09ec5ecad91c.png" alt="passing name = pro to api request body" width="70%" height="auto">
+</p>
+
+Then I'll associate a `rate_limit` for the path `api/v1/tasks/task` for each of them, I'll associate a `rate limit` for the path `api/v1/tasks/task`. 
+
+1 request every hour (3600 seconds) for the free tier: 
+
+<p align="left">
+    <img src="https://user-images.githubusercontent.com/43156212/282275105-95d31e19-b798-4f03-98f0-3e9d1844f7b3.png" alt="passing path=api/v1/tasks/task, limit=1, period=3600, name=api_v1_tasks:1:3600 to free tier rate limit" width="70%" height="auto">
+</p>
+
+10 requests every hour for the pro tier:
+
+<p align="left">
+    <img src="https://user-images.githubusercontent.com/43156212/282275108-deec6f46-9d47-4f01-9899-ca42da0f0363.png" alt="passing path=api/v1/tasks/task, limit=10, period=3600, name=api_v1_tasks:10:3600 to pro tier rate limit" width="70%" height="auto">
+</p>
+
+Now let's read all the tiers available (`GET api/v1/tiers`): 
+
+```javascript
+{
+  "data": [
+    {
+      "name": "free",
+      "id": 1,
+      "created_at": "2023-11-11T05:57:25.420360"
+    },
+    {
+      "name": "pro",
+      "id": 2,
+      "created_at": "2023-11-12T00:40:00.759847"
+    }
+  ],
+  "total_count": 2,
+  "has_more": false,
+  "page": 1,
+  "items_per_page": 10
+}
+```
+
+And read the `rate_limits` for the `pro` tier to ensure it's working (`GET api/v1/tier/pro/rate_limits`):
+
+```javascript
+{
+  "data": [
+    {
+      "path": "api_v1_tasks_task",
+      "limit": 10,
+      "period": 3600,
+      "id": 1,
+      "tier_id": 2,
+      "name": "api_v1_tasks:10:3600"
+    }
+  ],
+  "total_count": 1,
+  "has_more": false,
+  "page": 1,
+  "items_per_page": 10
+}
+```
+
+Now, whenever an authenticated user makes a `POST` request to the `api/v1/tasks/task`, they'll use the quota that is defined by their tier. 
+You may check this getting the token from the `api/v1/login` endpoint, then passing it in the request header:
+```sh
+curl -X POST 'http://127.0.0.1:8000/api/v1/tasks/task?message=test' \
+-H 'Authorization: Bearer <your-token-here>'
+```
+
+> **Warning**
+> Since the `rate_limiter` dependency uses the `get_optional_user` dependency instead of `get_current_user`, it will not require authentication to be used, but will behave accordingly if the user is authenticated (and token is passed in header). If you want to ensure authentication, also use `get_current_user` if you need.
+
+To change a user's tier, you may just use the `PATCH api/v1/user/{username}/tier` endpoint.
+Note that for flexibility (since this is a boilerplate), it's not necessary to previously inform a tier_id to create a user, but you probably should set every user to a certain tier (let's say `free`) once they are created. 
+
+> **Warning**
+> If a user does not have a `tier` or the tier does not have a defined `rate limit` for the path and the token is still passed to the request, the default `limit` and `period` will be used, this will be saved in `app/logs`.
+
+### 5.12 Running
 If you are using docker compose, just running the following command should ensure everything is working:
 ```sh
 docker compose up

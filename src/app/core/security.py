@@ -28,10 +28,10 @@ async def authenticate_user(username_or_email: str, password: str, db: AsyncSess
     else: 
         db_user = await crud_users.get(db=db, username=username_or_email)
     
-    if (not db_user) or (db_user.is_deleted):
+    if (not db_user) or (db_user["is_deleted"]):
         db_user = False
     
-    elif not await verify_password(password, db_user.hashed_password):
+    elif not await verify_password(password, db_user["hashed_password"]):
         db_user = False
     
     return db_user

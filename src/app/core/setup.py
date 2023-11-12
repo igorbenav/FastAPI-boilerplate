@@ -8,7 +8,7 @@ import anyio
 
 
 from app.api.dependencies import get_current_superuser
-from app.core import cache, queue
+from app.core import cache, queue, rate_limit
 from app.core.config import settings
 from app.core.database import Base
 from app.core.database import async_engine as engine
@@ -18,6 +18,7 @@ from app.core.config import (
     AppSettings, 
     ClientSideCacheSettings, 
     RedisQueueSettings,
+    RedisRateLimiterSettings,
     EnvironmentOption,
     EnvironmentSettings
 )
@@ -47,6 +48,16 @@ async def create_redis_queue_pool():
 
 async def close_redis_queue_pool():
     await queue.pool.aclose()
+
+
+# -------------- rate limit --------------
+async def create_redis_rate_limit_pool():
+    rate_limit.pool = redis.ConnectionPool.from_url(settings.REDIS_RATE_LIMIT_URL)
+    rate_limit.client = redis.Redis.from_pool(rate_limit.pool)
+
+
+async def close_redis_rate_limit_pool():
+    await rate_limit.client.aclose()
 
 
 # -------------- application --------------
@@ -127,11 +138,15 @@ def create_application(router: APIRouter, settings, **kwargs) -> FastAPI:
         application.add_event_handler("shutdown", close_redis_cache_pool)
 
     if isinstance(settings, ClientSideCacheSettings):
-        application.add_middleware(cache.ClientCacheMiddleware, max_age=60)
+        application.add_middleware(cache.ClientCacheMiddleware, max_age=settings.CLIENT_CACHE_MAX_AGE)
 
     if isinstance(settings, RedisQueueSettings):
         application.add_event_handler("startup", create_redis_queue_pool)
         application.add_event_handler("shutdown", close_redis_queue_pool)
+
+    if isinstance(settings, RedisRateLimiterSettings):
+        application.add_event_handler("startup", create_redis_rate_limit_pool)
+        application.add_event_handler("shutdown", close_redis_rate_limit_pool)
 
     if isinstance(settings, EnvironmentSettings):
         if settings.ENVIRONMENT != EnvironmentOption.PRODUCTION:
