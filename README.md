@@ -55,22 +55,6 @@
 - 🤸‍♂️ Flexible
 - 🚚 Easy running with docker compose
 
-### 1.1 To Do
-#### API
-- [ ] Add a photo upload endpoint for users
-- [ ] Add possibility of comments in posts
-- [ ] Add webhook to notify when a new comment is added in post
-
-#### Docs
-- [ ] Docs for other databases (MysQL, SQLite)
-
-#### Features
-- [x] Add a Rate Limiter dependency
-- [ ] Add mongoDB support
-
-#### Tests
-- [ ] Add Ruff linter
-
 ## 2. Contents
 0. [About](#0-about)
 1. [Features](#1-features)
