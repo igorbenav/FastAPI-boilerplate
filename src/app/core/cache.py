@@ -298,7 +298,7 @@ def cache(
             formatted_key_prefix = _format_prefix(key_prefix, kwargs)
             cache_key = f"{formatted_key_prefix}:{resource_id}"
             if request.method == "GET":
-                if to_invalidate_extra:
+                if to_invalidate_extra is not None or pattern_to_invalidate_extra is not None:
                     raise InvalidRequestError
 
                 cached_data = await client.get(cache_key)
@@ -318,13 +318,13 @@ def cache(
                 
             else:
                 await client.delete(cache_key)
-                if to_invalidate_extra:
+                if to_invalidate_extra is not None:
                     formatted_extra = _format_extra_data(to_invalidate_extra, kwargs)
                     for prefix, id in formatted_extra.items():
                         extra_cache_key = f"{prefix}:{id}"
                         await client.delete(extra_cache_key)
 
-                if pattern_to_invalidate_extra:
+                if pattern_to_invalidate_extra is not None:
                     for pattern in pattern_to_invalidate_extra:
                         formatted_pattern = _format_prefix(pattern, kwargs)
                         await _delete_keys_by_pattern(formatted_pattern + "*")
