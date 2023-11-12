@@ -106,6 +106,10 @@ class UserUpdateInternal(UserUpdate):
     updated_at: datetime
 
 
+class UserTierUpdate(BaseModel):
+    tier_id: int
+
+
 class UserDelete(BaseModel):
     model_config = ConfigDict(extra='forbid')
 

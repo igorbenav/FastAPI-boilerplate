@@ -138,7 +138,7 @@ def create_application(router: APIRouter, settings, **kwargs) -> FastAPI:
         application.add_event_handler("shutdown", close_redis_cache_pool)
 
     if isinstance(settings, ClientSideCacheSettings):
-        application.add_middleware(cache.ClientCacheMiddleware, max_age=60)
+        application.add_middleware(cache.ClientCacheMiddleware, max_age=5)
 
     if isinstance(settings, RedisQueueSettings):
         application.add_event_handler("startup", create_redis_queue_pool)

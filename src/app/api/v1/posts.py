@@ -1,4 +1,4 @@
-from typing import List, Annotated
+from typing import Annotated
 
 from fastapi import Request, Depends, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -28,7 +28,7 @@ async def write_post(
     if db_user is None:
         raise HTTPException(status_code=404, detail="User not found")
     
-    if current_user.id != db_user["id"]:
+    if current_user["id"] != db_user["id"]:
         raise privileges_exception
 
     post_internal_dict = post.model_dump()
@@ -94,7 +94,7 @@ async def read_post(
 @cache(
     "{username}_post_cache", 
     resource_id_name="id", 
-    to_invalidate_extra={"{username}_posts": "{username}"}
+    pattern_to_invalidate_extra=["{username}_posts:*"]
 )
 async def patch_post(
     request: Request,
@@ -108,7 +108,7 @@ async def patch_post(
     if db_user is None:
         raise HTTPException(status_code=404, detail="User not found")
     
-    if current_user.id != db_user["id"]:
+    if current_user["id"] != db_user["id"]:
         raise privileges_exception
 
     db_post = await crud_posts.get(db=db, schema_to_select=PostRead, id=id, is_deleted=False)
@@ -136,7 +136,7 @@ async def erase_post(
     if db_user is None:
         raise HTTPException(status_code=404, detail="User not found")
     
-    if current_user.id != db_user.id:
+    if current_user["id"] != db_user["id"]:
         raise privileges_exception
 
     db_post = await crud_posts.get(db=db, schema_to_select=PostRead, id=id, is_deleted=False)

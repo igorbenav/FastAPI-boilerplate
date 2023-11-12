@@ -6,6 +6,7 @@ from sqlalchemy import select, update, delete, func, and_
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.engine.row import Row
 
+from app.core.models import TimestampModel
 from .helper import (
     _extract_matching_columns_from_schema, 
     _extract_matching_columns_from_kwargs
@@ -85,7 +86,7 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType, UpdateSche
         db_row = await db.execute(stmt)
         result = db_row.first()
         if result:
-            result = result._mapping    
+            result = dict(result._mapping)
         
         return result
     
@@ -217,7 +218,9 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType, UpdateSche
             update_data = object
         else:
             update_data = object.model_dump(exclude_unset=True)
-        update_data["updated_at"] = datetime.utcnow()
+        
+        if "updated_at" in update_data.keys():
+            update_data["updated_at"] = datetime.utcnow()
 
         stmt = update(self._model) \
             .filter_by(**kwargs) \

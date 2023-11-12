@@ -1,4 +1,4 @@
-from typing import List, Annotated
+from typing import Annotated
 
 from fastapi import Request, Depends, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession

@@ -89,6 +89,11 @@ class RedisRateLimiterSettings(BaseSettings):
     REDIS_RATE_LIMIT_URL: str = f"redis://{REDIS_RATE_LIMIT_HOST}:{REDIS_RATE_LIMIT_PORT}"
 
 
+class DefaultRateLimitSettings(BaseSettings):
+    DEFAULT_RATE_LIMIT_LIMIT: int = config("DEFAULT_RATE_LIMIT_LIMIT", default=10)
+    DEFAULT_RATE_LIMIT_PERIOD: int = config("DEFAULT_RATE_LIMIT_PERIOD", default=3600)
+
+
 class EnvironmentOption(Enum):
     LOCAL = "local"
     STAGING = "staging"
@@ -109,6 +114,7 @@ class Settings(
     ClientSideCacheSettings,
     RedisQueueSettings,
     RedisRateLimiterSettings,
+    DefaultRateLimitSettings,
     EnvironmentSettings
 ):
     pass
