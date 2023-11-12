@@ -5,7 +5,7 @@
 
 <p align="center">
   <a href="https://github.com/igormagalhaesr/FastAPI-boilerplate">
-    <img src="https://user-images.githubusercontent.com/43156212/277095260-ef5d4496-8290-4b18-99b2-0c0b5500504e.png" width="35%" height="auto">
+    <img src="https://user-images.githubusercontent.com/43156212/277095260-ef5d4496-8290-4b18-99b2-0c0b5500504e.png" alt="Blue Rocket with FastAPI Logo as its window. There is a word FAST written" width="35%" height="auto">
   </a>
 </p>
 
@@ -114,7 +114,7 @@ ___
 ## 3. Prerequisites
 Start by using the template, and naming the repository to what you want.
 <p align="left">
-    <img src="https://user-images.githubusercontent.com/43156212/277866726-975d1c98-b1c9-4c8e-b4bd-001c8a5728cb.png" width="35%" height="auto">
+    <img src="https://user-images.githubusercontent.com/43156212/277866726-975d1c98-b1c9-4c8e-b4bd-001c8a5728cb.png" alt="clicking use this template button, then create a new repository option" width="35%" height="auto">
 </p>
 
 Then clone your created repository (I'm using the base for the example)
@@ -1042,13 +1042,13 @@ All of the `tier` and `rate_limit` models, schemas, and endpoints are already cr
 Here I'll create a `free` tier:
 
 <p align="left">
-    <img src="https://user-images.githubusercontent.com/43156212/282275103-d9c4f511-4cfa-40c6-b882-5b09df9f62b9.png" width="70%" height="auto">
+    <img src="https://user-images.githubusercontent.com/43156212/282275103-d9c4f511-4cfa-40c6-b882-5b09df9f62b9.png" alt="passing name = free to api request body" width="70%" height="auto">
 </p>
 
 And a `pro` tier:
 
 <p align="left">
-    <img src="https://user-images.githubusercontent.com/43156212/282275107-5a6ca593-ccc0-4965-b2db-09ec5ecad91c.png" width="70%" height="auto">
+    <img src="https://user-images.githubusercontent.com/43156212/282275107-5a6ca593-ccc0-4965-b2db-09ec5ecad91c.png" alt="passing name = pro to api request body" width="70%" height="auto">
 </p>
 
 Then I'll associate a `rate_limit` for the path `api/v1/tasks/task` for each of them, I'll associate a `rate limit` for the path `api/v1/tasks/task`. 
@@ -1056,13 +1056,13 @@ Then I'll associate a `rate_limit` for the path `api/v1/tasks/task` for each of 
 1 request every hour (3600 seconds) for the free tier: 
 
 <p align="left">
-    <img src="https://user-images.githubusercontent.com/43156212/282275105-95d31e19-b798-4f03-98f0-3e9d1844f7b3.png" width="70%" height="auto">
+    <img src="https://user-images.githubusercontent.com/43156212/282275105-95d31e19-b798-4f03-98f0-3e9d1844f7b3.png" alt="passing path=api/v1/tasks/task, limit=1, period=3600, name=api_v1_tasks:1:3600 to free tier rate limit" width="70%" height="auto">
 </p>
 
 10 requests every hour for the pro tier:
 
 <p align="left">
-    <img src="https://user-images.githubusercontent.com/43156212/282275108-deec6f46-9d47-4f01-9899-ca42da0f0363.png" width="70%" height="auto">
+    <img src="https://user-images.githubusercontent.com/43156212/282275108-deec6f46-9d47-4f01-9899-ca42da0f0363.png" alt="passing path=api/v1/tasks/task, limit=10, period=3600, name=api_v1_tasks:10:3600 to pro tier rate limit" width="70%" height="auto">
 </p>
 
 Now let's read all the tiers available (`GET api/v1/tiers`): 
