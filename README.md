@@ -325,6 +325,10 @@ poetry run uvicorn app.main:app --reload
 
 ### 4.3 Creating the first superuser
 #### 4.3.1 Docker Compose
+
+> **Warning**
+> Make sure DB and tables are created before running create_superuser (db should be running and the api should run at least once before)
+
 If you are using docker compose, you should uncomment this part of the docker-compose.yml:
 ```
   # #-------- uncomment to create first superuser --------
@@ -379,7 +383,11 @@ poetry run python -m scripts.create_first_superuser
 ```
 
 ### 4.3.3 Creating the first tier
-To create the first tier it's similar, you just replace `create_superuser` for `create_tier`. If using `docker compose`, do not forget to uncomment the `create_tier` service in `docker-compose.yml`.
+
+> **Warning**
+> Make sure DB and tables are created before running create_tier (db should be running and the api should run at least once before)
+
+To create the first tier it's similar, you just replace `create_superuser` for `create_tier` service or `create_first_superuser` to `create_first_tier` for scripts. If using `docker compose`, do not forget to uncomment the `create_tier` service in `docker-compose.yml`.
 
 ### 4.4 Database Migrations
 While in the `src` folder, run Alembic migrations:
@@ -407,7 +415,7 @@ First, you may want to take a look at the project structure and understand what 
 └── src                               # Source code directory.
     ├── __init__.py                   # Initialization file for the src package.
     ├── alembic.ini                   # Configuration file for Alembic (database migration tool).
-    ├── poetry.lock
+    ├── poetry.lock                   # Poetry lock file specifying exact versions of dependencies.
     ├── pyproject.toml                # Configuration file for Poetry, lists project dependencies.
     │
     ├── app                           # Main application directory.
@@ -419,13 +427,15 @@ First, you may want to take a look at the project structure and understand what 
     │   │   ├── __init__.py
     │   │   ├── dependencies.py       # Defines dependencies that can be reused across the API endpoints.
     │   │   ├── exceptions.py         # Contains custom exceptions for the API.
-    │   │   ├── paginated.py          # Provides utilities for paginated responses in APIs
+    │   │   ├── paginated.py          # Utilities for paginated responses in APIs.
     │   │   │
     │   │   └── v1                    # Version 1 of the API.
     │   │       ├── __init__.py
     │   │       ├── login.py          # API routes related to user login.
     │   │       ├── posts.py          # API routes related to posts.
+    │   │       ├── rate_limits.py    # API routes for rate limiting features.
     │   │       ├── tasks.py          # API routes related to background tasks.
+    │   │       ├── tiers.py          # API routes for handling different user tiers.
     │   │       └── users.py          # API routes related to user management.
     │   │
     │   ├── core                      # Core utilities and configurations for the application.
@@ -434,8 +444,10 @@ First, you may want to take a look at the project structure and understand what 
     │   │   ├── config.py             # Application configuration settings.
     │   │   ├── database.py           # Database connectivity and session management.
     │   │   ├── exceptions.py         # Contains core custom exceptions for the application.
+    │   │   ├── logger.py             # Logging utilities.
     │   │   ├── models.py             # Base models for the application.
     │   │   ├── queue.py              # Utilities related to task queues.
+    │   │   ├── rate_limit.py         # Rate limiting utilities and configurations.
     │   │   ├── security.py           # Security utilities like password hashing and token generation.
     │   │   └── setup.py              # File defining settings and FastAPI application instance definition.
     │   │
@@ -443,19 +455,28 @@ First, you may want to take a look at the project structure and understand what 
     │   │   ├── __init__.py
     │   │   ├── crud_base.py          # Base CRUD operations class that can be extended by other CRUD modules.
     │   │   ├── crud_posts.py         # CRUD operations for posts.
+    │   │   ├── crud_rate_limit.py    # CRUD operations for rate limiting configurations.
+    │   │   ├── crud_tier.py          # CRUD operations for user tiers.
     │   │   ├── crud_users.py         # CRUD operations for users.
     │   │   └── helper.py             # Helper functions for CRUD operations.
     │   │
     │   ├── models                    # ORM models for the application.
     │   │   ├── __init__.py
     │   │   ├── post.py               # ORM model for posts.
+    │   │   ├── rate_limit.py         # ORM model for rate limiting configurations.
+    │   │   ├── tier.py               # ORM model for user tiers.
     │   │   └── user.py               # ORM model for users.
     │   │
-    │   └── schemas                   # Pydantic schemas for data validation.
-    │       ├── __init__.py
-    │       ├── job.py                # Schemas related to background jobs.
-    │       ├── post.py               # Schemas related to posts.
-    │       └── user.py               # Schemas related to users.
+    │   ├── schemas                   # Pydantic schemas for data validation.
+    │   │   ├── __init__.py
+    │   │   ├── job.py                # Schemas related to background jobs.
+    │   │   ├── post.py               # Schemas related to posts.
+    │   │   ├── rate_limit.py         # Schemas for rate limiting configurations.
+    │   │   ├── tier.py               # Schemas for user tiers.
+    │   │   └── user.py               # Schemas related to users.
+    │   │
+    │   └── logs                      # Directory for log files.
+    │       └── app.log               # Application log file.
     │
     ├── migrations                    # Directory for Alembic migrations.
     │   ├── README                    # General info and guidelines for migrations.
@@ -467,14 +488,14 @@ First, you may want to take a look at the project structure and understand what 
     │
     ├── scripts                       # Utility scripts for the project.
     │   ├── __init__.py
-    │   └── create_first_superuser.py # Script to create the first superuser in the application.
+    │   ├── create_first_superuser.py # Script to create the first superuser in the application.
+    │   └── create_first_tier.py      # Script to create the first user tier in the application.
     │
     └── tests                         # Directory containing all the tests.
         ├── __init__.py               # Initialization file for the tests package.
         ├── conftest.py               # Configuration and fixtures for pytest.
         ├── helper.py                 # Helper functions for writing tests.
         └── test_user.py              # Tests related to the user model and endpoints.
-
 ```
 
 ### 5.2 Database Model
@@ -1036,6 +1057,9 @@ And a `pro` tier:
 </p>
 
 Then I'll associate a `rate_limit` for the path `api/v1/tasks/task` for each of them, I'll associate a `rate limit` for the path `api/v1/tasks/task`. 
+
+> **Warning**
+> Do not forget to add `api/v1/...` or any other prefix to the beggining of your path. For the structure of the boilerplate, `api/v1/<rest_of_the_path>`
 
 1 request every hour (3600 seconds) for the free tier: 
 
