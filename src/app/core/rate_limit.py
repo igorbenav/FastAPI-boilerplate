@@ -11,8 +11,6 @@ logger = logging.getLogger(__name__)
 pool: ConnectionPool | None = None
 client: Redis | None = None
 
-logger = logging.getLogger(__name__)
-
 async def is_rate_limited(
     db: AsyncSession,
     user_id: int,
