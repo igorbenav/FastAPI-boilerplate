@@ -265,6 +265,7 @@ poetry install
 Ensuring it ran without any problem.
 
 #### 4.2.2. Running PostgreSQL With Docker
+> [!NOTE]
 > If you already have a PostgreSQL running, you may skip this step.
 
 Install docker if you don't have it yet, then run:
@@ -293,6 +294,7 @@ docker run -d \
 ```
 
 #### 4.2.3. Running redis With Docker
+> [!NOTE]
 > If you already have a redis running, you may skip this step.
 
 Install docker if you don't have it yet, then run:
@@ -321,12 +323,13 @@ While in the `src` folder, run to start the application with uvicorn server:
 ```sh
 poetry run uvicorn app.main:app --reload
 ```
+> [!TIP]
 > The --reload flag enables auto-reload once you change (and save) something in the project
 
 ### 4.3 Creating the first superuser
 #### 4.3.1 Docker Compose
 
-> **Warning**
+> [!WARNING]
 > Make sure DB and tables are created before running create_superuser (db should be running and the api should run at least once before)
 
 If you are using docker compose, you should uncomment this part of the docker-compose.yml:
@@ -384,7 +387,7 @@ poetry run python -m scripts.create_first_superuser
 
 ### 4.3.3 Creating the first tier
 
-> **Warning**
+> [!WARNING]
 > Make sure DB and tables are created before running create_tier (db should be running and the api should run at least once before)
 
 To create the first tier it's similar, you just replace `create_superuser` for `create_tier` service or `create_first_superuser` to `create_first_tier` for scripts. If using `docker compose`, do not forget to uncomment the `create_tier` service in `docker-compose.yml`.
@@ -400,6 +403,7 @@ And to apply the migration
 poetry run alembic upgrade head
 ```
 
+[!NOTE]
 > If you do not have poetry, you may run it without poetry after running `pip install alembic`
 
 ## 5. Extending 
@@ -505,7 +509,7 @@ Create the new entities and relationships and add them to the model
 ### 5.3 SQLAlchemy Models
 Inside `app/models`, create a new `entity.py` for each new entity (replacing entity with the name) and define the attributes according to [SQLAlchemy 2.0 standards](https://docs.sqlalchemy.org/en/20/orm/mapping_styles.html#orm-mapping-styles):
 
-> **Warning**
+> [!WARNING]
 > Note that since it inherits from `Base`, the new model is mapped as a python `dataclass`, so optional attributes (arguments with a default value) should be defined after required  attributes.
 
 ```python
@@ -612,7 +616,7 @@ user = await crud_users.get_multi(
   name="User Userson"
 )
 ```
-> **Warning**
+> [!WARNING]
 > Note that get_multi returns a python `dict`.
 
 Which will return a python dict with the following structure:
@@ -812,7 +816,7 @@ The `cache` decorator allows you to cache the results of FastAPI endpoint functi
 
 Caching the response of an endpoint is really simple, just apply the `cache` decorator to the endpoint function. 
 
-> **Warning**
+> [!WARNING]
 > Note that you should always pass request as a variable to your endpoint function if you plan to use the cache decorator.
 
 ```python
@@ -912,7 +916,7 @@ async def patch_post(
     ...
 ```
 
-> **Warning**
+> [!WARNING]
 > Note that adding `to_invalidate_extra` will not work for **GET** requests.
 
 #### Invalidate Extra By Pattern
@@ -974,7 +978,7 @@ async def patch_post(
 
 Now it will invalidate all caches with a key that matches the pattern `"{username}_posts:*`, which will work for the paginated responses.
 
-> **Warning**
+> [!CAUTION]
 > Using `pattern_to_invalidate_extra` can be resource-intensive on large datasets. Use it judiciously and consider the potential impact on Redis performance. Be cautious with patterns that could match a large number of keys, as deleting many keys simultaneously may impact the performance of the Redis server.
 
 #### Client-side Caching
@@ -1058,7 +1062,7 @@ And a `pro` tier:
 
 Then I'll associate a `rate_limit` for the path `api/v1/tasks/task` for each of them, I'll associate a `rate limit` for the path `api/v1/tasks/task`. 
 
-> **Warning**
+> [!WARNING]
 > Do not forget to add `api/v1/...` or any other prefix to the beggining of your path. For the structure of the boilerplate, `api/v1/<rest_of_the_path>`
 
 1 request every hour (3600 seconds) for the free tier: 
@@ -1124,13 +1128,13 @@ curl -X POST 'http://127.0.0.1:8000/api/v1/tasks/task?message=test' \
 -H 'Authorization: Bearer <your-token-here>'
 ```
 
-> **Warning**
+> [!TIP]
 > Since the `rate_limiter` dependency uses the `get_optional_user` dependency instead of `get_current_user`, it will not require authentication to be used, but will behave accordingly if the user is authenticated (and token is passed in header). If you want to ensure authentication, also use `get_current_user` if you need.
 
 To change a user's tier, you may just use the `PATCH api/v1/user/{username}/tier` endpoint.
 Note that for flexibility (since this is a boilerplate), it's not necessary to previously inform a tier_id to create a user, but you probably should set every user to a certain tier (let's say `free`) once they are created. 
 
-> **Warning**
+> [!WARNING]
 > If a user does not have a `tier` or the tier does not have a defined `rate limit` for the path and the token is still passed to the request, the default `limit` and `period` will be used, this will be saved in `app/logs`.
 
 ### 5.12 Running
@@ -1172,7 +1176,7 @@ Should be changed to:
 command: gunicorn app.main:app -w 4 -k uvicorn.workers.UvicornWorker -b 0.0.0.0:8000
 ```
 
-> **Warning**
+> [!CAUTION]
 > Do not forget to set the `ENVIRONMENT` in `.env` to `production` unless you want the API docs to be public.
 
 More on running it in production later.
