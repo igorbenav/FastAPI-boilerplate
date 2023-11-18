@@ -2,7 +2,7 @@ import uuid as uuid_pkg
 from datetime import datetime
 
 from sqlalchemy import String, DateTime, ForeignKey
-from sqlalchemy.orm import Mapped, mapped_column, relationship
+from sqlalchemy.orm import Mapped, mapped_column
 
 from app.core.database import Base
 
