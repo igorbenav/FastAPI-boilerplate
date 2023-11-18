@@ -1,13 +1,11 @@
-from typing import Optional, List
+from typing import Optional
 import uuid as uuid_pkg
 from datetime import datetime
 
 from sqlalchemy import String, DateTime, ForeignKey
-from sqlalchemy.orm import Mapped, mapped_column, relationship
+from sqlalchemy.orm import Mapped, mapped_column
 
 from app.core.database import Base
-from app.models.post import Post
-from app.models.tier import Tier
 
 class User(Base):
     __tablename__ = "user"

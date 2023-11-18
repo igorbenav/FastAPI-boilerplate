@@ -22,6 +22,7 @@ from app.core.config import (
     EnvironmentOption,
     EnvironmentSettings
 )
+from app.middleware.client_cache_middleware import ClientCacheMiddleware
 
 # -------------- database --------------
 async def create_tables():
@@ -138,7 +139,7 @@ def create_application(router: APIRouter, settings, **kwargs) -> FastAPI:
         application.add_event_handler("shutdown", close_redis_cache_pool)
 
     if isinstance(settings, ClientSideCacheSettings):
-        application.add_middleware(cache.ClientCacheMiddleware, max_age=settings.CLIENT_CACHE_MAX_AGE)
+        application.add_middleware(ClientCacheMiddleware, max_age=settings.CLIENT_CACHE_MAX_AGE)
 
     if isinstance(settings, RedisQueueSettings):
         application.add_event_handler("startup", create_redis_queue_pool)
