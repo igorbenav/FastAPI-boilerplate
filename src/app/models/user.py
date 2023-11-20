@@ -6,6 +6,7 @@ from sqlalchemy import String, DateTime, ForeignKey
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.core.database import Base
+from app.models.tier import Tier
 
 class User(Base):
     __tablename__ = "user"
@@ -31,5 +32,4 @@ class User(Base):
     is_deleted: Mapped[bool] = mapped_column(default=False, index=True)
     is_superuser: Mapped[bool] = mapped_column(default=False)
 
-    tier_id: Mapped[int | None] = mapped_column(ForeignKey("tier.id"), index=True, default=None)
-
+    tier_id: Mapped[int | None] = mapped_column(index=True, default=None, init=False)

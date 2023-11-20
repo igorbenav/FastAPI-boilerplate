@@ -11,17 +11,17 @@ from fastapi import (
     Request
 )
 
+from app.api.exceptions import credentials_exception, privileges_exception
 from app.core.database import async_get_db
+from app.core.logger import logging
 from app.core.models import TokenData
 from app.core.rate_limit import is_rate_limited
-from app.core.logger import logging
-from app.models.user import User
-from app.api.exceptions import credentials_exception, privileges_exception
-from app.crud.crud_users import crud_users
-from app.crud.crud_tier import crud_tiers
+from app.core.security import verify_token
 from app.crud.crud_rate_limit import crud_rate_limits
+from app.crud.crud_tier import crud_tiers
+from app.crud.crud_users import crud_users
+from app.models.user import User
 from app.schemas.rate_limit import sanitize_path
-
 
 logger = logging.getLogger(__name__)
 
@@ -53,6 +53,25 @@ async def get_current_user(
     raise credentials_exception
 
 
+async def get_current_user(
+    token: Annotated[str, Depends(oauth2_scheme)],
+    db: Annotated[AsyncSession, Depends(async_get_db)]
+) -> User:
+    token_data = await verify_token(token, db)
+    if token_data is None:
+        raise credentials_exception
+
+    if "@" in token_data.username_or_email:
+        user = await crud_users.get(db=db, email=token_data.username_or_email, is_deleted=False)
+    else: 
+        user = await crud_users.get(db=db, username=token_data.username_or_email, is_deleted=False)
+    
+    if user:
+        return user
+
+    raise credentials_exception
+
+
 async def get_optional_user(
     request: Request,
     db: AsyncSession = Depends(async_get_db)
@@ -66,7 +85,11 @@ async def get_optional_user(
         if token_type.lower() != 'bearer' or not token_value:
             return None
 
-        return await get_current_user(token_value, db)
+        token_data = await verify_token(token_value, db)
+        if token_data is None:
+            return None
+
+        return await get_current_user(token_value, is_deleted=False, db=db)
     
     except HTTPException as http_exc:
         if http_exc.status_code != 401:
@@ -75,7 +98,7 @@ async def get_optional_user(
     
     except Exception as exc:
         logger.error(f"Unexpected error in get_optional_user: {exc}")
-        return None    
+        return None
 
 
 async def get_current_superuser(current_user: Annotated[User, Depends(get_current_user)]) -> User:
