@@ -4,7 +4,7 @@ from pydantic import BaseModel
 
 from app.core.database import Base
 
-def _extract_matching_columns_from_schema(model: Type[Base], schema: Union[Type[BaseModel], List, None]) -> List[Any]:
+def _extract_matching_columns_from_schema(model: Type[Base], schema: Union[Type[BaseModel], list, None]) -> List[Any]:
     """
     Retrieves a list of ORM column objects from a SQLAlchemy model that match the field names in a given Pydantic schema.
 
@@ -46,7 +46,7 @@ def _extract_matching_columns_from_kwargs(model: Type[Base], kwargs: dict) -> Li
     return column_list
 
 
-def _extract_matching_columns_from_column_names(model: Type[Base], column_names: List) -> List[Any]:
+def _extract_matching_columns_from_column_names(model: Type[Base], column_names: list) -> List[Any]:
     column_list = []
     for column_name in column_names:
         if hasattr(model, column_name):

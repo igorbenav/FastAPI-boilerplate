@@ -31,7 +31,7 @@ DEFAULT_PERIOD = settings.DEFAULT_RATE_LIMIT_PERIOD
 async def get_current_user(
     token: Annotated[str, Depends(oauth2_scheme)],
     db: Annotated[AsyncSession, Depends(async_get_db)]
-) -> User:
+) -> dict:
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
         username_or_email: str = payload.get("sub")
@@ -56,7 +56,7 @@ async def get_current_user(
 async def get_current_user(
     token: Annotated[str, Depends(oauth2_scheme)],
     db: Annotated[AsyncSession, Depends(async_get_db)]
-) -> User:
+) -> dict:
     token_data = await verify_token(token, db)
     if token_data is None:
         raise credentials_exception
@@ -75,7 +75,7 @@ async def get_current_user(
 async def get_optional_user(
     request: Request,
     db: AsyncSession = Depends(async_get_db)
-) -> User | None:
+) -> dict | None:
     token = request.headers.get("Authorization")
     if not token:
         return None
@@ -101,7 +101,7 @@ async def get_optional_user(
         return None
 
 
-async def get_current_superuser(current_user: Annotated[User, Depends(get_current_user)]) -> User:
+async def get_current_superuser(current_user: Annotated[User, Depends(get_current_user)]) -> dict:
     if not current_user["is_superuser"]:
         raise privileges_exception
     
