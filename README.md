@@ -1284,4 +1284,4 @@ This project was inspired by a few projects, it's based on them with things chan
 
 ## 11. Contact
 Igor Magalhaes – [@igormagalhaesr](https://twitter.com/igormagalhaesr) – igormagalhaesr@gmail.com
-[github.com/igormagalhaesr](https://github.com/igormagalhaesr/)
+[github.com/igorbenav](https://github.com/igorbenav/)
