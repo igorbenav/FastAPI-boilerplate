@@ -16,7 +16,7 @@ class Token(BaseModel):
 
 
 class TokenData(BaseModel):
-    username_or_email: str | None = None
+    username_or_email: str
 
 
 class UUIDModel(BaseModel):

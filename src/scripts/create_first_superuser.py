@@ -1,5 +1,20 @@
 import asyncio
-from sqlalchemy import select
+from sqlalchemy import (
+    select, 
+    Table, 
+    MetaData, 
+    Column, 
+    Integer, 
+    String, 
+    insert, 
+    ForeignKey, 
+    DateTime, 
+    Boolean
+)
+from app.core.database import async_engine
+from sqlalchemy.dialects.postgresql import UUID
+import uuid
+from datetime import datetime
 
 from app.core.database import AsyncSession, local_session
 from app.core.config import settings
@@ -11,23 +26,44 @@ async def create_first_user(session: AsyncSession) -> None:
     email = settings.ADMIN_EMAIL
     username = settings.ADMIN_USERNAME
     hashed_password = get_password_hash(settings.ADMIN_PASSWORD)
-    
-    query = select(User).where(User.email == email)
+
+    query = select(User).filter_by(email=email)
     result = await session.execute(query)
     user = result.scalar_one_or_none()
     
     if user is None:
-        session.add(
-            User(
-                name=name,
-                email=email,
-                username=username,
-                hashed_password=hashed_password, 
-                is_superuser=True
-            )
+        metadata = MetaData()
+        user_table = Table(
+            "user", metadata,
+            Column("id", Integer, primary_key=True, autoincrement=True, nullable=False),
+            Column("name", String(30), nullable=False),
+            Column("username", String(20), nullable=False, unique=True, index=True),
+            Column("email", String(50), nullable=False, unique=True, index=True),
+            Column("hashed_password", String, nullable=False),
+            Column("profile_image_url", String, default="https://profileimageurl.com"),
+            Column("uuid", UUID(as_uuid=True), primary_key=True, default=uuid.uuid4, unique=True),
+            Column("created_at", DateTime, default=datetime.utcnow, nullable=False),
+            Column("updated_at", DateTime),
+            Column("deleted_at", DateTime),
+            Column("is_deleted", Boolean, default=False, index=True),
+            Column("is_superuser", Boolean, default=False),
+            Column("tier_id", Integer, ForeignKey("tier.id"), index=True)
         )
+
         
-        await session.commit()
+        data = {
+            'name': name,
+            'email': email,
+            'username': username,
+            'hashed_password': hashed_password,
+            'is_superuser': True
+        }
+
+
+        stmt = insert(user_table).values(data)
+        async with async_engine.connect() as conn:
+            await conn.execute(stmt)
+            await conn.commit()
 
 async def main():
     async with local_session() as session:

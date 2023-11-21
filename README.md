@@ -59,12 +59,12 @@
 0. [About](#0-about)
 1. [Features](#1-features)
     1. [To Do](#11-to-do)
-3. [Contents](#2-contents)
-4. [Prerequisites](#3-prerequisites)
+2. [Contents](#2-contents)
+3. [Prerequisites](#3-prerequisites)
     1. [Environment Variables (.env)](#31-environment-variables-env)
     2. [Docker Compose](#32-docker-compose-preferred)
     3. [From Scratch](#33-from-scratch)
-5. [Usage](#4-usage)
+4. [Usage](#4-usage)
     1. [Docker Compose](#41-docker-compose)
     2. [From Scratch](#42-from-scratch)
         1. [Packages](#421-packages)
@@ -73,7 +73,7 @@
         4. [Running the API](#424-running-the-api)
     3. [Creating the first superuser](#43-creating-the-first-superuser)
     4. [Database Migrations](#44-database-migrations)
-6. [Extending](#5-extending)
+5. [Extending](#5-extending)
     1. [Project Structure](#51-project-structure)
     2. [Database Model](#52-database-model)
     3. [SQLAlchemy Models](#53-sqlalchemy-models)
@@ -87,12 +87,12 @@
     10. [ARQ Job Queues](#510-arq-job-queues)
     11. [Rate Limiting](#511-rate-limiting)
     12. [Running](#512-running)
-7. [Running in Production](#6-running-in-production)
-8. [Testing](#7-testing)
-9. [Contributing](#8-contributing)
-10. [References](#9-references)
-11. [License](#10-license)
-12. [Contact](#11-contact)
+6. [Running in Production](#6-running-in-production)
+7. [Testing](#7-testing)
+8. [Contributing](#8-contributing)
+9. [References](#9-references)
+10. [License](#10-license)
+11. [Contact](#11-contact)
 
 ___
 ## 3. Prerequisites
@@ -410,105 +410,109 @@ poetry run alembic upgrade head
 ### 5.1 Project Structure
 First, you may want to take a look at the project structure and understand what each file is doing.
 ```sh
-.                                         # FastAPI-boilerplate folder. Rename it to suit your project name
-├── Dockerfile                            # Dockerfile for building the application container.
-├── LICENSE.md                            # License file for the project.
-├── README.md                             # Project README providing information and instructions.
-├── docker-compose.yml                    # Docker Compose file for defining multi-container applications.
+.                                      # FastAPI-boilerplate folder. Rename it to suit your project name
+├── Dockerfile                         # Dockerfile for building the application container.
+├── LICENSE.md                         # License file for the project.
+├── README.md                          # Project README providing information and instructions.
+├── docker-compose.yml                 # Docker Compose file for defining multi-container applications.
 │
-└── src                                   # Source code directory.
-    ├── __init__.py                       # Initialization file for the src package.
-    ├── alembic.ini                       # Configuration file for Alembic (database migration tool).
-    ├── poetry.lock                       # Poetry lock file specifying exact versions of dependencies.
-    ├── pyproject.toml                    # Configuration file for Poetry, lists project dependencies.
+└── src                                # Source code directory.
+    ├── __init__.py                    # Initialization file for the src package.
+    ├── alembic.ini                    # Configuration file for Alembic (database migration tool).
+    ├── poetry.lock                    # Poetry lock file specifying exact versions of dependencies.
+    ├── pyproject.toml                 # Configuration file for Poetry, lists project dependencies.
     │
-    ├── app                               # Main application directory.
-    │   ├── __init__.py                   # Initialization file for the app package.
-    │   ├── main.py                       # Entry point that imports and creates the FastAPI application instance.
-    │   ├── worker.py                     # Worker script for handling background tasks.
+    ├── app                            # Main application directory.
+    │   ├── __init__.py                # Initialization file for the app package.
+    │   ├── main.py                    # Entry point that imports and creates the FastAPI application instance.
+    │   ├── worker.py                  # Worker script for handling background tasks.
     │   │
-    │   ├── api                           # Folder containing API-related logic.
+    │   ├── api                        # Folder containing API-related logic.
     │   │   ├── __init__.py
-    │   │   ├── dependencies.py           # Defines dependencies that can be reused across the API endpoints.
-    │   │   ├── exceptions.py             # Contains custom exceptions for the API.
-    │   │   ├── paginated.py              # Utilities for paginated responses in APIs.
+    │   │   ├── dependencies.py        # Defines dependencies that can be reused across the API endpoints.
+    │   │   ├── exceptions.py          # Contains custom exceptions for the API.
+    │   │   ├── paginated.py           # Utilities for paginated responses in APIs.
     │   │   │
-    │   │   └── v1                        # Version 1 of the API.
+    │   │   └── v1                     # Version 1 of the API.
     │   │       ├── __init__.py
-    │   │       ├── login.py              # API routes related to user login.
-    │   │       ├── posts.py              # API routes related to posts.
-    │   │       ├── rate_limits.py        # API routes for rate limiting features.
-    │   │       ├── tasks.py              # API routes related to background tasks.
-    │   │       ├── tiers.py              # API routes for handling different user tiers.
-    │   │       └── users.py              # API routes related to user management.
+    │   │       ├── login.py           # API routes related to user login.
+    │   │       ├── logout.py          # API routes related to user logout (token blacklist).
+    │   │       ├── posts.py           # API routes related to posts.
+    │   │       ├── rate_limits.py     # API routes for rate limiting features.
+    │   │       ├── tasks.py           # API routes related to background tasks.
+    │   │       ├── tiers.py           # API routes for handling different user tiers.
+    │   │       └── users.py           # API routes related to user management.
     │   │
-    │   ├── core                          # Core utilities and configurations for the application.
+    │   ├── core                       # Core utilities and configurations for the application.
     │   │   ├── __init__.py
-    │   │   ├── cache.py                  # Utilities related to caching.
-    │   │   ├── config.py                 # Application configuration settings.
-    │   │   ├── database.py               # Database connectivity and session management.
-    │   │   ├── exceptions.py             # Contains core custom exceptions for the application.
-    │   │   ├── logger.py                 # Logging utilities.
-    │   │   ├── models.py                 # Base models for the application.
-    │   │   ├── queue.py                  # Utilities related to task queues.
-    │   │   ├── rate_limit.py             # Rate limiting utilities and configurations.
-    │   │   ├── security.py               # Security utilities like password hashing and token generation.
-    │   │   └── setup.py                  # File defining settings and FastAPI application instance definition.
+    │   │   ├── cache.py               # Utilities related to caching.
+    │   │   ├── config.py              # Application configuration settings.
+    │   │   ├── database.py            # Database connectivity and session management.
+    │   │   ├── exceptions.py          # Contains core custom exceptions for the application.
+    │   │   ├── logger.py              # Logging utilities.
+    │   │   ├── models.py              # Base models for the application.
+    │   │   ├── queue.py               # Utilities related to task queues.
+    │   │   ├── rate_limit.py          # Rate limiting utilities and configurations.
+    │   │   ├── security.py            # Security utilities like password hashing and token generation.
+    │   │   └── setup.py               # File defining settings and FastAPI application instance definition.
     │   │
-    │   ├── crud                          # CRUD operations for the application.
+    │   ├── crud                       # CRUD operations for the application.
     │   │   ├── __init__.py
-    │   │   ├── crud_base.py              # Base CRUD operations class that can be extended by other CRUD modules.
-    │   │   ├── crud_posts.py             # CRUD operations for posts.
-    │   │   ├── crud_rate_limit.py        # CRUD operations for rate limiting configurations.
-    │   │   ├── crud_tier.py              # CRUD operations for user tiers.
-    │   │   ├── crud_users.py             # CRUD operations for users.
-    │   │   └── helper.py                 # Helper functions for CRUD operations.
+    │   │   ├── crud_base.py           # Base CRUD operations class that can be extended by other CRUD modules.
+    │   │   ├── crud_posts.py          # CRUD operations for posts.
+    │   │   ├── crud_rate_limit.py     # CRUD operations for rate limiting configurations.
+    │   │   ├── crud_tier.py           # CRUD operations for user tiers.
+    │   │   ├── crud_token_blaclist.py # CRUD operations for token blacklist.
+    │   │   ├── crud_users.py          # CRUD operations for users.
+    │   │   └── helper.py              # Helper functions for CRUD operations.
     │   │
-    │   ├── middleware                    # Middleware folder
-    │   └── client_cache_middleware.py    # Middleware for client side cache
-    │   │
-    │   │
-    │   ├── models                        # ORM models for the application.
+    │   ├── models                     # ORM models for the application.
     │   │   ├── __init__.py
-    │   │   ├── post.py                   # ORM model for posts.
-    │   │   ├── rate_limit.py             # ORM model for rate limiting configurations.
-    │   │   ├── tier.py                   # ORM model for user tiers.
-    │   │   └── user.py                   # ORM model for users.
+    │   │   ├── post.py                # ORM model for posts.
+    │   │   ├── rate_limit.py          # ORM model for rate limiting configurations.
+    │   │   ├── tier.py                # ORM model for user tiers.
+    │   │   ├── token_blacklist.py                # ORM model for token blacklist.
+    │   │   └── user.py                # ORM model for users.
     │   │
-    │   ├── schemas                       # Pydantic schemas for data validation.
+    │   ├── schemas                    # Pydantic schemas for data validation.
     │   │   ├── __init__.py
-    │   │   ├── job.py                    # Schemas related to background jobs.
-    │   │   ├── post.py                   # Schemas related to posts.
-    │   │   ├── rate_limit.py             # Schemas for rate limiting configurations.
-    │   │   ├── tier.py                   # Schemas for user tiers.
-    │   │   └── user.py                   # Schemas related to users.
+    │   │   ├── job.py                 # Schemas related to background jobs.
+    │   │   ├── post.py                # Schemas related to posts.
+    │   │   ├── rate_limit.py          # Schemas for rate limiting configurations.
+    │   │   ├── tier.py                # Schemas for user tiers.
+    │   │   ├── token_blacklist.py     # Schemas for token blacklist.
+    │   │   └── user.py                # Schemas related to users.
     │   │
-    │   └── logs                          # Directory for log files.
-    │       └── app.log                   # Application log file.
+    │   └── logs                       # Directory for log files.
+    │       └── app.log                # Application log file.
     │
-    ├── migrations                        # Directory for Alembic migrations.
-    │   ├── README                        # General info and guidelines for migrations.
-    │   ├── env.py                        # Environment configurations for Alembic.
-    │   ├── script.py.mako                # Template script for migration generation.
+    ├── migrations                     # Directory for Alembic migrations.
+    │   ├── README                     # General info and guidelines for migrations.
+    │   ├── env.py                     # Environment configurations for Alembic.
+    │   ├── script.py.mako             # Template script for migration generation.
     │   │
-    │   └── versions                      # Folder containing individual migration scripts.
+    │   └── versions                   # Folder containing individual migration scripts.
     │       └── README.MD
     │
-    ├── scripts                           # Utility scripts for the project.
+    ├── scripts                        # Utility scripts for the project.
     │   ├── __init__.py
-    │   ├── create_first_superuser.py     # Script to create the first superuser in the application.
-    │   └── create_first_tier.py          # Script to create the first user tier in the application.
+    │   ├── create_first_superuser.py  # Script to create the first superuser in the application.
+    │   └── create_first_tier.py       # Script to create the first user tier in the application.
     │
-    └── tests                             # Directory containing all the tests.
-        ├── __init__.py                   # Initialization file for the tests package.
-        ├── conftest.py                   # Configuration and fixtures for pytest.
-        ├── helper.py                     # Helper functions for writing tests.
-        └── test_user.py                  # Tests related to the user model and endpoints.
+    └── tests                          # Directory containing all the tests.
+        ├── __init__.py                # Initialization file for the tests package.
+        ├── conftest.py                # Configuration and fixtures for pytest.
+        ├── helper.py                  # Helper functions for writing tests.
+        └── test_user.py               # Tests related to the user model and endpoints.
 ```
 
 ### 5.2 Database Model
-Create the new entities and relationships and add them to the model
-![diagram](https://user-images.githubusercontent.com/43156212/282272311-c7a36e26-dcd0-42cf-939d-6434b5579f29.png)
+Create the new entities and relationships and add them to the model <br>
+![diagram](https://user-images.githubusercontent.com/43156212/284426387-bdafc637-0473-4b71-890d-29e79da288cf.png)
+
+#### 5.2.1 Token Blacklist
+Note that this table is used to blacklist the `JWT` tokens (it's how you log a user out) <br>
+![diagram](https://user-images.githubusercontent.com/43156212/284426382-b2f3c0ca-b8ea-4f20-b47e-de1bad2ca283.png)
 
 ### 5.3 SQLAlchemy Models
 Inside `app/models`, create a new `entity.py` for each new entity (replacing entity with the name) and define the attributes according to [SQLAlchemy 2.0 standards](https://docs.sqlalchemy.org/en/20/orm/mapping_styles.html#orm-mapping-styles):
@@ -1280,4 +1284,4 @@ This project was inspired by a few projects, it's based on them with things chan
 
 ## 11. Contact
 Igor Magalhaes – [@igormagalhaesr](https://twitter.com/igormagalhaesr) – igormagalhaesr@gmail.com
-[github.com/igorbeanv](https://github.com/igorbenav/)
+[github.com/igorbenav](https://github.com/igorbenav/)
