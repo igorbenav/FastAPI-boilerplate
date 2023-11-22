@@ -116,8 +116,12 @@ async def patch_rate_limit(
         tier_id=db_tier["id"],
         path=values.path
     )
+    if db_rate_limit_path is not None:
+        raise HTTPException(status_code=404, detail="There is already a rate limit for this path")
 
     db_rate_limit_name = await crud_rate_limits.exists(db=db)
+    if db_rate_limit_path is not None:
+        raise HTTPException(status_code=404, detail="There is already a rate limit with this name")
 
     await crud_rate_limits.update(db=db, object=values, id=db_rate_limit["id"])
     return {"message": "Rate Limit updated"}

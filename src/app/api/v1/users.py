@@ -5,15 +5,17 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from fastapi import Request
 import fastapi
 
-from app.schemas.user import UserCreate, UserCreateInternal, UserUpdate, UserRead, UserTierUpdate
 from app.api.dependencies import get_current_user, get_current_superuser
+from app.api.exceptions import privileges_exception
+from app.api.paginated import PaginatedListResponse, paginated_response, compute_offset
 from app.core.database import async_get_db
 from app.core.security import get_password_hash
 from app.crud.crud_users import crud_users
 from app.crud.crud_tier import crud_tiers
 from app.crud.crud_rate_limit import crud_rate_limits
-from app.api.exceptions import privileges_exception
-from app.api.paginated import PaginatedListResponse, paginated_response, compute_offset
+from app.models.tier import Tier
+from app.schemas.user import UserCreate, UserCreateInternal, UserUpdate, UserRead, UserTierUpdate
+from app.schemas.tier import TierRead
 
 router = fastapi.APIRouter(tags=["users"])
 
@@ -166,6 +168,32 @@ async def read_user_rate_limits(
     return db_user
 
 
+@router.get("/user/{username}/tier")
+async def read_user_tier(
+    request: Request,
+    username: str,
+    db: Annotated[AsyncSession, Depends(async_get_db)]
+):
+    db_user = await crud_users.get(db=db, username=username, schema_to_select=UserRead)
+    if db_user is None:
+        raise HTTPException(status_code=404, detail="User not found")
+        
+    db_tier = await crud_tiers.exists(db=db, id=db_user["tier_id"])
+    if not db_tier:
+        raise HTTPException(status_code=404, detail="Tier not found")
+
+    joined = await crud_users.get_joined(
+        db=db, 
+        join_model=Tier, 
+        join_prefix="tier_", 
+        schema_to_select=UserRead, 
+        join_schema_to_select=TierRead,
+        username=username
+    )
+
+    return joined
+
+
 @router.patch("/user/{username}/tier", dependencies=[Depends(get_current_superuser)])
 async def patch_user_tier(
     request: Request,
@@ -180,6 +208,6 @@ async def patch_user_tier(
     db_tier = await crud_tiers.get(db=db, id=values.tier_id)
     if db_tier is None:
         raise HTTPException(status_code=404, detail="Tier not found")
-    
+
     await crud_users.update(db=db, object=values, username=username)
     return {"message": f"User {db_user['name']} Tier updated"}

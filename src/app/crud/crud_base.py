@@ -307,7 +307,6 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType, UpdateSche
 
         for key, value in kwargs.items():
             if hasattr(self._model, key):
-                print(self._model)
                 stmt = stmt.where(getattr(self._model, key) == value)
 
         db_row = await db.execute(stmt)
