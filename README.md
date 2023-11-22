@@ -410,100 +410,112 @@ poetry run alembic upgrade head
 ### 5.1 Project Structure
 First, you may want to take a look at the project structure and understand what each file is doing.
 ```sh
-.                                      # FastAPI-boilerplate folder. Rename it to suit your project name
-├── Dockerfile                         # Dockerfile for building the application container.
-├── LICENSE.md                         # License file for the project.
-├── README.md                          # Project README providing information and instructions.
-├── docker-compose.yml                 # Docker Compose file for defining multi-container applications.
+.
+├── Dockerfile                        # Dockerfile for building the application container.
+├── LICENSE.md                        # License file for the project.
+├── README.md                         # Project README providing information and instructions.
+├── docker-compose.yml                # Docker Compose file for defining multi-container applications.
 │
-└── src                                # Source code directory.
-    ├── __init__.py                    # Initialization file for the src package.
-    ├── alembic.ini                    # Configuration file for Alembic (database migration tool).
-    ├── poetry.lock                    # Poetry lock file specifying exact versions of dependencies.
-    ├── pyproject.toml                 # Configuration file for Poetry, lists project dependencies.
+└── src                               # Source code directory.
+    ├── __init__.py                   # Initialization file for the src package.
+    ├── alembic.ini                   # Configuration file for Alembic (database migration tool).
+    ├── poetry.lock                   # Poetry lock file specifying exact versions of dependencies.
+    ├── pyproject.toml                # Poetry configuration file with project metadata and dependencies.
     │
-    ├── app                            # Main application directory.
-    │   ├── __init__.py                # Initialization file for the app package.
-    │   ├── main.py                    # Entry point that imports and creates the FastAPI application instance.
-    │   ├── worker.py                  # Worker script for handling background tasks.
+    ├── app                           # Main application directory.
+    │   ├── __init__.py               # Initialization file for the app package.
+    │   ├── main.py                   # Main entry point of the FastAPI application.
+    │   ├── worker.py                 # Worker script for background tasks.
     │   │
-    │   ├── api                        # Folder containing API-related logic.
+    │   ├── api                       # Folder containing API-related logic.
     │   │   ├── __init__.py
-    │   │   ├── dependencies.py        # Defines dependencies that can be reused across the API endpoints.
-    │   │   ├── exceptions.py          # Contains custom exceptions for the API.
-    │   │   ├── paginated.py           # Utilities for paginated responses in APIs.
+    │   │   ├── dependencies.py       # Defines dependencies for use across API endpoints.
+    │   │   ├── exceptions.py         # Custom exceptions for the API.
+    │   │   ├── paginated.py          # Utilities for API response pagination.
     │   │   │
-    │   │   └── v1                     # Version 1 of the API.
+    │   │   └── v1                    # Version 1 of the API.
     │   │       ├── __init__.py
-    │   │       ├── login.py           # API routes related to user login.
-    │   │       ├── logout.py          # API routes related to user logout (token blacklist).
-    │   │       ├── posts.py           # API routes related to posts.
-    │   │       ├── rate_limits.py     # API routes for rate limiting features.
-    │   │       ├── tasks.py           # API routes related to background tasks.
-    │   │       ├── tiers.py           # API routes for handling different user tiers.
-    │   │       └── users.py           # API routes related to user management.
+    │   │       ├── login.py          # API route for user login.
+    │   │       ├── logout.py         # API route for user logout.
+    │   │       ├── posts.py          # API routes for post operations.
+    │   │       ├── rate_limits.py    # API routes for rate limiting functionalities.
+    │   │       ├── tasks.py          # API routes for task management.
+    │   │       ├── tiers.py          # API routes for user tier functionalities.
+    │   │       └── users.py          # API routes for user management.
     │   │
-    │   ├── core                       # Core utilities and configurations for the application.
+    │   ├── core                      # Core utilities and configurations for the application.
     │   │   ├── __init__.py
-    │   │   ├── cache.py               # Utilities related to caching.
-    │   │   ├── config.py              # Application configuration settings.
-    │   │   ├── database.py            # Database connectivity and session management.
-    │   │   ├── exceptions.py          # Contains core custom exceptions for the application.
-    │   │   ├── logger.py              # Logging utilities.
-    │   │   ├── models.py              # Base models for the application.
-    │   │   ├── queue.py               # Utilities related to task queues.
-    │   │   ├── rate_limit.py          # Rate limiting utilities and configurations.
-    │   │   ├── security.py            # Security utilities like password hashing and token generation.
-    │   │   └── setup.py               # File defining settings and FastAPI application instance definition.
+    │   │   ├── config.py             # Configuration settings for the application.
+    │   │   ├── logger.py             # Configuration for application logging.
+    │   │   ├── schemas.py            # Pydantic schemas for data validation.
+    │   │   ├── security.py           # Security utilities, such as password hashing.
+    │   │   ├── setup.py              # Setup file for the FastAPI app instance.
+    │   │   │
+    │   │   ├── db                    # Core Database related modules.
+    │   │   │   ├── __init__.py
+    │   │   │   ├── crud_token_blacklist.py  # CRUD operations for token blacklist.
+    │   │   │   ├── database.py       # Database connectivity and session management.
+    │   │   │   ├── models.py         # Core Database models.
+    │   │   │   └── token_blacklist.py  # Model for token blacklist functionality.
+    │   │   │
+    │   │   ├── exceptions            # Custom exception classes.
+    │   │   │   ├── __init__.py
+    │   │   │   └── exceptions.py     # Definitions of custom exceptions.
+    │   │   │
+    │   │   └── utils                 # Utility functions and helpers.
+    │   │       ├── __init__.py
+    │   │       ├── cache.py          # Cache-related utilities.
+    │   │       ├── queue.py          # Utilities for task queue management.
+    │   │       └── rate_limit.py     # Rate limiting utilities.
     │   │
-    │   ├── crud                       # CRUD operations for the application.
+    │   ├── crud                      # CRUD operations for the application.
     │   │   ├── __init__.py
-    │   │   ├── crud_base.py           # Base CRUD operations class that can be extended by other CRUD modules.
-    │   │   ├── crud_posts.py          # CRUD operations for posts.
-    │   │   ├── crud_rate_limit.py     # CRUD operations for rate limiting configurations.
-    │   │   ├── crud_tier.py           # CRUD operations for user tiers.
-    │   │   ├── crud_token_blaclist.py # CRUD operations for token blacklist.
-    │   │   ├── crud_users.py          # CRUD operations for users.
-    │   │   └── helper.py              # Helper functions for CRUD operations.
+    │   │   ├── crud_base.py          # Base class for CRUD operations.
+    │   │   ├── crud_posts.py         # CRUD operations for posts.
+    │   │   ├── crud_rate_limit.py    # CRUD operations for rate limiting.
+    │   │   ├── crud_tier.py          # CRUD operations for user tiers.
+    │   │   ├── crud_users.py         # CRUD operations for users.
+    │   │   └── helper.py             # Helper functions for CRUD operations.
     │   │
-    │   ├── models                     # ORM models for the application.
+    │   ├── logs                      # Directory for log files.
+    │   │   └── app.log               # Log file for the application.
+    │   │
+    │   ├── middleware                # Middleware components for the application.
+    │   │   └── client_cache_middleware.py  # Middleware for client-side caching.
+    │   │
+    │   ├── models                    # ORM models for the application (Deprecated/Unused).
     │   │   ├── __init__.py
-    │   │   ├── post.py                # ORM model for posts.
-    │   │   ├── rate_limit.py          # ORM model for rate limiting configurations.
-    │   │   ├── tier.py                # ORM model for user tiers.
-    │   │   ├── token_blacklist.py                # ORM model for token blacklist.
-    │   │   └── user.py                # ORM model for users.
+    │   │   ├── post.py               # ORM model for posts.
+    │   │   ├── rate_limit.py         # ORM model for rate limiting.
+    │   │   ├── tier.py               # ORM model for user tiers.
+    │   │   └── user.py               # ORM model for users.
     │   │
-    │   ├── schemas                    # Pydantic schemas for data validation.
-    │   │   ├── __init__.py
-    │   │   ├── job.py                 # Schemas related to background jobs.
-    │   │   ├── post.py                # Schemas related to posts.
-    │   │   ├── rate_limit.py          # Schemas for rate limiting configurations.
-    │   │   ├── tier.py                # Schemas for user tiers.
-    │   │   ├── token_blacklist.py     # Schemas for token blacklist.
-    │   │   └── user.py                # Schemas related to users.
-    │   │
-    │   └── logs                       # Directory for log files.
-    │       └── app.log                # Application log file.
+    │   └── schemas                   # Pydantic schemas for data validation.
+    │       ├── __init__.py
+    │       ├── job.py                # Schema for background jobs.
+    │       ├── post.py               # Schema for post data.
+    │       ├── rate_limit.py         # Schema for rate limiting data.
+    │       ├── tier.py               # Schema for user tier data.
+    │       └── user.py               # Schema for user data.
     │
-    ├── migrations                     # Directory for Alembic migrations.
-    │   ├── README                     # General info and guidelines for migrations.
-    │   ├── env.py                     # Environment configurations for Alembic.
-    │   ├── script.py.mako             # Template script for migration generation.
+    ├── migrations                    # Alembic migration scripts for database changes.
+    │   ├── README
+    │   ├── env.py                    # Environment configuration for Alembic.
+    │   ├── script.py.mako            # Template script for Alembic migrations.
     │   │
-    │   └── versions                   # Folder containing individual migration scripts.
+    │   └── versions                  # Individual migration scripts.
     │       └── README.MD
     │
-    ├── scripts                        # Utility scripts for the project.
+    ├── scripts                       # Utility scripts for the application.
     │   ├── __init__.py
-    │   ├── create_first_superuser.py  # Script to create the first superuser in the application.
-    │   └── create_first_tier.py       # Script to create the first user tier in the application.
+    │   ├── create_first_superuser.py # Script to create the first superuser.
+    │   └── create_first_tier.py      # Script to create the first user tier.
     │
-    └── tests                          # Directory containing all the tests.
-        ├── __init__.py                # Initialization file for the tests package.
-        ├── conftest.py                # Configuration and fixtures for pytest.
-        ├── helper.py                  # Helper functions for writing tests.
-        └── test_user.py               # Tests related to the user model and endpoints.
+    └── tests                         # Unit and integration tests for the application.
+        ├── __init__.py
+        ├── conftest.py               # Configuration and fixtures for pytest.
+        ├── helper.py                 # Helper functions for tests.
+        └── test_user.py              # Test cases for user-related functionality.
 ```
 
 ### 5.2 Database Model
@@ -524,7 +536,7 @@ Inside `app/models`, create a new `entity.py` for each new entity (replacing ent
 from sqlalchemy import String, DateTime
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from app.core.database import Base
+from app.core.db.database import Base
 
 class Entity(Base):
   __tablename__ = "entity"
@@ -657,7 +669,7 @@ Which will return a python dict with the following structure:
 #### 5.6.3 Create
 To create, you pass a `CreateSchemaType` object with the attributes, such as a `UserCreate` pydantic schema:
 ```python
-from app.core.schemas.user import UserCreate
+from app.schemas.user import UserCreate
 
 # Creating the object
 user_internal = UserCreate(
@@ -785,7 +797,7 @@ from typing import Annotated
 from fastapi import Depends
 
 from app.schemas.entity import EntityRead
-from app.core.database import async_get_db
+from app.core.db.database import async_get_db
 ...
 
 router = fastapi.APIRouter(tags=["entities"])
@@ -888,7 +900,7 @@ Caching the response of an endpoint is really simple, just apply the `cache` dec
 
 ```python
 ...
-from app.core.cache import cache
+from app.core.utils.cache import cache
 
 @app.get("/sample/{my_id}")
 @cache(
@@ -908,7 +920,7 @@ The way it works is:
 Another option is not passing the `resource_id_name`, but passing the `resource_id_type` (default int):
 ```python
 ...
-from app.core.cache import cache
+from app.core.utils.cache import cache
 
 @app.get("/sample/{my_id}")
 @cache(
@@ -1100,7 +1112,7 @@ To limit how many times a user can make a request in a certain interval of time 
 from fastapi import Depends
 
 from app.api.dependencies import rate_limiter
-from app.core import queue
+from app.core.utils import queue
 from app.schemas.job import Job
 
 @router.post("/task", response_model=Job, status_code=201, dependencies=[Depends(rate_limiter)])

@@ -8,7 +8,7 @@ import fastapi
 from app.api.dependencies import get_current_user, get_current_superuser
 from app.api.exceptions import privileges_exception
 from app.api.paginated import PaginatedListResponse, paginated_response, compute_offset
-from src.app.core.db.database import async_get_db
+from app.core.db.database import async_get_db
 from app.core.security import get_password_hash
 from app.crud.crud_users import crud_users
 from app.crud.crud_tier import crud_tiers

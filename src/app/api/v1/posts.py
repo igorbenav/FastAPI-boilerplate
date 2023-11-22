@@ -7,11 +7,11 @@ import fastapi
 from app.schemas.post import PostCreate, PostUpdate, PostRead, PostCreateInternal
 from app.schemas.user import UserRead
 from app.api.dependencies import get_current_user, get_current_superuser
-from src.app.core.db.database import async_get_db
+from app.core.db.database import async_get_db
 from app.crud.crud_posts import crud_posts
 from app.crud.crud_users import crud_users
 from app.api.exceptions import privileges_exception
-from src.app.core.utils.cache import cache
+from app.core.utils.cache import cache
 from app.api.paginated import PaginatedListResponse, paginated_response, compute_offset
 
 router = fastapi.APIRouter(tags=["posts"])

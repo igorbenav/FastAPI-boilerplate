@@ -1,5 +1,3 @@
-from typing import List
-
 from fastapi.testclient import TestClient
 from fastapi.routing import APIRoute
 

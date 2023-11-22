@@ -6,8 +6,8 @@ from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.ext.asyncio import AsyncSession
 import fastapi
 
-from src.app.core.db.database import async_get_db
-from src.app.core.schemas import Token
+from app.core.db.database import async_get_db
+from app.core.schemas import Token
 from app.core.security import ACCESS_TOKEN_EXPIRE_MINUTES, create_access_token, authenticate_user
 from app.api.exceptions import credentials_exception
 

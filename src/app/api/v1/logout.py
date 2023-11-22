@@ -5,9 +5,9 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from jose import jwt, JWTError
 
 from app.core.security import oauth2_scheme, SECRET_KEY, ALGORITHM
-from src.app.core.db.database import async_get_db
-from src.app.core.db.crud_token_blacklist import crud_token_blacklist
-from src.app.core.schemas import TokenBlacklistCreate
+from app.core.db.database import async_get_db
+from app.core.db.crud_token_blacklist import crud_token_blacklist
+from app.core.schemas import TokenBlacklistCreate
 
 router = APIRouter(tags=["login"])
 

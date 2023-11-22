@@ -3,7 +3,7 @@ from datetime import datetime
 
 from pydantic import BaseModel, EmailStr, Field, ConfigDict
 
-from src.app.core.schemas import UUIDSchema, TimestampSchema, PersistentDeletion
+from app.core.schemas import UUIDSchema, TimestampSchema, PersistentDeletion
 
 class UserBase(BaseModel):
     name: Annotated[

@@ -3,7 +3,7 @@ from datetime import datetime
 
 from pydantic import BaseModel, Field
 
-from src.app.core.schemas import TimestampSchema
+from app.core.schemas import TimestampSchema
 
 class TierBase(BaseModel):
     name: Annotated[

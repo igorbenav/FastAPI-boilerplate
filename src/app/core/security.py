@@ -6,8 +6,8 @@ from jose import jwt, JWTError
 from fastapi.security import OAuth2PasswordBearer
 
 from app.core.config import settings
-from src.app.core.schemas import TokenData
-from src.app.core.db.crud_token_blacklist import crud_token_blacklist
+from app.core.schemas import TokenData
+from app.core.db.crud_token_blacklist import crud_token_blacklist
 from app.crud.crud_users import crud_users
 
 SECRET_KEY = settings.SECRET_KEY

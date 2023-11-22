@@ -1,7 +1,7 @@
 from arq.jobs import Job as ArqJob
 from fastapi import APIRouter, Depends
 
-from src.app.core.utils import queue
+from app.core.utils import queue
 from app.schemas.job import Job
 from app.api.dependencies import rate_limiter
 
