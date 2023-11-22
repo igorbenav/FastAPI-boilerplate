@@ -607,13 +607,14 @@ from app.schemas.user import UserCreateInternal, UserUpdate, UserUpdateInternal,
 CRUDUser = CRUDBase[User, UserCreateInternal, UserUpdate, UserUpdateInternal, UserDelete]
 crud_users = CRUDUser(User)
 ```
-
+#### 5.6.1 Get
 When actually using the crud in an endpoint, to get data you just pass the database connection and the attributes as kwargs:
 ```python
 # Here I'm getting the first user with email == user.email (email is unique in this case)
 user = await crud_users.get(db=db, email=user.email)
 ```
 
+#### 5.6.2 Get Multi
 To get a list of objects with the attributes, you should use the get_multi:
 ```python
 # Here I'm getting at most 10 users with the name 'User Userson' except for the first 3
@@ -653,6 +654,7 @@ Which will return a python dict with the following structure:
 }
 ```
 
+#### 5.6.3 Create
 To create, you pass a `CreateSchemaType` object with the attributes, such as a `UserCreate` pydantic schema:
 ```python
 from app.core.schemas.user import UserCreate
@@ -668,6 +670,7 @@ user_internal = UserCreate(
 crud_users.create(db=db, object=user_internal)
 ```
 
+#### 5.6.4 Exists
 To just check if there is at least one row that matches a certain set of attributes, you should use `exists`
 ```python
 # This queries only the email variable
@@ -675,6 +678,7 @@ To just check if there is at least one row that matches a certain set of attribu
 crud_users.exists(db=db, email=user@example.com)
 ```
 
+#### 5.6.5 Count
 You can also get the count of a certain object with the specified filter:
 ```python
 # Here I'm getting the count of users with the name 'User Userson'
@@ -684,6 +688,7 @@ user = await crud_users.count(
 )
 ```
 
+#### 5.6.6 Update
 To update you pass an `object` which may be a `pydantic schema` or just a regular `dict`, and the kwargs.
 You will update with `objects` the rows that match your `kwargs`.
 ```python
@@ -692,6 +697,7 @@ You will update with `objects` the rows that match your `kwargs`.
 crud_users.update(db=db, object={name="Updated Name"}, username="myusername")
 ```
 
+#### 5.6.7 Delete
 To delete we have two options:
 - db_delete: actually deletes the row from the database
 - delete: 
@@ -705,6 +711,59 @@ crud_users.delete(db=db, username="myusername")
 # Here I actually delete it from the database
 crud_users.db_delete(db=db, username="myusername")
 ```
+
+#### 5.6.8 Get Joined
+To retrieve data with a join operation, you can use the get_joined method from your CRUD module. Here's how to do it:
+
+```python
+# Fetch a single record with a join on another model (e.g., User and Tier).
+result = await crud_users.get_joined(
+    db=db,  # The SQLAlchemy async session.
+    join_model=Tier,  # The model to join with (e.g., Tier).
+    schema_to_select=UserSchema,  # Pydantic schema for selecting User model columns (optional).
+    join_schema_to_select=TierSchema  # Pydantic schema for selecting Tier model columns (optional).
+)
+```
+
+**Relevant Parameters:**
+- `join_model`: The model you want to join with (e.g., Tier).
+- `join_prefix`: Optional prefix to be added to all columns of the joined model. If None, no prefix is added.
+- `join_on`: SQLAlchemy Join object for specifying the ON clause of the join. If None, the join condition is auto-detected based on foreign keys.
+- `schema_to_select`: A Pydantic schema to select specific columns from the primary model (e.g., UserSchema).
+- `join_schema_to_select`: A Pydantic schema to select specific columns from the joined model (e.g., TierSchema).
+- `join_type`: pecifies the type of join operation to perform. Can be "left" for a left outer join or "inner" for an inner join. Default "left".
+- `kwargs`: Filters to apply to the primary query.
+
+This method allows you to perform a join operation, selecting columns from both models, and retrieve a single record.
+
+#### 5.6.9 Get Multi Joined
+Similarly, to retrieve multiple records with a join operation, you can use the get_multi_joined method. Here's how:
+
+```python
+# Retrieve a list of objects with a join on another model (e.g., User and Tier).
+result = await crud_users.get_multi_joined(
+    db=db,  # The SQLAlchemy async session.
+    join_model=Tier,  # The model to join with (e.g., Tier).
+    join_prefix="tier_",  # Optional prefix for joined model columns.
+    join_on=and_(User.tier_id == Tier.id, User.is_superuser == True),  # Custom join condition.
+    schema_to_select=UserSchema,  # Pydantic schema for selecting User model columns.
+    join_schema_to_select=TierSchema,  # Pydantic schema for selecting Tier model columns.
+    username="john_doe"  # Additional filter parameters.
+)
+```
+
+**Relevant Parameters:**
+- `join_model`: The model you want to join with (e.g., Tier).
+- `join_prefix`: Optional prefix to be added to all columns of the joined model. If None, no prefix is added.
+- `join_on`: SQLAlchemy Join object for specifying the ON clause of the join. If None, the join condition is auto-detected based on foreign keys.
+- `schema_to_select`: A Pydantic schema to select specific columns from the primary model (e.g., UserSchema).
+- `join_schema_to_select`: A Pydantic schema to select specific columns from the joined model (e.g., TierSchema).
+- `join_type`: pecifies the type of join operation to perform. Can be "left" for a left outer join or "inner" for an inner join. Default "left".
+- `kwargs`: Filters to apply to the primary query.
+- `offset`: The offset (number of records to skip) for pagination. Default 0.            
+- `limit`: The limit (maximum number of records to return) for pagination. Default 100.
+- `kwargs`: Filters to apply to the primary query.
+
 
 #### More Efficient Selecting
 For the `get` and `get_multi` methods we have the option to define a `schema_to_select` attribute, which is what actually makes the queries more efficient. When you pass a `pydantic schema` (preferred) or a list of the names of the attributes in `schema_to_select` to the `get` or `get_multi` methods, only the attributes in the schema will be selected.
