@@ -11,7 +11,7 @@ from app.schemas.tier import (
     TierUpdate
 )
 from app.api.dependencies import get_current_superuser
-from app.core.database import async_get_db
+from src.app.core.db.database import async_get_db
 from app.crud.crud_tier import crud_tiers
 from app.api.paginated import PaginatedListResponse, paginated_response, compute_offset
 

@@ -2,7 +2,7 @@ import asyncio
 from sqlalchemy import select
 from app.core.config import config
 
-from app.core.database import AsyncSession, local_session
+from src.app.core.db.database import AsyncSession, local_session
 from app.models.tier import Tier
 
 async def create_first_tier(session: AsyncSession) -> None:
