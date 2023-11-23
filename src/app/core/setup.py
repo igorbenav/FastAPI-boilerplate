@@ -8,10 +8,10 @@ import anyio
 
 
 from app.api.dependencies import get_current_superuser
-from app.core import cache, queue, rate_limit
+from app.core.utils import queue
 from app.core.config import settings
-from app.core.database import Base
-from app.core.database import async_engine as engine
+from app.core.db.database import Base
+from app.core.db.database import async_engine as engine
 from app.core.config import (
     DatabaseSettings, 
     RedisCacheSettings, 
@@ -23,6 +23,7 @@ from app.core.config import (
     EnvironmentSettings
 )
 from app.middleware.client_cache_middleware import ClientCacheMiddleware
+from app.core.utils import cache, rate_limit
 
 # -------------- database --------------
 async def create_tables():

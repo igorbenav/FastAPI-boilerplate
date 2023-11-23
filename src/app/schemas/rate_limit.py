@@ -3,7 +3,7 @@ from datetime import datetime
 
 from pydantic import BaseModel, Field, ConfigDict, validator
 
-from app.core.models import TimestampModel
+from app.core.schemas import TimestampSchema
 
 def sanitize_path(path: str) -> str:
     return path.strip("/").replace("/", "_")
@@ -28,7 +28,7 @@ class RateLimitBase(BaseModel):
         return sanitize_path(value)
 
 
-class RateLimit(TimestampModel, RateLimitBase):
+class RateLimit(TimestampSchema, RateLimitBase):
     tier_id: int
     name: Annotated[
         str | None,

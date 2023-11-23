@@ -12,10 +12,10 @@ from fastapi import (
 )
 
 from app.api.exceptions import credentials_exception, privileges_exception
-from app.core.database import async_get_db
+from app.core.db.database import async_get_db
 from app.core.logger import logging
-from app.core.models import TokenData
-from app.core.rate_limit import is_rate_limited
+from app.core.schemas import TokenData
+from app.core.utils.rate_limit import is_rate_limited
 from app.core.security import verify_token
 from app.crud.crud_rate_limit import crud_rate_limits
 from app.crud.crud_tier import crud_tiers
