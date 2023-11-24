@@ -1,6 +1,6 @@
 from typing import Annotated
 
-from fastapi import Request, Depends, HTTPException
+from fastapi import Request, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 import fastapi
 
@@ -10,7 +10,7 @@ from app.api.dependencies import get_current_user, get_current_superuser
 from app.core.db.database import async_get_db
 from app.crud.crud_posts import crud_posts
 from app.crud.crud_users import crud_users
-from app.api.exceptions import privileges_exception
+from app.core.exceptions.http_exceptions import NotFoundException, ForbiddenException
 from app.core.utils.cache import cache
 from app.api.paginated import PaginatedListResponse, paginated_response, compute_offset
 
@@ -26,10 +26,10 @@ async def write_post(
 ):
     db_user = await crud_users.get(db=db, schema_to_select=UserRead, username=username, is_deleted=False)
     if db_user is None:
-        raise HTTPException(status_code=404, detail="User not found")
+        raise NotFoundException("User not found")
     
     if current_user["id"] != db_user["id"]:
-        raise privileges_exception
+        raise ForbiddenException()
 
     post_internal_dict = post.model_dump()
     post_internal_dict["created_by_user_id"] = db_user["id"]
@@ -53,7 +53,7 @@ async def read_posts(
 ):
     db_user = await crud_users.get(db=db, schema_to_select=UserRead, username=username, is_deleted=False)
     if not db_user:
-        raise HTTPException(status_code=404, detail="User not found")
+        raise NotFoundException("User not found")
 
     posts_data = await crud_posts.get_multi(
         db=db,
@@ -81,11 +81,11 @@ async def read_post(
 ):
     db_user = await crud_users.get(db=db, schema_to_select=UserRead, username=username, is_deleted=False)
     if db_user is None:
-        raise HTTPException(status_code=404, detail="User not found")
+        raise NotFoundException("User not found")
     
     db_post = await crud_posts.get(db=db, schema_to_select=PostRead, id=id, created_by_user_id=db_user["id"], is_deleted=False)
     if db_post is None:
-        raise HTTPException(status_code=404, detail="Post not found")
+        raise NotFoundException("Post not found")
     
     return db_post
 
@@ -106,14 +106,14 @@ async def patch_post(
 ):
     db_user = await crud_users.get(db=db, schema_to_select=UserRead, username=username, is_deleted=False)
     if db_user is None:
-        raise HTTPException(status_code=404, detail="User not found")
+        raise NotFoundException("User not found")
     
     if current_user["id"] != db_user["id"]:
-        raise privileges_exception
+        raise ForbiddenException()
 
     db_post = await crud_posts.get(db=db, schema_to_select=PostRead, id=id, is_deleted=False)
     if db_post is None:
-        raise HTTPException(status_code=404, detail="Post not found")
+        raise NotFoundException("Post not found")
     
     await crud_posts.update(db=db, object=values, id=id)
     return {"message": "Post updated"}
@@ -134,14 +134,14 @@ async def erase_post(
 ):
     db_user = await crud_users.get(db=db, schema_to_select=UserRead, username=username, is_deleted=False)
     if db_user is None:
-        raise HTTPException(status_code=404, detail="User not found")
+        raise NotFoundException("User not found")
     
     if current_user["id"] != db_user["id"]:
-        raise privileges_exception
+        raise ForbiddenException()
 
     db_post = await crud_posts.get(db=db, schema_to_select=PostRead, id=id, is_deleted=False)
     if db_post is None:
-        raise HTTPException(status_code=404, detail="Post not found")
+        raise NotFoundException("Post not found")
     
     await crud_posts.delete(db=db, db_row=db_post, id=id)
     
@@ -162,11 +162,11 @@ async def erase_db_post(
 ):
     db_user = await crud_users.get(db=db, schema_to_select=UserRead, username=username, is_deleted=False)
     if db_user is None:
-        raise HTTPException(status_code=404, detail="User not found")
+        raise NotFoundException("User not found")
     
     db_post = await crud_posts.get(db=db, schema_to_select=PostRead, id=id, is_deleted=False)
     if db_post is None:
-        raise HTTPException(status_code=404, detail="Post not found")
+        raise NotFoundException("Post not found")
     
     await crud_posts.db_delete(db=db, id=id)
     return {"message": "Post deleted from the database"}

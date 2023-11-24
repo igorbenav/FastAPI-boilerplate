@@ -12,6 +12,7 @@ from app.schemas.tier import (
 )
 from app.api.dependencies import get_current_superuser
 from app.core.db.database import async_get_db
+from app.core.exceptions.http_exceptions import DuplicateValueException, NotFoundException
 from app.crud.crud_tier import crud_tiers
 from app.api.paginated import PaginatedListResponse, paginated_response, compute_offset
 
@@ -26,7 +27,7 @@ async def write_tier(
     tier_internal_dict = tier.model_dump()
     db_tier = await crud_tiers.exists(db=db, name=tier_internal_dict["name"])
     if db_tier:
-        raise HTTPException(status_code=400, detail="Tier Name not available")
+        raise DuplicateValueException("Tier Name not available")
     
     tier_internal = TierCreateInternal(**tier_internal_dict)
     return await crud_tiers.create(db=db, object=tier_internal)
@@ -61,7 +62,7 @@ async def read_tier(
 ):
     db_tier = await crud_tiers.get(db=db, schema_to_select=TierRead, name=name)
     if db_tier is None:
-        raise HTTPException(status_code=404, detail="Tier not found")
+        raise NotFoundException("Tier not found")
 
     return db_tier
 
@@ -75,7 +76,7 @@ async def patch_tier(
 ):
     db_tier = await crud_tiers.get(db=db, schema_to_select=TierRead, name=name)
     if db_tier is None:
-        raise HTTPException(status_code=404, detail="Tier not found")
+        raise NotFoundException("Tier not found")
     
     await crud_tiers.update(db=db, object=values, name=name)
     return {"message": "Tier updated"}
@@ -89,7 +90,7 @@ async def erase_tier(
 ):
     db_tier = await crud_tiers.get(db=db, schema_to_select=TierRead, name=name)
     if db_tier is None:
-        raise HTTPException(status_code=404, detail="Tier not found")
+        raise NotFoundException("Tier not found")
     
     await crud_tiers.delete(db=db, db_row=db_tier, name=name)
     return {"message": "Tier deleted"}
