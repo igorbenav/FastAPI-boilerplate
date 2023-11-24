@@ -25,11 +25,11 @@ def get_password_hash(password):
 
 async def authenticate_user(username_or_email: str, password: str, db: AsyncSession):
     if "@" in username_or_email:
-        db_user = await crud_users.get(db=db, email=username_or_email)
-    else: 
-        db_user = await crud_users.get(db=db, username=username_or_email)
+        db_user = await crud_users.get(db=db, email=username_or_email, is_deleted=False)
+    else:
+        db_user = await crud_users.get(db=db, username=username_or_email, is_deleted=False)
     
-    if (not db_user) or (db_user["is_deleted"]):
+    if not db_user:
         db_user = False
     
     elif not await verify_password(password, db_user["hashed_password"]):

@@ -430,7 +430,6 @@ First, you may want to take a look at the project structure and understand what 
     │   ├── api                       # Folder containing API-related logic.
     │   │   ├── __init__.py
     │   │   ├── dependencies.py       # Defines dependencies for use across API endpoints.
-    │   │   ├── exceptions.py         # Custom exceptions for the API.
     │   │   ├── paginated.py          # Utilities for API response pagination.
     │   │   │
     │   │   └── v1                    # Version 1 of the API.
@@ -460,7 +459,8 @@ First, you may want to take a look at the project structure and understand what 
     │   │   │
     │   │   ├── exceptions            # Custom exception classes.
     │   │   │   ├── __init__.py
-    │   │   │   └── exceptions.py     # Definitions of custom exceptions.
+    │   │   │   ├── cache_exceptions.py   # Exceptions related to cache operations.
+    │   │   │   └── http_exceptions.py    # HTTP-related exceptions.
     │   │   │
     │   │   └── utils                 # Utility functions and helpers.
     │   │       ├── __init__.py
@@ -889,6 +889,33 @@ async def read_entities(
         items_per_page=items_per_page
     )
 ```
+
+#### 5.7.2 HTTP Exceptions
+
+To add exceptions you may just import from `app/core/exceptions/http_exceptions` and optionally add a detail:
+
+```python
+from app.core.exceptions.http_exceptions import NotFoundException
+
+# If you want to specify the detail, just add the message
+if not user:
+  raise NotFoundException("User not found")
+
+# Or you may just use the default message
+if not post:
+  raise NotFoundException()
+```
+
+**The predefined possibilities in http_exceptions are the following:**
+- `CustomException`: 500 internal error
+- `BadRequestException`: 400 bad request
+- `NotFoundException`: 404 not found
+- `ForbiddenException`: 403 forbidden
+- `UnauthorizedException`: 401 unauthorized
+- `UnprocessableEntityException`: 422 unprocessable entity
+- `DuplicateValueException`: 422 unprocessable entity
+- `RateLimitException`: 429 too many requests
+
 
 ### 5.8 Caching
 The `cache` decorator allows you to cache the results of FastAPI endpoint functions, enhancing response times and reducing the load on your application by storing and retrieving data in a cache.

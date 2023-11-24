@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, status
 from sqlalchemy.ext.asyncio import AsyncSession
 from jose import jwt, JWTError
 
@@ -8,6 +8,7 @@ from app.core.security import oauth2_scheme, SECRET_KEY, ALGORITHM
 from app.core.db.database import async_get_db
 from app.core.db.crud_token_blacklist import crud_token_blacklist
 from app.core.schemas import TokenBlacklistCreate
+from app.core.exceptions.http_exceptions import UnauthorizedException
 
 router = APIRouter(tags=["login"])
 
@@ -28,8 +29,4 @@ async def logout(
         return {"message": "Logged out successfully"}
     
     except JWTError:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Invalid token",
-            headers={"WWW-Authenticate": "Bearer"},
-        )
+        raise UnauthorizedException("Invalid token.")
