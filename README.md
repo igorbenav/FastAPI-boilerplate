@@ -29,7 +29,7 @@
       <img src="https://img.shields.io/badge/Docker-2496ED?logo=docker&logoColor=fff&style=for-the-badge" alt="Docker">
   </a>
   <a href="https://nginx.org/en/">
-      <img src="https://img.shields.io/badge/NGINX-009639?logo=nginx&logoColor=fff&style=flat" alt=NGINX>
+      <img src="https://img.shields.io/badge/NGINX-009639?logo=nginx&logoColor=fff&style=for-the-badge" alt=NGINX>
   </a>
 </p>
 
