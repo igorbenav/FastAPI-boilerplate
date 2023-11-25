@@ -45,6 +45,16 @@ services:
     volumes:
       - redis-data:/data
 
+  # #-------- uncomment to run with nginx --------
+  # nginx:
+  #   image: nginx:latest
+  #   ports:
+  #     - "80:80"
+  #   volumes:
+  #     - ./default.conf:/etc/nginx/conf.d/default.conf
+  #   depends_on:
+  #     - web
+
   # #-------- uncomment to create first superuser --------
   # create_superuser:
   #   build: 

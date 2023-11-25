@@ -28,6 +28,9 @@
   <a href="https://docs.docker.com/compose/">
       <img src="https://img.shields.io/badge/Docker-2496ED?logo=docker&logoColor=fff&style=for-the-badge" alt="Docker">
   </a>
+  <a href="https://nginx.org/en/">
+      <img src="https://img.shields.io/badge/NGINX-009639?logo=nginx&logoColor=fff&style=flat" alt=NGINX>
+  </a>
 </p>
 
 ## 0. About
@@ -39,6 +42,7 @@
 - [`Redis`](https://redis.io): Open source, in-memory data store used by millions as a cache, message broker and more.
 - [`ARQ`](https://arq-docs.helpmanual.io) Job queues and RPC in python with asyncio and redis.
 - [`Docker Compose`](https://docs.docker.com/compose/) With a single command, create and start all the services from your configuration.
+- [`NGINX`](https://nginx.org/en/) High-performance low resource consumption web server used for Reverse Proxy and Load Balancing. 
 
 ## 1. Features
 - ⚡️ Fully async
@@ -47,13 +51,14 @@
 - 🏬 Easy redis caching
 - 👜 Easy client-side caching
 - 🚦 ARQ integration for task queue
-- ⚙️ Efficient querying (only queries what's needed)
+- ⚙️ Efficient querying (only queries what's needed) with support for joins
 - ⎘ Out of the box pagination support
 - 🛑 Rate Limiter dependency
 - 👮 FastAPI docs behind authentication and hidden based on the environment
 - 🦾 Easily extendable
 - 🤸‍♂️ Flexible
 - 🚚 Easy running with docker compose
+- ⚖️ NGINX Reverse Proxy and Load Balancing
 
 ## 2. Contents
 0. [About](#0-about)
@@ -82,12 +87,17 @@
     6. [CRUD](#56-crud)
     7. [Routes](#57-routes)
         1. [Paginated Responses](#571-paginated-responses)
+        2. [HTTP Exceptions](#572-http-exceptions)
     8. [Caching](#58-caching)
     9. [More Advanced Caching](#59-more-advanced-caching)
     10. [ARQ Job Queues](#510-arq-job-queues)
     11. [Rate Limiting](#511-rate-limiting)
     12. [Running](#512-running)
 6. [Running in Production](#6-running-in-production)
+    1. [Uvicorn Workers with Gunicorn](#61-uvicorn-workers-with-gunicorn)
+    2. [Running With NGINX](#62-running-with-nginx)
+        1. [One Server](#621-one-server)
+        2. [Multiple Servers](#622-multiple-servers)
 7. [Testing](#7-testing)
 8. [Contributing](#8-contributing)
 9. [References](#9-references)
@@ -178,7 +188,7 @@ For ARQ Job Queues:
 REDIS_CACHE_HOST="your_host" # default "localhost", if using docker compose you should use "db"
 REDIS_CACHE_PORT=6379
 ```
-> **Warning** 
+> [!WARNING]
 > You may use the same redis for both caching and queue while developing, but the recommendation is using two separate containers for production.
 
 To create the first tier:
@@ -1261,15 +1271,18 @@ poetry run arq app.worker.WorkerSettings
 ```
 
 ## 6. Running in Production
-In production you probably should run using gunicorn workers:
+### 6.1 Uvicorn Workers with Gunicorn
+In production you may want to run using gunicorn to manage uvicorn workers:
 ```sh
 command: gunicorn app.main:app -w 4 -k uvicorn.workers.UvicornWorker -b 0.0.0.0:8000
 ``` 
 Here it's running with 4 workers, but you should test it depending on how many cores your machine has.
 
 To do this if you are using docker compose, just replace the comment:
-This part in docker-compose.yml:
+This part in `docker-compose.yml`:
 ```python
+# docker-compose.yml
+
 # -------- replace with comment to run with gunicorn --------
 command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
 # command: gunicorn app.main:app -w 4 -k uvicorn.workers.UvicornWorker -b 0.0.0.0:8000
@@ -1277,15 +1290,153 @@ command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
 
 Should be changed to:
 ```python
+# docker-compose.yml
+
 # -------- replace with comment to run with uvicorn --------
 # command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
 command: gunicorn app.main:app -w 4 -k uvicorn.workers.UvicornWorker -b 0.0.0.0:8000
 ```
 
+And the same in `Dockerfile`:
+This part: 
+```python
+# Dockerfile
+
+CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]
+# CMD ["gunicorn", "app.main:app", "-w", "4", "-k", "uvicorn.workers.UvicornWorker". "-b", "0.0.0.0:8000"]
+```
+
+Should be changed to:
+```python
+# Dockerfile
+
+# CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]
+CMD ["gunicorn", "app.main:app", "-w", "4", "-k", "uvicorn.workers.UvicornWorker". "-b", "0.0.0.0:8000"]
+```
+
 > [!CAUTION]
 > Do not forget to set the `ENVIRONMENT` in `.env` to `production` unless you want the API docs to be public.
 
-More on running it in production later.
+### 6.2 Running with NGINX
+NGINX is a high-performance web server, known for its stability, rich feature set, simple configuration, and low resource consumption. NGINX acts as a reverse proxy, that is, it receives client requests, forwards them to the FastAPI server (running via Uvicorn or Gunicorn), and then passes the responses back to the clients.
+
+To run with NGINX, you start by uncommenting the following part in your `docker-compose.yml`:
+```python
+# docker-compose.yml
+
+...
+  # #-------- uncomment to run with nginx --------
+  # nginx:
+  #   image: nginx:latest
+  #   ports:
+  #     - "80:80"
+  #   volumes:
+  #     - ./default.conf:/etc/nginx/conf.d/default.conf
+  #   depends_on:
+  #     - web
+...
+```
+
+Which should be changed to:
+```python
+# docker-compose.yml
+
+...
+  #-------- uncomment to run with nginx --------
+  nginx:
+    image: nginx:latest
+    ports:
+      - "80:80"
+    volumes:
+      - ./default.conf:/etc/nginx/conf.d/default.conf
+    depends_on:
+      - web
+...
+```
+
+Then comment the following part:
+```python
+# docker-compose.yml
+
+services:
+  web:
+    ...
+    # -------- Both of the following should be commented to run with nginx --------
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+    # command: gunicorn app.main:app -w 4 -k uvicorn.workers.UvicornWorker -b 0.0.0.0:8000
+```
+
+Which becomes:
+```python
+# docker-compose.yml
+
+services:
+  web:
+    ...
+    # -------- Both of the following should be commented to run with nginx --------
+    # command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+    # command: gunicorn app.main:app -w 4 -k uvicorn.workers.UvicornWorker -b 0.0.0.0:8000
+```
+
+Then pick the way you want to run (uvicorn or gunicorn managing uvicorn workers) in `Dockerfile`.
+The one you want should be uncommented, comment the other one.
+```python
+# Dockerfile
+
+CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]
+# CMD ["gunicorn", "app.main:app", "-w", "4", "-k", "uvicorn.workers.UvicornWorker". "-b", "0.0.0.0:8000"]
+```
+
+#### 6.2.1 One Server
+If you want to run with one server only, your setup should be ready. Just make sure the only part that is not a comment in `deafult.conf` is:
+```python
+# default.conf
+
+# ---------------- Running With One Server ----------------
+server {
+    listen 80;
+
+    location / {
+        proxy_pass http://web:8000;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+}
+```
+
+#### 6.2.2 Multiple Servers
+NGINX can distribute incoming network traffic across multiple servers, improving the efficiency and capacity utilization of your application.
+
+To run with multiple servers, just comment the `Running With One Server` part in `default.conf` and Uncomment the other one:
+```python
+# default.conf
+
+# ---------------- Running With One Server ----------------
+...
+
+# ---------------- To Run with Multiple Servers, Uncomment below ----------------
+upstream fastapi_app {
+    server fastapi1:8000;  # Replace with actual server names or IP addresses
+    server fastapi2:8000;
+    # Add more servers as needed
+}
+
+server {
+    listen 80;
+
+    location / {
+        proxy_pass http://fastapi_app; 
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+}
+```
+> [!WARNING]
+> Note that we are using `fastapi1:8000` and `fastapi2:8000` as examples, you should replace it with the actual name of your service and the port it's running on.
 
 ## 7. Testing
 For tests, ensure you have in `.env`:
