@@ -31,6 +31,9 @@ redis = "^5.0.1"
 arq = "^0.25.0"
 gunicorn = "^21.2.0"
 
+[tool.poetry.dev-dependencies]
+mypy = "^0.910"
+types-requests = "*"
 
 [build-system]
 requires = ["poetry-core"]
