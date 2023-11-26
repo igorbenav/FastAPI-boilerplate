@@ -34,6 +34,7 @@ gunicorn = "^21.2.0"
 [tool.poetry.dev-dependencies]
 mypy = "^0.910"
 types-requests = "*"
+types-redis = "*"
 
 [build-system]
 requires = ["poetry-core"]
