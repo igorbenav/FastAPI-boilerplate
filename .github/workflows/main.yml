@@ -28,6 +28,11 @@ jobs:
         poetry install
       working-directory: ./src
 
+    - name: Run mypy for Type Checking
+      run: |
+        poetry run mypy --config-file ../mypy.ini src/
+      working-directory: ./src
+
     - name: Install mypy and Type Stubs
       run: |
         pip install mypy types-requests types-redis
