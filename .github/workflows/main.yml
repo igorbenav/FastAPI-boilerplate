@@ -19,19 +19,23 @@ jobs:
       with:
         python-version: '3.11'
 
-    - name: Install Dependencies
+    - name: Install Poetry
       run: |
-        pip install -r requirements.txt
+        curl -sSL https://raw.githubusercontent.com/python-poetry/poetry/master/get-poetry.py | python -
+
+    - name: Install Dependencies with Poetry
+      run: |
+        source $HOME/.poetry/env
+        poetry install
 
     - name: Install mypy
       run: |
-        pip install mypy
+        poetry add --dev mypy
 
     - name: Install Missing Type Stubs with mypy
       run: |
-        mypy --install-types --non-interactive src
+        poetry run mypy --install-types --non-interactive src
 
     - name: Run mypy for Type Checking
       run: |
-        mypy src
-
+        poetry run mypy src
