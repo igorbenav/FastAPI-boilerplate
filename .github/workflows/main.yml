@@ -1,0 +1,37 @@
+name: FastAPI CI/CD Pipeline
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  type-check:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout Repository
+      uses: actions/checkout@v2
+
+    - name: Set up Python
+      uses: actions/setup-python@v2
+      with:
+        python-version: '3.11'
+
+    - name: Install Dependencies
+      run: |
+        pip install -r requirements.txt
+
+    - name: Install mypy
+      run: |
+        pip install mypy
+
+    - name: Install Missing Type Stubs with mypy
+      run: |
+        mypy --install-types --non-interactive src
+
+    - name: Run mypy for Type Checking
+      run: |
+        mypy src
+
