@@ -23,18 +23,25 @@ jobs:
       run: |
         curl -sSL https://install.python-poetry.org | python3 -
 
+    - name: Change to src Directory
+      run: cd src
+
     - name: Install Dependencies with Poetry
       run: |
         poetry install
+      working-directory: ./src
 
     - name: Install mypy
       run: |
         poetry add --dev mypy
+      working-directory: ./src
 
     - name: Install Missing Type Stubs with mypy
       run: |
-        poetry run mypy --install-types --non-interactive src
+        poetry run mypy --install-types --non-interactive .
+      working-directory: ./src
 
     - name: Run mypy for Type Checking
       run: |
-        poetry run mypy src
+        poetry run mypy .
+      working-directory: ./src
