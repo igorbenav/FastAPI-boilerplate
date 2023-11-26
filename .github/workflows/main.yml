@@ -34,4 +34,4 @@ jobs:
 
     - name: Run mypy for Type Checking
       run: |
-        mypy --config-file ../mypy.ini src
+        mypy --config-file mypy.ini src/
