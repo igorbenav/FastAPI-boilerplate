@@ -1,4 +1,4 @@
-from typing import Callable, Union, List, Dict, Any
+from typing import Callable, Union, Tuple, List, Dict, Any
 import functools
 import json
 import re
@@ -7,12 +7,12 @@ from fastapi import Request, Response
 from fastapi.encoders import jsonable_encoder
 from redis.asyncio import Redis, ConnectionPool
 
-from app.core.exceptions.cache_exceptions import CacheIdentificationInferenceError, InvalidRequestError
+from app.core.exceptions.cache_exceptions import CacheIdentificationInferenceError, InvalidRequestError, MissingClientError
 
 pool: ConnectionPool | None = None
 client: Redis | None = None
 
-def _infer_resource_id(kwargs: Dict[str, Any], resource_id_type: Union[type, str]) -> Union[None, int, str]:
+def _infer_resource_id(kwargs: Dict[str, Any], resource_id_type: Union[type, Tuple[type, ...]]) -> Union[None, int, str]:
     """
     Infer the resource ID from a dictionary of keyword arguments.
 
@@ -20,8 +20,8 @@ def _infer_resource_id(kwargs: Dict[str, Any], resource_id_type: Union[type, str
     ----------
     kwargs: Dict[str, Any] 
         A dictionary of keyword arguments.
-    resource_id_type: Union[type, str] 
-        The expected type of the resource ID, which can be an integer (int) or a string (str).
+    resource_id_type: Union[type, Tuple[type, ...]]
+        The expected type of the resource ID, which can be integer (int) or a string (str).
         
     Returns
     -------
@@ -30,8 +30,8 @@ def _infer_resource_id(kwargs: Dict[str, Any], resource_id_type: Union[type, str
 
     Note
     ----
-        - When `resource_id_type` is 'int', the function looks for an argument with the key 'id'.
-        - When `resource_id_type` is 'str', it attempts to infer the resource ID as a string.
+        - When `resource_id_type` is `int`, the function looks for an argument with the key 'id'.
+        - When `resource_id_type` is `str`, it attempts to infer the resource ID as a string.
     """
     resource_id = None
     for arg_name, arg_value in kwargs.items():
@@ -177,7 +177,10 @@ async def _delete_keys_by_pattern(pattern: str):
     - Be cautious with patterns that could match a large number of keys, as deleting
       many keys simultaneously may impact the performance of the Redis server.
     """
-    cursor = "0"
+    if client is None:
+        raise MissingClientError
+
+    cursor = -1
     while cursor != 0:
         cursor, keys = await client.scan(cursor, match=pattern, count=100)
         if keys:
@@ -188,7 +191,7 @@ def cache(
         key_prefix: str, 
         resource_id_name: Any = None, 
         expiration: int = 3600, 
-        resource_id_type: Union[type, List[type]] = int,
+        resource_id_type: Union[type, Tuple[type, ...]] = int,
         to_invalidate_extra: Dict[str, Any] | None = None,
         pattern_to_invalidate_extra: List[str] | None = None
 ) -> Callable:
@@ -207,8 +210,8 @@ def cache(
         otherwise, the resource ID is inferred from the function's arguments.
     expiration: int, optional
         The expiration time for the cached data in seconds. Defaults to 3600 seconds (1 hour).
-    resource_id_type: Union[type, List[type]], optional
-        The expected type of the resource ID. This can be a single type (e.g., int) or a list of types (e.g., [int, str]). 
+    resource_id_type: Union[type, Tuple[type, ...]], default int
+        The expected type of the resource ID. This can be a single type (e.g., int) or a tuple of types (e.g., (int, str)). 
         Defaults to int. This is used only if resource_id_name is not provided.
     to_invalidate_extra: Dict[str, Any] | None, optional
         A dictionary where keys are cache key prefixes and values are templates for cache key suffixes. 
@@ -286,6 +289,9 @@ def cache(
     def wrapper(func: Callable) -> Callable:
         @functools.wraps(func)
         async def inner(request: Request, *args, **kwargs) -> Response:
+            if client is None:
+                raise MissingClientError
+
             if resource_id_name:
                 resource_id = kwargs[resource_id_name]
             else:

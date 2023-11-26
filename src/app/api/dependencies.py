@@ -64,7 +64,7 @@ async def get_optional_user(
         if token_data is None:
             return None
 
-        return await get_current_user(token_value, is_deleted=False, db=db)
+        return await get_current_user(token_value, db=db)
     
     except HTTPException as http_exc:
         if http_exc.status_code != 401:

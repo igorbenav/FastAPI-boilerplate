@@ -13,8 +13,9 @@ from .helper import (
     _auto_detect_join_condition,
     _add_column_with_prefix
 )
+from app.core.db.database import Base
 
-ModelType = TypeVar("ModelType")
+ModelType = TypeVar("ModelType", bound=Base)
 CreateSchemaType = TypeVar("CreateSchemaType", bound=BaseModel)
 UpdateSchemaType = TypeVar("UpdateSchemaType", bound=BaseModel)
 UpdateSchemaInternalType = TypeVar("UpdateSchemaInternalType", bound=BaseModel)
