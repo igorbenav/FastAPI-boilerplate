@@ -28,9 +28,9 @@ jobs:
         poetry install
       working-directory: ./src
 
-    - name: Install mypy, Type Stubs, SQLAlchemy, and SQLAlchemy Stubs
+    - name: Install mypy and Type Stubs
       run: |
-        pip install mypy types-requests types-redis sqlalchemy sqlalchemy-stubs
+        pip install mypy types-requests types-redis sqlalchemy
 
     - name: Run mypy for Type Checking
       run: |
