@@ -31,17 +31,16 @@ jobs:
         poetry install
       working-directory: ./src
 
-    - name: Install mypy
+    - name: Install mypy Globally
       run: |
-        poetry add --dev mypy
-      working-directory: ./src
+        pip install mypy
 
     - name: Install Missing Type Stubs with mypy
       run: |
-        poetry run mypy --install-types --non-interactive .
+        mypy --install-types --non-interactive .
       working-directory: ./src
 
     - name: Run mypy for Type Checking
       run: |
-        poetry run mypy .
+        mypy .
       working-directory: ./src
