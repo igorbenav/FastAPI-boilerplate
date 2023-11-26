@@ -28,10 +28,7 @@ jobs:
         poetry install
       working-directory: ./src
 
-    - name: Install mypy Globally
-      run: |
-        pip install mypy
-
     - name: Run mypy for Type Checking
       run: |
-        mypy --config-file mypy.ini src/
+        poetry run mypy --config-file ../mypy.ini --cache-dir .mypy_cache src/
+      working-directory: ./src
