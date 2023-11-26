@@ -25,7 +25,6 @@ jobs:
 
     - name: Install Dependencies with Poetry
       run: |
-        source $HOME/.poetry/env
         poetry install
 
     - name: Install mypy
