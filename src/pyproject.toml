@@ -32,7 +32,7 @@ arq = "^0.25.0"
 gunicorn = "^21.2.0"
 
 [tool.poetry.dev-dependencies]
-mypy = "^0.910"
+mypy = "^0.930"
 types-requests = "*"
 types-redis = "*"
 
