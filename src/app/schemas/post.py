@@ -66,7 +66,7 @@ class PostCreateInternal(PostCreate):
     created_by_user_id: int
 
 
-class PostUpdate(PostBase):
+class PostUpdate(BaseModel):
     model_config = ConfigDict(extra='forbid')
     
     title: Annotated[

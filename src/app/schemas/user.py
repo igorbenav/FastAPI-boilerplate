@@ -32,7 +32,6 @@ class User(TimestampSchema, UserBase, UUIDSchema, PersistentDeletion):
 
 class UserRead(BaseModel):
     id: int
-    tier_id: int
     
     name: Annotated[
         str, 
