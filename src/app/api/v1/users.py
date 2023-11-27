@@ -1,6 +1,6 @@
 from typing import Annotated, Union, Dict, Any
 
-from fastapi import Depends, HTTPException
+from fastapi import Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 from fastapi import Request
 import fastapi
@@ -9,7 +9,7 @@ from app.api.dependencies import get_current_user, get_current_superuser
 from app.core.exceptions.http_exceptions import DuplicateValueException, NotFoundException, ForbiddenException
 from app.api.paginated import PaginatedListResponse, paginated_response, compute_offset
 from app.core.db.database import async_get_db
-from app.core.security import get_password_hash
+from app.core.security import get_password_hash, blacklist_token, oauth2_scheme
 from app.crud.crud_users import crud_users
 from app.crud.crud_tier import crud_tiers
 from app.crud.crud_rate_limit import crud_rate_limits
@@ -116,9 +116,10 @@ async def patch_user(
 @router.delete("/user/{username}")
 async def erase_user(
     request: Request, 
-    username: str, 
+    username: str,
     current_user: Annotated[UserRead, Depends(get_current_user)],
-    db: Annotated[AsyncSession, Depends(async_get_db)]
+    db: Annotated[AsyncSession, Depends(async_get_db)],
+    token: str = Depends(oauth2_scheme)
 ) -> Dict[str, str]:
     db_user = await crud_users.get(db=db, schema_to_select=UserRead, username=username)
     if not db_user:
@@ -128,6 +129,7 @@ async def erase_user(
         raise ForbiddenException()
 
     await crud_users.delete(db=db, db_row=db_user, username=username)
+    await blacklist_token(token=token, db=db)
     return {"message": "User deleted"}
 
 
@@ -135,13 +137,15 @@ async def erase_user(
 async def erase_db_user(
     request: Request, 
     username: str,
-    db: Annotated[AsyncSession, Depends(async_get_db)]
+    db: Annotated[AsyncSession, Depends(async_get_db)],
+    token: str = Depends(oauth2_scheme)
 ) -> Dict[str, str]:
     db_user = await crud_users.exists(db=db, username=username)
     if not db_user:
         raise NotFoundException("User not found")
     
     db_user = await crud_users.db_delete(db=db, username=username)
+    await blacklist_token(token=token, db=db)
     return {"message": "User deleted from the database"}
 
 
