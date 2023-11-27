@@ -90,8 +90,9 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType, UpdateSche
         result: Row = db_row.first()
         if result is not None:
             out: dict = dict(result._mapping)
+            return out
         
-        return out
+        return None
     
     async def exists(
             self, 

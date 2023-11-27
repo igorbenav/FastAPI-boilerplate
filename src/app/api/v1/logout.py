@@ -4,12 +4,10 @@ from datetime import datetime
 
 from fastapi import APIRouter, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
-from jose import jwt, JWTError
+from jose import JWTError
 
-from app.core.security import oauth2_scheme, SECRET_KEY, ALGORITHM
+from app.core.security import oauth2_scheme, blacklist_token
 from app.core.db.database import async_get_db
-from app.core.db.crud_token_blacklist import crud_token_blacklist
-from app.core.schemas import TokenBlacklistCreate
 from app.core.exceptions.http_exceptions import UnauthorizedException
 
 router = APIRouter(tags=["login"])
@@ -20,14 +18,7 @@ async def logout(
     db: AsyncSession = Depends(async_get_db)
 ) -> Dict[str, str]:
     try:
-        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
-        expires_at = datetime.fromtimestamp(payload.get("exp"))
-        await crud_token_blacklist.create(
-            db, 
-            object=TokenBlacklistCreate(
-                **{"token": token, "expires_at": expires_at}
-            )
-        )
+        await blacklist_token(token=token, db=db)
         return {"message": "Logged out successfully"}
     
     except JWTError:

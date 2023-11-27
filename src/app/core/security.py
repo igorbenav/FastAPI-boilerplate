@@ -7,7 +7,7 @@ from jose import jwt, JWTError
 from fastapi.security import OAuth2PasswordBearer
 
 from app.core.config import settings
-from app.core.schemas import TokenData
+from app.core.schemas import TokenData, TokenBlacklistCreate
 from app.core.db.crud_token_blacklist import crud_token_blacklist
 from app.crud.crud_users import crud_users
 
@@ -79,3 +79,13 @@ async def verify_token(token: str, db: AsyncSession) -> TokenData | None:
     
     except JWTError:
         return None
+
+async def blacklist_token(token: str, db: AsyncSession) -> None:
+    payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+    expires_at = datetime.fromtimestamp(payload.get("exp"))
+    await crud_token_blacklist.create(
+        db,
+        object=TokenBlacklistCreate(
+            **{"token": token, "expires_at": expires_at}
+        )
+    )
