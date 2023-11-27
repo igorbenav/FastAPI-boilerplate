@@ -19,21 +19,23 @@ jobs:
       with:
         python-version: '3.11'
 
-    - name: Set PYTHONPATH
-      run: echo "PYTHONPATH=./src" >> $GITHUB_ENV
-
     - name: Install Poetry
       run: |
         curl -sSL https://install.python-poetry.org | python3 -
 
-    - name: Install Dependencies with Poetry
+    - name: Export Poetry dependencies to requirements.txt
       run: |
-        poetry install
+        poetry export -f requirements.txt --output requirements.txt --without-hashes
+      working-directory: ./src
+
+    - name: Install Dependencies
+      run: |
+        pip install -r requirements.txt
       working-directory: ./src
 
     - name: Install mypy and Type Stubs
       run: |
-        pip install mypy==1.7.1 types-requests types-redis sqlalchemy
+        pip install mypy types-requests types-redis
 
     - name: Run mypy for Type Checking
       run: |
