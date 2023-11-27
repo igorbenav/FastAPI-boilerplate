@@ -28,13 +28,9 @@ jobs:
         poetry install
       working-directory: ./src
 
-    - name: Install mypy
+    - name: Install mypy and Type Stubs
       run: |
-        pip install mypy
-
-    - name: Mypy Install Types 
-      run: |
-        mypy --install-types 
+        pip install mypy==1.7.1 types-requests types-redis sqlalchemy
 
     - name: Run mypy for Type Checking
       run: |
