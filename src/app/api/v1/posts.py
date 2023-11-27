@@ -1,4 +1,4 @@
-from typing import Annotated
+from typing import Annotated, Union, Dict, Any
 
 from fastapi import Request, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -23,7 +23,7 @@ async def write_post(
     post: PostCreate, 
     current_user: Annotated[UserRead, Depends(get_current_user)],
     db: Annotated[AsyncSession, Depends(async_get_db)]
-):
+) -> PostRead:
     db_user = await crud_users.get(db=db, schema_to_select=UserRead, username=username, is_deleted=False)
     if db_user is None:
         raise NotFoundException("User not found")
@@ -50,7 +50,7 @@ async def read_posts(
     db: Annotated[AsyncSession, Depends(async_get_db)],
     page: int = 1,
     items_per_page: int = 10
-):
+) -> PaginatedListResponse[PostRead]:
     db_user = await crud_users.get(db=db, schema_to_select=UserRead, username=username, is_deleted=False)
     if not db_user:
         raise NotFoundException("User not found")
@@ -78,7 +78,7 @@ async def read_post(
     username: str,
     id: int, 
     db: Annotated[AsyncSession, Depends(async_get_db)]
-):
+) -> PostRead:
     db_user = await crud_users.get(db=db, schema_to_select=UserRead, username=username, is_deleted=False)
     if db_user is None:
         raise NotFoundException("User not found")
@@ -103,7 +103,7 @@ async def patch_post(
     values: PostUpdate,
     current_user: Annotated[UserRead, Depends(get_current_user)],
     db: Annotated[AsyncSession, Depends(async_get_db)]
-):
+) -> Dict[str, str]:
     db_user = await crud_users.get(db=db, schema_to_select=UserRead, username=username, is_deleted=False)
     if db_user is None:
         raise NotFoundException("User not found")
@@ -131,7 +131,7 @@ async def erase_post(
     id: int,
     current_user: Annotated[UserRead, Depends(get_current_user)],
     db: Annotated[AsyncSession, Depends(async_get_db)]
-):
+) -> Dict[str, str]:
     db_user = await crud_users.get(db=db, schema_to_select=UserRead, username=username, is_deleted=False)
     if db_user is None:
         raise NotFoundException("User not found")
@@ -159,7 +159,7 @@ async def erase_db_post(
     username: str,
     id: int,
     db: Annotated[AsyncSession, Depends(async_get_db)]
-):
+) -> Dict[str, str]:
     db_user = await crud_users.get(db=db, schema_to_select=UserRead, username=username, is_deleted=False)
     if db_user is None:
         raise NotFoundException("User not found")

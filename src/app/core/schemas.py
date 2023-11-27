@@ -1,3 +1,4 @@
+from typing import Any
 import uuid as uuid_pkg
 from datetime import datetime
 
@@ -18,14 +19,14 @@ class TimestampSchema(BaseModel):
     updated_at: datetime = Field(default=None)
 
     @field_serializer("created_at")
-    def serialize_dt(self, created_at: datetime | None, _info) -> str | None:
+    def serialize_dt(self, created_at: datetime | None, _info: Any) -> str | None:
         if created_at is not None:
             return created_at.isoformat()
         
         return None
 
     @field_serializer("updated_at")
-    def serialize_updated_at(self, updated_at: datetime | None, _info) -> str | None:
+    def serialize_updated_at(self, updated_at: datetime | None, _info: Any) -> str | None:
         if updated_at is not None:
             return updated_at.isoformat()
 
@@ -36,7 +37,7 @@ class PersistentDeletion(BaseModel):
     is_deleted: bool = False
 
     @field_serializer('deleted_at')
-    def serialize_dates(self, deleted_at: datetime | None, _info) -> str | None:
+    def serialize_dates(self, deleted_at: datetime | None, _info: Any) -> str | None:
         if deleted_at is not None:
             return deleted_at.isoformat()
         

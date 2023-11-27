@@ -12,7 +12,7 @@ from app.core.exceptions.cache_exceptions import CacheIdentificationInferenceErr
 pool: ConnectionPool | None = None
 client: Redis | None = None
 
-def _infer_resource_id(kwargs: Dict[str, Any], resource_id_type: Union[type, Tuple[type, ...]]) -> Union[None, int, str]:
+def _infer_resource_id(kwargs: Dict[str, Any], resource_id_type: Union[type, Tuple[type, ...]]) -> int | str:
     """
     Infer the resource ID from a dictionary of keyword arguments.
 
@@ -33,7 +33,7 @@ def _infer_resource_id(kwargs: Dict[str, Any], resource_id_type: Union[type, Tup
         - When `resource_id_type` is `int`, the function looks for an argument with the key 'id'.
         - When `resource_id_type` is `str`, it attempts to infer the resource ID as a string.
     """
-    resource_id = None
+    resource_id: int | str | None = None
     for arg_name, arg_value in kwargs.items():
         if isinstance(arg_value, resource_id_type):
             if (resource_id_type is int) and ("id" in arg_name):
@@ -147,7 +147,7 @@ def _format_extra_data(
     return formatted_extra
 
 
-async def _delete_keys_by_pattern(pattern: str):
+async def _delete_keys_by_pattern(pattern: str) -> None:
     """
     Delete keys from Redis that match a given pattern using the SCAN command.
 
@@ -288,7 +288,7 @@ def cache(
     """
     def wrapper(func: Callable) -> Callable:
         @functools.wraps(func)
-        async def inner(request: Request, *args, **kwargs) -> Response:
+        async def inner(request: Request, *args: Any, **kwargs: Any) -> Response:
             if client is None:
                 raise MissingClientError
 

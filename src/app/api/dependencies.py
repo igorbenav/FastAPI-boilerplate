@@ -1,4 +1,4 @@
-from typing import Annotated
+from typing import Annotated, Union, Any
 
 from app.core.security import SECRET_KEY, ALGORITHM, oauth2_scheme
 from app.core.config import settings
@@ -31,13 +31,13 @@ DEFAULT_PERIOD = settings.DEFAULT_RATE_LIMIT_PERIOD
 async def get_current_user(
     token: Annotated[str, Depends(oauth2_scheme)],
     db: Annotated[AsyncSession, Depends(async_get_db)]
-) -> dict:
+) -> Union[dict[str, Any], None]:
     token_data = await verify_token(token, db)
     if token_data is None:
         raise UnauthorizedException("User not authenticated.")
 
     if "@" in token_data.username_or_email:
-        user = await crud_users.get(db=db, email=token_data.username_or_email, is_deleted=False)
+        user: dict = await crud_users.get(db=db, email=token_data.username_or_email, is_deleted=False)
     else: 
         user = await crud_users.get(db=db, username=token_data.username_or_email, is_deleted=False)
     
@@ -76,7 +76,7 @@ async def get_optional_user(
         return None
 
 
-async def get_current_superuser(current_user: Annotated[User, Depends(get_current_user)]) -> dict:
+async def get_current_superuser(current_user: Annotated[dict, Depends(get_current_user)]) -> dict:
     if not current_user["is_superuser"]:
         raise ForbiddenException("You do not have enough privileges.")
     
@@ -87,7 +87,7 @@ async def rate_limiter(
     request: Request,
     db: Annotated[AsyncSession, Depends(async_get_db)],
     user: User | None = Depends(get_optional_user)
-):
+) -> None:
     path = sanitize_path(request.url.path)
     if user:
         user_id = user["id"]

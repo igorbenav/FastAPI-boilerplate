@@ -1,6 +1,8 @@
+from typing import Dict
+
 from datetime import datetime
 
-from fastapi import APIRouter, Depends, status
+from fastapi import APIRouter, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 from jose import jwt, JWTError
 
@@ -16,7 +18,7 @@ router = APIRouter(tags=["login"])
 async def logout(
     token: str = Depends(oauth2_scheme),
     db: AsyncSession = Depends(async_get_db)
-):
+) -> Dict[str, str]:
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
         expires_at = datetime.fromtimestamp(payload.get("exp"))

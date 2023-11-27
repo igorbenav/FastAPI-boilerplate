@@ -1,3 +1,6 @@
+from typing import Union, Dict, Any
+
+import fastapi
 from fastapi import FastAPI, APIRouter, Depends
 from fastapi.openapi.docs import get_swagger_ui_html, get_redoc_html
 from fastapi.openapi.utils import get_openapi
@@ -5,7 +8,6 @@ import redis.asyncio as redis
 from arq import create_pool
 from arq.connections import RedisSettings
 import anyio
-
 
 from app.api.dependencies import get_current_superuser
 from app.core.utils import queue
@@ -26,50 +28,55 @@ from app.middleware.client_cache_middleware import ClientCacheMiddleware
 from app.core.utils import cache, rate_limit
 
 # -------------- database --------------
-async def create_tables():
+async def create_tables() -> None:
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
 
 
 # -------------- cache --------------
-async def create_redis_cache_pool():
+async def create_redis_cache_pool() -> None:
     cache.pool = redis.ConnectionPool.from_url(settings.REDIS_CACHE_URL)
-    cache.client = redis.Redis.from_pool(cache.pool)
+    cache.client = redis.Redis.from_pool(cache.pool)  # type: ignore
 
 
-async def close_redis_cache_pool():
+async def close_redis_cache_pool() -> None:
     await cache.client.aclose()
 
 
 # -------------- queue --------------
-async def create_redis_queue_pool():
+async def create_redis_queue_pool() -> None:
     queue.pool = await create_pool(
         RedisSettings(host=settings.REDIS_QUEUE_HOST, port=settings.REDIS_QUEUE_PORT)
     )
 
 
-async def close_redis_queue_pool():
+async def close_redis_queue_pool() -> None:
     await queue.pool.aclose()
 
 
 # -------------- rate limit --------------
-async def create_redis_rate_limit_pool():
+async def create_redis_rate_limit_pool() -> None:
     rate_limit.pool = redis.ConnectionPool.from_url(settings.REDIS_RATE_LIMIT_URL)
-    rate_limit.client = redis.Redis.from_pool(rate_limit.pool)
+    rate_limit.client = redis.Redis.from_pool(rate_limit.pool) # type: ignore
 
 
-async def close_redis_rate_limit_pool():
+async def close_redis_rate_limit_pool() -> None:
     await rate_limit.client.aclose()
 
 
 # -------------- application --------------
-async def set_threadpool_tokens(number_of_tokens=100):
+async def set_threadpool_tokens(number_of_tokens: int = 100) -> None:
     limiter = anyio.to_thread.current_default_thread_limiter()
     limiter.total_tokens = number_of_tokens
 
 
 # -------------- application --------------
-def create_application(router: APIRouter, settings, **kwargs) -> FastAPI:
+def create_application(
+        router: APIRouter, 
+        settings: Union[DatabaseSettings, RedisCacheSettings, AppSettings, ClientSideCacheSettings, RedisQueueSettings, RedisRateLimiterSettings, EnvironmentSettings], 
+        **kwargs: Any
+) -> FastAPI:
+
     """
     Creates and configures a FastAPI application based on the provided settings.
 
@@ -157,18 +164,19 @@ def create_application(router: APIRouter, settings, **kwargs) -> FastAPI:
                 docs_router = APIRouter(dependencies=[Depends(get_current_superuser)])
             
             @docs_router.get("/docs", include_in_schema=False)
-            async def get_swagger_documentation():
+            async def get_swagger_documentation() -> fastapi.responses.HTMLResponse:
                 return get_swagger_ui_html(openapi_url="/openapi.json", title="docs")
 
 
             @docs_router.get("/redoc", include_in_schema=False)
-            async def get_redoc_documentation():
+            async def get_redoc_documentation() -> fastapi.responses.HTMLResponse:
                 return get_redoc_html(openapi_url="/openapi.json", title="docs")
 
 
             @docs_router.get("/openapi.json", include_in_schema=False)
-            async def openapi():
-                return get_openapi(title=application.title, version=application.version, routes=application.routes)
+            async def openapi() -> Dict[str, Any]:
+                out: dict = get_openapi(title=application.title, version=application.version, routes=application.routes)
+                return out
             
             application.include_router(docs_router)
             
