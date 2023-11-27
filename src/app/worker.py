@@ -1,6 +1,8 @@
 import asyncio
 import uvloop
 from arq.connections import RedisSettings
+from arq.worker import Worker
+from typing import Any
 
 from app.core.config import settings
 
@@ -11,17 +13,17 @@ REDIS_QUEUE_PORT = settings.REDIS_QUEUE_PORT
 
 
 # -------- background tasks --------
-async def sample_background_task(ctx, name: str) -> str:
+async def sample_background_task(ctx: Worker, name: str) -> str:
     await asyncio.sleep(5)
     return f"Task {name} is complete!"
 
 
 # -------- base functions --------
-async def startup(ctx):
+async def startup(ctx: Worker) -> None:
     print("worker start")
 
 
-async def shutdown(ctx):
+async def shutdown(ctx: Worker) -> None:
     print("worker end")
 
 

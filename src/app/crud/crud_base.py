@@ -54,7 +54,7 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType, UpdateSche
             The created database object.
         """
         object_dict = object.model_dump()
-        db_object = self._model(**object_dict)
+        db_object: ModelType = self._model(**object_dict)
         db.add(db_object)
         await db.commit()
         return db_object
@@ -63,7 +63,7 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType, UpdateSche
             self, 
             db: AsyncSession, 
             schema_to_select: Union[Type[BaseModel], List, None] = None,
-            **kwargs
+            **kwargs: Any
     ) -> Dict | None:
         """
         Fetch a single record based on filters.
@@ -87,16 +87,16 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType, UpdateSche
             .filter_by(**kwargs)
         
         db_row = await db.execute(stmt)
-        result = db_row.first()
-        if result:
-            result = dict(result._mapping)
+        result: Row = db_row.first()
+        if result is not None:
+            out: dict = dict(result._mapping)
         
-        return result
+        return out
     
     async def exists(
             self, 
             db: AsyncSession, 
-            **kwargs
+            **kwargs: Any
     ) -> bool:
         """
         Check if a record exists based on filters.
@@ -149,7 +149,7 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType, UpdateSche
         combined_conditions = and_(*conditions)
 
         count_query = select(func.count()).filter(combined_conditions)
-        total_count = await db.scalar(count_query)
+        total_count: int = await db.scalar(count_query)
 
         return total_count
 
@@ -204,8 +204,8 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType, UpdateSche
             schema_to_select: Union[Type[BaseModel], List, None] = None,
             join_schema_to_select: Union[Type[BaseModel], List, None] = None,
             join_type: str = "left",
-            **kwargs
-    ) -> Dict | None:
+            **kwargs: Any
+    ) -> dict | None:
         """
         Fetches a single record with a join on another model. If 'join_on' is not provided, the method attempts 
         to automatically detect the join condition using foreign key relationships.
@@ -311,11 +311,12 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType, UpdateSche
                 stmt = stmt.where(getattr(self._model, key) == value)
 
         db_row = await db.execute(stmt)
-        result = db_row.first()
+        result: Row = db_row.first()
         if result:
-            result = dict(result._mapping)
-
-        return result
+            out: dict = dict(result._mapping)
+            return out
+        
+        return None
     
     async def get_multi_joined(
             self,
@@ -415,7 +416,7 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType, UpdateSche
             self, 
             db: AsyncSession, 
             object: Union[UpdateSchemaType, Dict[str, Any]], 
-            **kwargs
+            **kwargs: Any
     ) -> None:
         """
         Update an existing record in the database.
@@ -451,7 +452,7 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType, UpdateSche
     async def db_delete(
             self, 
             db: AsyncSession, 
-            **kwargs
+            **kwargs: Any
     ) -> None:
         """
         Delete a record in the database.
@@ -475,7 +476,7 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType, UpdateSche
             self, 
             db: AsyncSession, 
             db_row: Row | None = None, 
-            **kwargs
+            **kwargs: Any
     ) -> None:
         """
         Soft delete a record if it has "is_deleted" attribute, otherwise perform a hard delete.

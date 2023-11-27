@@ -1,4 +1,4 @@
-from typing import Annotated
+from typing import Annotated, Dict
 
 from fastapi import Request, Depends, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -23,7 +23,7 @@ async def write_tier(
     request: Request, 
     tier: TierCreate, 
     db: Annotated[AsyncSession, Depends(async_get_db)]
-):  
+) -> TierRead:
     tier_internal_dict = tier.model_dump()
     db_tier = await crud_tiers.exists(db=db, name=tier_internal_dict["name"])
     if db_tier:
@@ -39,7 +39,7 @@ async def read_tiers(
     db: Annotated[AsyncSession, Depends(async_get_db)],
     page: int = 1,
     items_per_page: int = 10
-):
+) -> PaginatedListResponse[TierRead]:
     tiers_data = await crud_tiers.get_multi(
         db=db,
         offset=compute_offset(page, items_per_page),
@@ -59,7 +59,7 @@ async def read_tier(
     request: Request,
     name: str, 
     db: Annotated[AsyncSession, Depends(async_get_db)]
-):
+) -> TierRead:
     db_tier = await crud_tiers.get(db=db, schema_to_select=TierRead, name=name)
     if db_tier is None:
         raise NotFoundException("Tier not found")
@@ -73,7 +73,7 @@ async def patch_tier(
     values: TierUpdate,
     name: str,
     db: Annotated[AsyncSession, Depends(async_get_db)]
-):
+) -> Dict[str, str]:
     db_tier = await crud_tiers.get(db=db, schema_to_select=TierRead, name=name)
     if db_tier is None:
         raise NotFoundException("Tier not found")
@@ -87,7 +87,7 @@ async def erase_tier(
     request: Request,
     name: str, 
     db: Annotated[AsyncSession, Depends(async_get_db)]
-):
+) -> Dict[str, str]:
     db_tier = await crud_tiers.get(db=db, schema_to_select=TierRead, name=name)
     if db_tier is None:
         raise NotFoundException("Tier not found")

@@ -1,4 +1,4 @@
-from typing import Annotated
+from typing import Annotated, Dict
 from datetime import timedelta
 
 from fastapi import Depends
@@ -17,7 +17,7 @@ router = fastapi.APIRouter(tags=["login"])
 async def login_for_access_token(
     form_data: Annotated[OAuth2PasswordRequestForm, Depends()],
     db: Annotated[AsyncSession, Depends(async_get_db)]
-):
+) -> Dict[str, str]:
     user = await authenticate_user(
         username_or_email=form_data.username, 
         password=form_data.password, 

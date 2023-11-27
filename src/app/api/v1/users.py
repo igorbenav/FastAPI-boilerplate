@@ -1,4 +1,4 @@
-from typing import Annotated
+from typing import Annotated, Union, Dict, Any
 
 from fastapi import Depends, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -24,7 +24,7 @@ async def write_user(
     request: Request, 
     user: UserCreate, 
     db: Annotated[AsyncSession, Depends(async_get_db)]
-):
+) -> UserRead:
     email_row = await crud_users.exists(db=db, email=user.email)
     if email_row:
         raise DuplicateValueException("Email is already registered")
@@ -47,7 +47,7 @@ async def read_users(
     db: Annotated[AsyncSession, Depends(async_get_db)],
     page: int = 1,
     items_per_page: int = 10
-):
+) -> PaginatedListResponse[UserRead]:
     users_data = await crud_users.get_multi(
         db=db,
         offset=compute_offset(page, items_per_page),
@@ -65,13 +65,18 @@ async def read_users(
 
 @router.get("/user/me/", response_model=UserRead)
 async def read_users_me(
-    request: Request, current_user: Annotated[UserRead, Depends(get_current_user)]
-):
+    request: Request, 
+    current_user: Annotated[UserRead, Depends(get_current_user)]
+) -> UserRead:
     return current_user
 
 
 @router.get("/user/{username}", response_model=UserRead)
-async def read_user(request: Request, username: str, db: Annotated[AsyncSession, Depends(async_get_db)]):
+async def read_user(
+    request: Request, 
+    username: str, 
+    db: Annotated[AsyncSession, Depends(async_get_db)]
+) -> UserRead:
     db_user = await crud_users.get(db=db, schema_to_select=UserRead, username=username, is_deleted=False)
     if db_user is None:
         raise NotFoundException("User not found")
@@ -86,7 +91,7 @@ async def patch_user(
     username: str,
     current_user: Annotated[UserRead, Depends(get_current_user)],
     db: Annotated[AsyncSession, Depends(async_get_db)]
-):
+) -> Dict[str, str]:
     db_user = await crud_users.get(db=db, schema_to_select=UserRead, username=username)
     if db_user is None:
         raise NotFoundException("User not found")
@@ -114,7 +119,7 @@ async def erase_user(
     username: str, 
     current_user: Annotated[UserRead, Depends(get_current_user)],
     db: Annotated[AsyncSession, Depends(async_get_db)]
-):
+) -> Dict[str, str]:
     db_user = await crud_users.get(db=db, schema_to_select=UserRead, username=username)
     if not db_user:
         raise NotFoundException("User not found")
@@ -131,7 +136,7 @@ async def erase_db_user(
     request: Request, 
     username: str,
     db: Annotated[AsyncSession, Depends(async_get_db)]
-):
+) -> Dict[str, str]:
     db_user = await crud_users.exists(db=db, username=username)
     if not db_user:
         raise NotFoundException("User not found")
@@ -145,8 +150,8 @@ async def read_user_rate_limits(
     request: Request,
     username: str,
     db: Annotated[AsyncSession, Depends(async_get_db)]
-):
-    db_user = await crud_users.get(db=db, username=username, schema_to_select=UserRead)
+) -> Dict[str, Any]:
+    db_user: dict = await crud_users.get(db=db, username=username, schema_to_select=UserRead)
     if db_user is None:
         raise NotFoundException("User not found")
 
@@ -173,7 +178,7 @@ async def read_user_tier(
     request: Request,
     username: str,
     db: Annotated[AsyncSession, Depends(async_get_db)]
-):
+) -> Union[UserRead, TierRead]:
     db_user = await crud_users.get(db=db, username=username, schema_to_select=UserRead)
     if db_user is None:
         raise NotFoundException("User not found")
@@ -200,7 +205,7 @@ async def patch_user_tier(
     username: str,
     values: UserTierUpdate,
     db: Annotated[AsyncSession, Depends(async_get_db)]
-):
+) -> Dict[str, str]:
     db_user = await crud_users.get(db=db, username=username, schema_to_select=UserRead)
     if db_user is None:
         raise NotFoundException("User not found")

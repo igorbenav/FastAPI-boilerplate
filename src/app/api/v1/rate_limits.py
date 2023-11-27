@@ -1,4 +1,4 @@
-from typing import Annotated
+from typing import Annotated, Dict
 
 from fastapi import Request, Depends, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -25,7 +25,7 @@ async def write_rate_limit(
     tier_name: str,
     rate_limit: RateLimitCreate, 
     db: Annotated[AsyncSession, Depends(async_get_db)]
-):
+) -> RateLimitRead:
     db_tier = await crud_tiers.get(db=db, name=tier_name)
     if not db_tier:
         raise NotFoundException("Tier not found")
@@ -48,7 +48,7 @@ async def read_rate_limits(
     db: Annotated[AsyncSession, Depends(async_get_db)],
     page: int = 1,
     items_per_page: int = 10
-):
+) -> PaginatedListResponse[RateLimitRead]:
     db_tier = await crud_tiers.get(db=db, name=tier_name)
     if not db_tier:
         raise NotFoundException("Tier not found")
@@ -74,7 +74,7 @@ async def read_rate_limit(
     tier_name: str,
     id: int,
     db: Annotated[AsyncSession, Depends(async_get_db)]
-):
+) -> RateLimitRead:
     db_tier = await crud_tiers.get(db=db, name=tier_name)
     if not db_tier:
         raise NotFoundException("Tier not found")
@@ -98,7 +98,7 @@ async def patch_rate_limit(
     id: int,
     values: RateLimitUpdate,
     db: Annotated[AsyncSession, Depends(async_get_db)]
-):
+) -> Dict[str, str]:
     db_tier = await crud_tiers.get(db=db, name=tier_name)
     if db_tier is None:
         raise NotFoundException("Tier not found")
@@ -134,7 +134,7 @@ async def erase_rate_limit(
     tier_name: str,
     id: int,
     db: Annotated[AsyncSession, Depends(async_get_db)]
-):
+) -> Dict[str, str]:
     db_tier = await crud_tiers.get(db=db, name=tier_name)
     if not db_tier:
         raise NotFoundException("Tier not found")
