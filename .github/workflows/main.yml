@@ -1,0 +1,37 @@
+name: FastAPI CI/CD Pipeline
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  type-check:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout Repository
+      uses: actions/checkout@v2
+
+    - name: Set up Python
+      uses: actions/setup-python@v2
+      with:
+        python-version: '3.11'
+
+    - name: Install Poetry
+      run: |
+        curl -sSL https://install.python-poetry.org | python3 -
+
+    - name: Install Dependencies with Poetry
+      run: |
+        poetry install
+      working-directory: ./src
+
+    - name: Install mypy and Type Stubs
+      run: |
+        pip install mypy types-requests types-redis sqlalchemy
+
+    - name: Run mypy for Type Checking
+      run: |
+        mypy --config-file mypy.ini src/
