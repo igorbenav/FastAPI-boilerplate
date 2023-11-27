@@ -35,7 +35,7 @@ jobs:
 
     - name: Install mypy and Type Stubs
       run: |
-        pip install mypy types-requests types-redis
+        pip install mypy==1.7.1 types-requests types-redis
 
     - name: Run mypy for Type Checking
       run: |
