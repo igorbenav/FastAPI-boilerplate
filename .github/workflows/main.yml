@@ -19,6 +19,9 @@ jobs:
       with:
         python-version: '3.11'
 
+    - name: Set PYTHONPATH
+      run: echo "PYTHONPATH=./src" >> $GITHUB_ENV
+
     - name: Install Poetry
       run: |
         curl -sSL https://install.python-poetry.org | python3 -
