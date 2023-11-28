@@ -10,8 +10,11 @@ services:
     # command: gunicorn app.main:app -w 4 -k uvicorn.workers.UvicornWorker -b 0.0.0.0:8000
     env_file:
       - ./src/.env
+    # -------- replace with comment if you are using nginx --------
     ports:
       - "8000:8000"
+    # expose:
+    #   - "8000"
     depends_on:
       - db
       - redis
@@ -37,13 +40,15 @@ services:
       - ./src/.env
     volumes:
       - postgres-data:/var/lib/postgresql/data
-    ports:
-      - "5432:5432"
+    expose:
+      - "5432"
 
   redis:
     image: redis:alpine
     volumes:
       - redis-data:/data
+    expose:
+      - "6379"
 
   # #-------- uncomment to run with nginx --------
   # nginx:
