@@ -117,9 +117,8 @@ git clone https://github.com/igormagalhaesr/FastAPI-boilerplate
 ```
 
 ### 3.1 Environment Variables (.env)
-And create a ".env" file:
 
-Then create a `.env` file:
+Then create a `.env` file inside `src` directory:
 ```sh
 touch .env
 ```
@@ -140,8 +139,8 @@ For the database ([`if you don't have a database yet, click here`]()), create:
 # ------------- database -------------
 POSTGRES_USER="your_postgres_user"
 POSTGRES_PASSWORD="your_password"
-POSTGRES_SERVER="your_server" # default localhost
-POSTGRES_PORT=5432 
+POSTGRES_SERVER="your_server" # default "localhost", if using docker compose you should use "db"
+POSTGRES_PORT=5432 # default "5432", if using docker compose you should use "5432"
 POSTGRES_DB="your_db"
 ```
 
@@ -170,23 +169,22 @@ ADMIN_PASSWORD="your_password"
 
 For redis caching:
 ```
-# ------------- redis -------------
-REDIS_CACHE_HOST="your_host" # default "localhost", if using docker compose you should user "redis"
-REDIS_CACHE_PORT=6379
+# ------------- redis cache-------------
+REDIS_CACHE_HOST="your_host" # default "localhost", if using docker compose you should use "redis"
+REDIS_CACHE_PORT=6379 # default "6379", if using docker compose you should use "6379"
 ```
 
 And for client-side caching:
 ```
-# ------------- redis cache -------------
-REDIS_CACHE_HOST="your_host" # default "localhost", if using docker compose you should user "redis"
-REDIS_CACHE_PORT=6379
+# ------------- redis client-side cache -------------
+CLIENT_CACHE_MAX_AGE=30 # default "30"
 ```
 
 For ARQ Job Queues:
 ```
 # ------------- redis queue -------------
-REDIS_CACHE_HOST="your_host" # default "localhost", if using docker compose you should use "db"
-REDIS_CACHE_PORT=6379
+REDIS_QUEUE_HOST="your_host" # default "localhost", if using docker compose you should use "redis"
+REDIS_QUEUE_PORT=6379 # default "6379", if using docker compose you should use "6379"
 ```
 > [!WARNING]
 > You may use the same redis for both caching and queue while developing, but the recommendation is using two separate containers for production.
@@ -200,8 +198,8 @@ TIER_NAME="free"
 For the rate limiter:
 ```
 # ------------- redis rate limit -------------
-REDIS_RATE_LIMIT_HOST="localhost"   # default="localhost"
-REDIS_RATE_LIMIT_PORT=6379          # default=6379
+REDIS_RATE_LIMIT_HOST="localhost"   # default="localhost", if using docker compose you should use "redis"
+REDIS_RATE_LIMIT_PORT=6379          # default=6379, if using docker compose you should use "6379"
 
 
 # ------------- default rate limit settings -------------
