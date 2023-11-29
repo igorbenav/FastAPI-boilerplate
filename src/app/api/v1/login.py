@@ -1,20 +1,28 @@
 from typing import Annotated, Dict
-from datetime import timedelta
+from datetime import timedelta, datetime, timezone
 
-from fastapi import Depends
+from fastapi import Response, Request, Depends
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.ext.asyncio import AsyncSession
 import fastapi
 
+from app.core.config import settings
 from app.core.db.database import async_get_db
-from app.core.schemas import Token
-from app.core.security import ACCESS_TOKEN_EXPIRE_MINUTES, create_access_token, authenticate_user
 from app.core.exceptions.http_exceptions import UnauthorizedException
+from app.core.schemas import Token
+from app.core.security import (
+    ACCESS_TOKEN_EXPIRE_MINUTES, 
+    create_access_token, 
+    authenticate_user, 
+    create_refresh_token,
+    verify_token
+)
 
 router = fastapi.APIRouter(tags=["login"])
 
 @router.post("/login", response_model=Token)
 async def login_for_access_token(
+    response: Response,
     form_data: Annotated[OAuth2PasswordRequestForm, Depends()],
     db: Annotated[AsyncSession, Depends(async_get_db)]
 ) -> Dict[str, str]:
@@ -30,5 +38,37 @@ async def login_for_access_token(
     access_token = await create_access_token(
         data={"sub": user["username"]}, expires_delta=access_token_expires
     )
+
+    refresh_token = await create_refresh_token(data={"sub": user["username"]})
+    max_age = settings.REFRESH_TOKEN_EXPIRE_DAYS * 24 * 60 * 60
+
+    response.set_cookie(
+        key="refresh_token",
+        value=refresh_token,
+        httponly=True,
+        secure=True,
+        samesite='Lax',
+        max_age=max_age
+    )
     
-    return {"access_token": access_token, "token_type": "bearer"}
+    return {
+        "access_token": access_token, 
+        "token_type": "bearer"
+    }
+
+
+@router.post("/refresh")
+async def refresh_access_token(
+    request: Request,
+    db: AsyncSession = Depends(async_get_db)
+) -> Dict[str, str]:
+    refresh_token = request.cookies.get("refresh_token")
+    if not refresh_token:
+        raise UnauthorizedException("Refresh token missing.")
+
+    user_data = await verify_token(refresh_token, db)
+    if not user_data:
+        raise UnauthorizedException("Invalid refresh token.")
+
+    new_access_token = await create_access_token(data={"sub": user_data.username_or_email})
+    return {"access_token": new_access_token, "token_type": "bearer"}
