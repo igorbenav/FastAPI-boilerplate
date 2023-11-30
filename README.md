@@ -48,7 +48,7 @@
 - ⚡️ Fully async
 - 🚀 Pydantic V2 and SQLAlchemy 2.0
 - 🔐 User authentication with JWT
--  Cookie based refresh token
+- 🍪 Cookie based refresh token
 - 🏬 Easy redis caching
 - 👜 Easy client-side caching
 - 🚦 ARQ integration for task queue
