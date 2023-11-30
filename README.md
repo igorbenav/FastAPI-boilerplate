@@ -48,6 +48,7 @@
 - ⚡️ Fully async
 - 🚀 Pydantic V2 and SQLAlchemy 2.0
 - 🔐 User authentication with JWT
+-  Cookie based refresh token
 - 🏬 Easy redis caching
 - 👜 Easy client-side caching
 - 🚦 ARQ integration for task queue
@@ -92,7 +93,8 @@
     9. [More Advanced Caching](#59-more-advanced-caching)
     10. [ARQ Job Queues](#510-arq-job-queues)
     11. [Rate Limiting](#511-rate-limiting)
-    12. [Running](#512-running)
+    12. [JWT Authentication](#512-jwt-authentication)
+    13. [Running](#512-running)
 6. [Running in Production](#6-running-in-production)
     1. [Uvicorn Workers with Gunicorn](#61-uvicorn-workers-with-gunicorn)
     2. [Running With NGINX](#62-running-with-nginx)
@@ -156,6 +158,7 @@ And then create in `.env`:
 SECRET_KEY= # result of openssl rand -hex 32
 ALGORITHM= # pick an algorithm, default HS256
 ACCESS_TOKEN_EXPIRE_MINUTES= # minutes until token expires, default 30
+REFRESH_TOKEN_EXPIRE_DAYS= # days until token expires, default 7
 ```
 
 Then for the first admin user:
@@ -1251,7 +1254,47 @@ Note that for flexibility (since this is a boilerplate), it's not necessary to p
 > [!WARNING]
 > If a user does not have a `tier` or the tier does not have a defined `rate limit` for the path and the token is still passed to the request, the default `limit` and `period` will be used, this will be saved in `app/logs`.
 
-### 5.12 Running
+### 5.12 JWT Authentication
+#### 5.12.1 Details
+The JWT in this boilerplate is created in the following way:
+1. **JWT Access Tokens:** how you actually access protected resources is passing this token in the request header.
+2. **Refresh Tokens:** you use this type of token to get an `access token`, which you'll use to access protected resources. 
+
+The `access token` is short lived (default 30 minutes) to reduce the damage of a potential leak. The `refresh token`, on the other hand, is long lived (default 7 days), and you use it to renew your `access token` without the need to provide username and password every time it expires.
+
+Since the `refresh token` lasts for a longer time, it's stored as a cookie in a secure way:
+
+```python
+# app/api/v1/login
+
+...
+response.set_cookie(
+    key="refresh_token",
+    value=refresh_token,
+    httponly=True,               # Prevent access through JavaScript
+    secure=True,                 # Ensure cookie is sent over HTTPS only
+    samesite='Lax',              # Default to Lax for reasonable balance between security and usability
+    max_age=<number_of_seconds>  # Set a max age for the cookie
+)
+...
+```
+
+You may change it to suit your needs. The possible options for `samesite` are:
+- `Lax`: Cookies will be sent in top-level navigations (like clicking on a link to go to another site), but not in API requests or images loaded from other sites.
+- `Strict`: Cookies will be sent in top-level navigations (like clicking on a link to go to another site), but not in API requests or images loaded from other sites.
+- `None`: Cookies will be sent with both same-site and cross-site requests.
+
+#### 5.12.2 Usage
+What you should do with the client is:
+- `Login`: Send credentials to `/api/v1/login`. Store the returned access token in memory for subsequent requests.
+- `Accessing Protected Routes`: Include the access token in the Authorization header.
+- `Token Renewal`: On access token expiry, the front end should automatically call `/api/v1/refresh` for a new token.
+- `Login Again`: If refresh token is expired, credentials should be sent to `/api/v1/login` again, storing the new access token in memory.
+- `Logout`: Call /api/v1/logout to end the session securely.
+
+This authentication setup in the provides a robust, secure, and user-friendly way to handle user sessions in your API applications.
+
+### 5.13 Running
 If you are using docker compose, just running the following command should ensure everything is working:
 ```sh
 docker compose up
