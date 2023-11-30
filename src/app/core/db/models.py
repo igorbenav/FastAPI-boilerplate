@@ -11,6 +11,7 @@ class TimestampMixin:
     created_at: datetime = Column(DateTime, default=datetime.utcnow, server_default=text("current_timestamp(0)"))
     updated_at: datetime = Column(DateTime, nullable=True, onupdate=datetime.utcnow, server_default=text("current_timestamp(0)"))
 
+
 class SoftDeleteMixin:
     deleted_at: datetime = Column(DateTime, nullable=True)
     is_deleted: bool = Column(Boolean, default=False)
