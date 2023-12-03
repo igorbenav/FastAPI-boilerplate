@@ -427,6 +427,12 @@ First, you may want to take a look at the project structure and understand what 
 ├── README.md                         # Project README providing information and instructions.
 ├── docker-compose.yml                # Docker Compose file for defining multi-container applications.
 │
+└── tests                             # Unit and integration tests for the application.
+│   ├── __init__.py
+│   ├── conftest.py                   # Configuration and fixtures for pytest.
+│   ├── helper.py                     # Helper functions for tests.
+│   └── test_user.py                  # Test cases for user-related functionality.
+│
 └── src                               # Source code directory.
     ├── __init__.py                   # Initialization file for the src package.
     ├── alembic.ini                   # Configuration file for Alembic (database migration tool).
@@ -517,16 +523,10 @@ First, you may want to take a look at the project structure and understand what 
     │   └── versions                  # Individual migration scripts.
     │       └── README.MD
     │
-    ├── scripts                       # Utility scripts for the application.
-    │   ├── __init__.py
-    │   ├── create_first_superuser.py # Script to create the first superuser.
-    │   └── create_first_tier.py      # Script to create the first user tier.
-    │
-    └── tests                         # Unit and integration tests for the application.
+    └── scripts                       # Utility scripts for the application.
         ├── __init__.py
-        ├── conftest.py               # Configuration and fixtures for pytest.
-        ├── helper.py                 # Helper functions for tests.
-        └── test_user.py              # Test cases for user-related functionality.
+        ├── create_first_superuser.py # Script to create the first superuser.
+        └── create_first_tier.py      # Script to create the first user tier.
 ```
 
 ### 5.2 Database Model

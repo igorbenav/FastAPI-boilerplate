@@ -9,12 +9,12 @@ from arq import create_pool
 from arq.connections import RedisSettings
 import anyio
 
-from app.api.dependencies import get_current_superuser
-from app.core.utils import queue
-from app.core.config import settings
-from app.core.db.database import Base
-from app.core.db.database import async_engine as engine
-from app.core.config import (
+from ..api.dependencies import get_current_superuser
+from .utils import queue
+from .config import settings
+from .db.database import Base
+from .db.database import async_engine as engine
+from .config import (
     DatabaseSettings, 
     RedisCacheSettings, 
     AppSettings, 
@@ -24,8 +24,8 @@ from app.core.config import (
     EnvironmentOption,
     EnvironmentSettings
 )
-from app.middleware.client_cache_middleware import ClientCacheMiddleware
-from app.core.utils import cache, rate_limit
+from ..middleware.client_cache_middleware import ClientCacheMiddleware
+from .utils import cache, rate_limit
 
 # -------------- database --------------
 async def create_tables() -> None:

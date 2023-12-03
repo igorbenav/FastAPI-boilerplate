@@ -1,18 +1,18 @@
-from typing import Annotated, Union, Dict, Any
+from typing import Annotated, Dict
 
 from fastapi import Request, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 import fastapi
 
-from app.schemas.post import PostCreate, PostUpdate, PostRead, PostCreateInternal
-from app.schemas.user import UserRead
-from app.api.dependencies import get_current_user, get_current_superuser
-from app.core.db.database import async_get_db
-from app.crud.crud_posts import crud_posts
-from app.crud.crud_users import crud_users
-from app.core.exceptions.http_exceptions import NotFoundException, ForbiddenException
-from app.core.utils.cache import cache
-from app.api.paginated import PaginatedListResponse, paginated_response, compute_offset
+from ...schemas.post import PostCreate, PostUpdate, PostRead, PostCreateInternal
+from ...schemas.user import UserRead
+from ...api.dependencies import get_current_user, get_current_superuser
+from ...core.db.database import async_get_db
+from ...crud.crud_posts import crud_posts
+from ...crud.crud_users import crud_users
+from ...core.exceptions.http_exceptions import NotFoundException, ForbiddenException
+from ...core.utils.cache import cache
+from ...api.paginated import PaginatedListResponse, paginated_response, compute_offset
 
 router = fastapi.APIRouter(tags=["posts"])
 

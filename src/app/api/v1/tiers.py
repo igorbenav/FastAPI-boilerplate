@@ -1,20 +1,20 @@
 from typing import Annotated, Dict
 
-from fastapi import Request, Depends, HTTPException
+from fastapi import Request, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 import fastapi
 
-from app.schemas.tier import (
+from ...schemas.tier import (
     TierRead,
     TierCreate,
     TierCreateInternal,
     TierUpdate
 )
-from app.api.dependencies import get_current_superuser
-from app.core.db.database import async_get_db
-from app.core.exceptions.http_exceptions import DuplicateValueException, NotFoundException
-from app.crud.crud_tier import crud_tiers
-from app.api.paginated import PaginatedListResponse, paginated_response, compute_offset
+from ...api.dependencies import get_current_superuser
+from ...core.db.database import async_get_db
+from ...core.exceptions.http_exceptions import DuplicateValueException, NotFoundException
+from ...crud.crud_tier import crud_tiers
+from ...api.paginated import PaginatedListResponse, paginated_response, compute_offset
 
 router = fastapi.APIRouter(tags=["tiers"])
 

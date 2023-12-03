@@ -3,7 +3,7 @@ from sqlalchemy.ext.asyncio.session import AsyncSession
 from sqlalchemy.orm import DeclarativeBase, sessionmaker, MappedAsDataclass
 
 
-from app.core.config import settings
+from ..config import settings
 
 class Base(DeclarativeBase, MappedAsDataclass):
     pass

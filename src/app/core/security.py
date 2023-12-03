@@ -6,10 +6,10 @@ from passlib.context import CryptContext
 from jose import jwt, JWTError
 from fastapi.security import OAuth2PasswordBearer
 
-from app.core.config import settings
-from app.core.schemas import TokenData, TokenBlacklistCreate
-from app.core.db.crud_token_blacklist import crud_token_blacklist
-from app.crud.crud_users import crud_users
+from .config import settings
+from .schemas import TokenData, TokenBlacklistCreate
+from .db.crud_token_blacklist import crud_token_blacklist
+from ..crud.crud_users import crud_users
 
 SECRET_KEY = settings.SECRET_KEY
 ALGORITHM = settings.ALGORITHM

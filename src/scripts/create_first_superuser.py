@@ -11,15 +11,15 @@ from sqlalchemy import (
     DateTime, 
     Boolean
 )
-from app.core.db.database import async_engine
 from sqlalchemy.dialects.postgresql import UUID
 import uuid
 from datetime import datetime
 
-from app.core.db.database import AsyncSession, local_session
-from app.core.config import settings
-from app.models.user import User
-from app.core.security import get_password_hash
+from ..app.core.db.database import async_engine
+from ..app.core.db.database import AsyncSession, local_session
+from ..app.core.config import settings
+from ..app.models.user import User
+from ..app.core.security import get_password_hash
 
 async def create_first_user(session: AsyncSession) -> None:
     name = settings.ADMIN_NAME

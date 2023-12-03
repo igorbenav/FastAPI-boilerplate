@@ -1,6 +1,6 @@
-from app.crud.crud_base import CRUDBase
-from app.models.tier import Tier
-from app.schemas.tier import (
+from .crud_base import CRUDBase
+from ..models.tier import Tier
+from ..schemas.tier import (
     TierCreateInternal, 
     TierUpdate, 
     TierUpdateInternal, 

@@ -5,17 +5,17 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from fastapi import Request
 import fastapi
 
-from app.api.dependencies import get_current_user, get_current_superuser
-from app.core.exceptions.http_exceptions import DuplicateValueException, NotFoundException, ForbiddenException
-from app.api.paginated import PaginatedListResponse, paginated_response, compute_offset
-from app.core.db.database import async_get_db
-from app.core.security import get_password_hash, blacklist_token, oauth2_scheme
-from app.crud.crud_users import crud_users
-from app.crud.crud_tier import crud_tiers
-from app.crud.crud_rate_limit import crud_rate_limits
-from app.models.tier import Tier
-from app.schemas.user import UserCreate, UserCreateInternal, UserUpdate, UserRead, UserTierUpdate
-from app.schemas.tier import TierRead
+from ...api.dependencies import get_current_user, get_current_superuser
+from ...core.exceptions.http_exceptions import DuplicateValueException, NotFoundException, ForbiddenException
+from ...api.paginated import PaginatedListResponse, paginated_response, compute_offset
+from ...core.db.database import async_get_db
+from ...core.security import get_password_hash, blacklist_token, oauth2_scheme
+from ...crud.crud_users import crud_users
+from ...crud.crud_tier import crud_tiers
+from ...crud.crud_rate_limit import crud_rate_limits
+from ...models.tier import Tier
+from ...schemas.user import UserCreate, UserCreateInternal, UserUpdate, UserRead, UserTierUpdate
+from ...schemas.tier import TierRead
 
 router = fastapi.APIRouter(tags=["users"])
 

@@ -3,7 +3,7 @@ from datetime import datetime
 from sqlalchemy import String, DateTime
 from sqlalchemy.orm import Mapped, mapped_column
 
-from app.core.db.database import Base
+from .database import Base
 
 class TokenBlacklist(Base):
     __tablename__ = "token_blacklist"

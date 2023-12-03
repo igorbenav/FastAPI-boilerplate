@@ -1,16 +1,16 @@
 from typing import Annotated, Dict
 
-from fastapi import Request, Depends, HTTPException
+from fastapi import Request, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 import fastapi
 
-from app.api.dependencies import get_current_superuser
-from app.api.paginated import PaginatedListResponse, paginated_response, compute_offset
-from app.core.db.database import async_get_db
-from app.core.exceptions.http_exceptions import NotFoundException, DuplicateValueException, RateLimitException
-from app.crud.crud_rate_limit import crud_rate_limits
-from app.crud.crud_tier import crud_tiers
-from app.schemas.rate_limit import (
+from ...api.dependencies import get_current_superuser
+from ...api.paginated import PaginatedListResponse, paginated_response, compute_offset
+from ...core.db.database import async_get_db
+from ...core.exceptions.http_exceptions import NotFoundException, DuplicateValueException, RateLimitException
+from ...crud.crud_rate_limit import crud_rate_limits
+from ...crud.crud_tier import crud_tiers
+from ...schemas.rate_limit import (
     RateLimitRead,
     RateLimitCreate,
     RateLimitCreateInternal,

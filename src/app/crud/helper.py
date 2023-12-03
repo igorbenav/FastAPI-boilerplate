@@ -7,7 +7,7 @@ from sqlalchemy.sql.elements import Label
 
 from pydantic import BaseModel
 
-from app.core.db.database import Base
+from ..core.db.database import Base
 
 def _extract_matching_columns_from_schema(model: Type[Base], schema: Union[Type[BaseModel], list, None]) -> List[Any]:
     """

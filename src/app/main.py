@@ -1,5 +1,5 @@
-from app.core.config import settings
-from app.api import router
-from app.core.setup import create_application
+from .core.config import settings
+from .api import router
+from .core.setup import create_application
 
 app = create_application(router=router, settings=settings)

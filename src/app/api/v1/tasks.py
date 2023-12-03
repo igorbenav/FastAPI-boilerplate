@@ -1,11 +1,11 @@
 from typing import Dict, Optional, Any
 
 from arq.jobs import Job as ArqJob
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends
 
-from app.core.utils import queue
-from app.schemas.job import Job
-from app.api.dependencies import rate_limiter
+from ...core.utils import queue
+from ...schemas.job import Job
+from ...api.dependencies import rate_limiter
 
 router = APIRouter(prefix="/tasks", tags=["tasks"])
 
