@@ -423,11 +423,12 @@ First, you may want to take a look at the project structure and understand what 
 ```sh
 .
 ├── Dockerfile                        # Dockerfile for building the application container.
-├── LICENSE.md                        # License file for the project.
-├── README.md                         # Project README providing information and instructions.
 ├── docker-compose.yml                # Docker Compose file for defining multi-container applications.
+├── pyproject.toml                    # Poetry configuration file with project metadata and dependencies.
+├── README.md                         # Project README providing information and instructions.
+├── LICENSE.md                        # License file for the project.
 │
-└── tests                             # Unit and integration tests for the application.
+├── tests                             # Unit and integration tests for the application.
 │   ├── __init__.py
 │   ├── conftest.py                   # Configuration and fixtures for pytest.
 │   ├── helper.py                     # Helper functions for tests.
@@ -437,7 +438,6 @@ First, you may want to take a look at the project structure and understand what 
     ├── __init__.py                   # Initialization file for the src package.
     ├── alembic.ini                   # Configuration file for Alembic (database migration tool).
     ├── poetry.lock                   # Poetry lock file specifying exact versions of dependencies.
-    ├── pyproject.toml                # Poetry configuration file with project metadata and dependencies.
     │
     ├── app                           # Main application directory.
     │   ├── __init__.py               # Initialization file for the app package.
