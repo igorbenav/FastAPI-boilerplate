@@ -3,7 +3,7 @@ from datetime import datetime
 
 from pydantic import BaseModel, Field, ConfigDict, validator
 
-from app.core.schemas import TimestampSchema
+from ..core.schemas import TimestampSchema
 
 def sanitize_path(path: str) -> str:
     return path.strip("/").replace("/", "_")

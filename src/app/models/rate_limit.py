@@ -4,7 +4,7 @@ from datetime import datetime
 from sqlalchemy import String, DateTime, ForeignKey, Integer
 from sqlalchemy.orm import Mapped, mapped_column
 
-from app.core.db.database import Base
+from ..core.db.database import Base
 
 class RateLimit(Base):
     __tablename__ = "rate_limit"

@@ -1,16 +1,16 @@
 from typing import Annotated, Dict
 
-from fastapi import Request, Depends, HTTPException
+from fastapi import Request, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 import fastapi
 
-from app.api.dependencies import get_current_superuser
-from app.api.paginated import PaginatedListResponse, paginated_response, compute_offset
-from app.core.db.database import async_get_db
-from app.core.exceptions.http_exceptions import NotFoundException, DuplicateValueException, RateLimitException
-from app.crud.crud_rate_limit import crud_rate_limits
-from app.crud.crud_tier import crud_tiers
-from app.schemas.rate_limit import (
+from ...api.dependencies import get_current_superuser
+from ...api.paginated import PaginatedListResponse, paginated_response, compute_offset
+from ...core.db.database import async_get_db
+from ...core.exceptions.http_exceptions import NotFoundException, DuplicateValueException, RateLimitException
+from ...crud.crud_rate_limit import crud_rate_limits
+from ...crud.crud_tier import crud_tiers
+from ...schemas.rate_limit import (
     RateLimitRead,
     RateLimitCreate,
     RateLimitCreateInternal,
@@ -48,7 +48,7 @@ async def read_rate_limits(
     db: Annotated[AsyncSession, Depends(async_get_db)],
     page: int = 1,
     items_per_page: int = 10
-) -> PaginatedListResponse[RateLimitRead]:
+) -> dict:
     db_tier = await crud_tiers.get(db=db, name=tier_name)
     if not db_tier:
         raise NotFoundException("Tier not found")
@@ -62,7 +62,7 @@ async def read_rate_limits(
     )
 
     return paginated_response(
-        crud_data=rate_limits_data, 
+        crud_data=rate_limits_data["data"], 
         page=page, 
         items_per_page=items_per_page
     )
@@ -74,7 +74,7 @@ async def read_rate_limit(
     tier_name: str,
     id: int,
     db: Annotated[AsyncSession, Depends(async_get_db)]
-) -> RateLimitRead:
+) -> dict:
     db_tier = await crud_tiers.get(db=db, name=tier_name)
     if not db_tier:
         raise NotFoundException("Tier not found")

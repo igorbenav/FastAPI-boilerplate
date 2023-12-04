@@ -3,7 +3,7 @@ from datetime import datetime
 
 from pydantic import BaseModel, Field, ConfigDict
 
-from app.core.schemas import UUIDSchema, TimestampSchema, PersistentDeletion
+from ..core.schemas import UUIDSchema, TimestampSchema, PersistentDeletion
 
 class PostBase(BaseModel):
     title: Annotated[

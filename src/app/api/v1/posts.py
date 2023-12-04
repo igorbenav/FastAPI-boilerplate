@@ -1,18 +1,18 @@
-from typing import Annotated, Union, Dict, Any
+from typing import Annotated, Dict
 
 from fastapi import Request, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 import fastapi
 
-from app.schemas.post import PostCreate, PostUpdate, PostRead, PostCreateInternal
-from app.schemas.user import UserRead
-from app.api.dependencies import get_current_user, get_current_superuser
-from app.core.db.database import async_get_db
-from app.crud.crud_posts import crud_posts
-from app.crud.crud_users import crud_users
-from app.core.exceptions.http_exceptions import NotFoundException, ForbiddenException
-from app.core.utils.cache import cache
-from app.api.paginated import PaginatedListResponse, paginated_response, compute_offset
+from ...schemas.post import PostCreate, PostUpdate, PostRead, PostCreateInternal
+from ...schemas.user import UserRead
+from ...api.dependencies import get_current_user, get_current_superuser
+from ...core.db.database import async_get_db
+from ...crud.crud_posts import crud_posts
+from ...crud.crud_users import crud_users
+from ...core.exceptions.http_exceptions import NotFoundException, ForbiddenException
+from ...core.utils.cache import cache
+from ...api.paginated import PaginatedListResponse, paginated_response, compute_offset
 
 router = fastapi.APIRouter(tags=["posts"])
 
@@ -50,7 +50,7 @@ async def read_posts(
     db: Annotated[AsyncSession, Depends(async_get_db)],
     page: int = 1,
     items_per_page: int = 10
-) -> PaginatedListResponse[PostRead]:
+) -> dict:
     db_user = await crud_users.get(db=db, schema_to_select=UserRead, username=username, is_deleted=False)
     if not db_user:
         raise NotFoundException("User not found")
@@ -65,7 +65,7 @@ async def read_posts(
     )
 
     return paginated_response(
-        crud_data=posts_data, 
+        crud_data=posts_data["data"], 
         page=page, 
         items_per_page=items_per_page
     )
@@ -78,7 +78,7 @@ async def read_post(
     username: str,
     id: int, 
     db: Annotated[AsyncSession, Depends(async_get_db)]
-) -> PostRead:
+) -> dict:
     db_user = await crud_users.get(db=db, schema_to_select=UserRead, username=username, is_deleted=False)
     if db_user is None:
         raise NotFoundException("User not found")

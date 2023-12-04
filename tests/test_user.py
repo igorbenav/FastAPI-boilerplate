@@ -1,7 +1,7 @@
 from fastapi.testclient import TestClient
 
-from app.main import app
-from app.core.config import settings
+from src.app.main import app
+from src.app.core.config import settings
 from .helper import _get_token
 
 test_name = settings.TEST_NAME

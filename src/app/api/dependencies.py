@@ -1,8 +1,5 @@
 from typing import Annotated, Union, Any
 
-from app.core.security import SECRET_KEY, ALGORITHM, oauth2_scheme
-from app.core.config import settings
-
 from sqlalchemy.ext.asyncio import AsyncSession
 from jose import JWTError, jwt
 from fastapi import (
@@ -11,17 +8,19 @@ from fastapi import (
     Request
 )
 
-from app.core.exceptions.http_exceptions import UnauthorizedException, ForbiddenException, RateLimitException
-from app.core.db.database import async_get_db
-from app.core.logger import logging
-from app.core.schemas import TokenData
-from app.core.utils.rate_limit import is_rate_limited
-from app.core.security import verify_token
-from app.crud.crud_rate_limit import crud_rate_limits
-from app.crud.crud_tier import crud_tiers
-from app.crud.crud_users import crud_users
-from app.models.user import User
-from app.schemas.rate_limit import sanitize_path
+from ..core.security import oauth2_scheme
+from ..core.config import settings
+from ..core.exceptions.http_exceptions import UnauthorizedException, ForbiddenException, RateLimitException
+from ..core.db.database import async_get_db
+from ..core.logger import logging
+from ..core.schemas import TokenData
+from ..core.utils.rate_limit import is_rate_limited
+from ..core.security import verify_token
+from ..crud.crud_rate_limit import crud_rate_limits
+from ..crud.crud_tier import crud_tiers
+from ..crud.crud_users import crud_users
+from ..models.user import User
+from ..schemas.rate_limit import sanitize_path
 
 logger = logging.getLogger(__name__)
 
@@ -37,7 +36,7 @@ async def get_current_user(
         raise UnauthorizedException("User not authenticated.")
 
     if "@" in token_data.username_or_email:
-        user: dict = await crud_users.get(db=db, email=token_data.username_or_email, is_deleted=False)
+        user: dict | None = await crud_users.get(db=db, email=token_data.username_or_email, is_deleted=False)
     else: 
         user = await crud_users.get(db=db, username=token_data.username_or_email, is_deleted=False)
     

@@ -269,7 +269,7 @@ So you may skip to [5. Extending](#5-extending).
 ### 4.2 From Scratch
 
 #### 4.2.1. Packages
-In the `src` directory, run to install required packages:
+In the `root` directory (`FastAPI-boilerplate` if you didn't change anything), run to install required packages:
 ```sh
 poetry install
 ```
@@ -330,9 +330,9 @@ redis:alpine
 ```
 
 #### 4.2.4. Running the API
-While in the `src` folder, run to start the application with uvicorn server:
+While in the `root` folder, run to start the application with uvicorn server:
 ```sh
-poetry run uvicorn app.main:app --reload
+poetry run uvicorn src.app.main:app --reload
 ```
 > [!TIP]
 > The --reload flag enables auto-reload once you change (and save) something in the project
@@ -345,7 +345,7 @@ poetry run uvicorn app.main:app --reload
 
 If you are using docker compose, you should uncomment this part of the docker-compose.yml:
 ```
-  # #-------- uncomment to create first superuser --------
+  #-------- uncomment to create first superuser --------
   # create_superuser:
   #   build: 
   #     context: .
@@ -391,9 +391,9 @@ docker-compose stop create_superuser
 ```
 
 #### 4.3.2 From Scratch
-While in the `src` folder, run (after you started the application at least once to create the tables):
+While in the `root` folder, run (after you started the application at least once to create the tables):
 ```sh
-poetry run python -m scripts.create_first_superuser
+poetry run python -m src.scripts.create_first_superuser
 ```
 
 ### 4.3.3 Creating the first tier
@@ -423,15 +423,21 @@ First, you may want to take a look at the project structure and understand what 
 ```sh
 .
 ├── Dockerfile                        # Dockerfile for building the application container.
-├── LICENSE.md                        # License file for the project.
-├── README.md                         # Project README providing information and instructions.
 ├── docker-compose.yml                # Docker Compose file for defining multi-container applications.
+├── pyproject.toml                    # Poetry configuration file with project metadata and dependencies.
+├── README.md                         # Project README providing information and instructions.
+├── LICENSE.md                        # License file for the project.
+│
+├── tests                             # Unit and integration tests for the application.
+│   ├── __init__.py
+│   ├── conftest.py                   # Configuration and fixtures for pytest.
+│   ├── helper.py                     # Helper functions for tests.
+│   └── test_user.py                  # Test cases for user-related functionality.
 │
 └── src                               # Source code directory.
     ├── __init__.py                   # Initialization file for the src package.
     ├── alembic.ini                   # Configuration file for Alembic (database migration tool).
     ├── poetry.lock                   # Poetry lock file specifying exact versions of dependencies.
-    ├── pyproject.toml                # Poetry configuration file with project metadata and dependencies.
     │
     ├── app                           # Main application directory.
     │   ├── __init__.py               # Initialization file for the app package.
@@ -517,16 +523,10 @@ First, you may want to take a look at the project structure and understand what 
     │   └── versions                  # Individual migration scripts.
     │       └── README.MD
     │
-    ├── scripts                       # Utility scripts for the application.
-    │   ├── __init__.py
-    │   ├── create_first_superuser.py # Script to create the first superuser.
-    │   └── create_first_tier.py      # Script to create the first user tier.
-    │
-    └── tests                         # Unit and integration tests for the application.
+    └── scripts                       # Utility scripts for the application.
         ├── __init__.py
-        ├── conftest.py               # Configuration and fixtures for pytest.
-        ├── helper.py                 # Helper functions for tests.
-        └── test_user.py              # Test cases for user-related functionality.
+        ├── create_first_superuser.py # Script to create the first superuser.
+        └── create_first_tier.py      # Script to create the first user tier.
 ```
 
 ### 5.2 Database Model
@@ -1139,9 +1139,9 @@ async def get_task(task_id: str):
 And finally run the worker in parallel to your fastapi application.
 
 If you are using `docker compose`, the worker is already running.
-If you are doing it from scratch, run while in the `src` folder:
+If you are doing it from scratch, run while in the `root` folder:
 ```sh
-poetry run arq app.worker.WorkerSettings
+poetry run arq src.app.worker.WorkerSettings
 ```
 ### 5.11 Rate Limiting
 To limit how many times a user can make a request in a certain interval of time (very useful to create subscription plans or just to protect your API against DDOS), you may just use the `rate_limiter` dependency:
@@ -1301,14 +1301,14 @@ docker compose up
 ```
 
 If you are doing it from scratch, ensure your postgres and your redis are running, then
-while in the `src` folder, run to start the application with uvicorn server:
+while in the `root` folder, run to start the application with uvicorn server:
 ```sh
-poetry run uvicorn app.main:app --reload
+poetry run uvicorn src.app.main:app --reload
 ```
 
 And for the worker:
 ```sh
-poetry run arq app.worker.WorkerSettings
+poetry run arq src.app.worker.WorkerSettings
 ```
 
 ## 6. Running in Production
@@ -1366,7 +1366,7 @@ To run with NGINX, you start by uncommenting the following part in your `docker-
 # docker-compose.yml
 
 ...
-  # #-------- uncomment to run with nginx --------
+  #-------- uncomment to run with nginx --------
   # nginx:
   #   image: nginx:latest
   #   ports:
@@ -1501,20 +1501,20 @@ Now, to run:
 ### 7.1  Docker Compose
 First you need to uncomment the following part in the `docker-compose.yml` file:
 ```
-  # #-------- uncomment to run tests --------
+  #-------- uncomment to run tests --------
   # pytest:
   #   build: 
   #     context: .
   #     dockerfile: Dockerfile 
   #   env_file:
-  #     - ./src/.env 
+  #     - ./src/.env
   #   depends_on:
   #     - db
   #     - create_superuser
   #     - redis
-  #   command: python -m pytest
+  #   command: python -m pytest ./tests
   #   volumes:
-  #     - ./src:/code/src
+  #     - .:/code
 ```
 
 You'll get:
@@ -1525,14 +1525,14 @@ You'll get:
       context: .
       dockerfile: Dockerfile 
     env_file:
-      - ./src/.env 
+      - ./src/.env
     depends_on:
       - db
       - create_superuser
       - redis
-    command: python -m pytest
+    command: python -m pytest ./tests
     volumes:
-      - ./src:/code/src
+      - .:/code
 ```
 
 Start the Docker Compose services:
@@ -1548,7 +1548,7 @@ docker-compose run --rm pytest
 
 ### 7.2  From Scratch
 
-While in the `src` folder, run:
+While in the `root` folder, run:
 ```sh
 poetry run python -m pytest
 ```
@@ -1557,7 +1557,7 @@ poetry run python -m pytest
 Contributions are appreciated, even if just reporting bugs, documenting stuff or answering questions. To contribute with a feature:
 1. Fork it (https://github.com/igormagalhaesr/FastAPI-boilerplate)
 2. Create your feature branch (`git checkout -b feature/fooBar`)
-3. Test your changes while in the src folder `poetry run python -m pytest`
+3. Test your changes while in the root folder `poetry run python -m pytest`
 4. Commit your changes (`git commit -am 'Add some fooBar'`)
 5. Push to the branch (`git push origin feature/fooBar`)
 6. Create a new Pull Request

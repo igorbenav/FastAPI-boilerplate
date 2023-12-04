@@ -50,7 +50,7 @@ services:
     expose:
       - "6379"
 
-  # #-------- uncomment to run with nginx --------
+  #-------- uncomment to run with nginx --------
   # nginx:
   #   image: nginx:latest
   #   ports:
@@ -60,7 +60,7 @@ services:
   #   depends_on:
   #     - web
 
-  # #-------- uncomment to create first superuser --------
+  #-------- uncomment to create first superuser --------
   # create_superuser:
   #   build: 
   #     context: .
@@ -80,16 +80,16 @@ services:
   #     context: .
   #     dockerfile: Dockerfile 
   #   env_file:
-  #     - ./src/.env 
+  #     - ./src/.env
   #   depends_on:
   #     - db
   #     - create_superuser
   #     - redis
-  #   command: python -m pytest
+  #   command: python -m pytest ./tests
   #   volumes:
-  #     - ./src:/code/src
+  #     - .:/code
 
-  # #-------- uncomment to create first tier --------
+  #-------- uncomment to create first tier --------
   # create_tier:
   #   build: 
   #     context: .

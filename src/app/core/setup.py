@@ -9,12 +9,12 @@ from arq import create_pool
 from arq.connections import RedisSettings
 import anyio
 
-from app.api.dependencies import get_current_superuser
-from app.core.utils import queue
-from app.core.config import settings
-from app.core.db.database import Base
-from app.core.db.database import async_engine as engine
-from app.core.config import (
+from ..api.dependencies import get_current_superuser
+from .utils import queue
+from .config import settings
+from .db.database import Base
+from .db.database import async_engine as engine
+from .config import (
     DatabaseSettings, 
     RedisCacheSettings, 
     AppSettings, 
@@ -24,8 +24,8 @@ from app.core.config import (
     EnvironmentOption,
     EnvironmentSettings
 )
-from app.middleware.client_cache_middleware import ClientCacheMiddleware
-from app.core.utils import cache, rate_limit
+from ..middleware.client_cache_middleware import ClientCacheMiddleware
+from .utils import cache, rate_limit
 
 # -------------- database --------------
 async def create_tables() -> None:
@@ -40,7 +40,7 @@ async def create_redis_cache_pool() -> None:
 
 
 async def close_redis_cache_pool() -> None:
-    await cache.client.aclose()
+    await cache.client.aclose() # type: ignore
 
 
 # -------------- queue --------------
@@ -51,7 +51,7 @@ async def create_redis_queue_pool() -> None:
 
 
 async def close_redis_queue_pool() -> None:
-    await queue.pool.aclose()
+    await queue.pool.aclose() # type: ignore
 
 
 # -------------- rate limit --------------
@@ -61,7 +61,7 @@ async def create_redis_rate_limit_pool() -> None:
 
 
 async def close_redis_rate_limit_pool() -> None:
-    await rate_limit.client.aclose()
+    await rate_limit.client.aclose() # type: ignore
 
 
 # -------------- application --------------
