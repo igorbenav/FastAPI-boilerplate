@@ -65,7 +65,7 @@ async def read_posts(
     )
 
     return paginated_response(
-        crud_data=posts_data["data"], 
+        crud_data=posts_data, 
         page=page, 
         items_per_page=items_per_page
     )

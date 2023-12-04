@@ -62,7 +62,7 @@ async def read_rate_limits(
     )
 
     return paginated_response(
-        crud_data=rate_limits_data["data"], 
+        crud_data=rate_limits_data, 
         page=page, 
         items_per_page=items_per_page
     )

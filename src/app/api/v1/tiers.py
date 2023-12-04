@@ -48,7 +48,7 @@ async def read_tiers(
     )
 
     return paginated_response(
-        crud_data=tiers_data["data"], 
+        crud_data=tiers_data, 
         page=page, 
         items_per_page=items_per_page
     )
