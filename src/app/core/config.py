@@ -38,7 +38,7 @@ class MySQLSettings(DatabaseSettings):
     MYSQL_USER: str = config("MYSQL_USER", default="username")
     MYSQL_PASSWORD: str = config("MYSQL_PASSWORD", default="password")
     MYSQL_SERVER: str = config("MYSQL_SERVER", default="localhost")
-    MYSQL_PORT: str = config("MYSQL_PORT", default=5432)
+    MYSQL_PORT: int = config("MYSQL_PORT", default=5432)
     MYSQL_DB: str = config("MYSQL_DB", default="dbname")
     MYSQL_URI: str = f"{MYSQL_USER}:{MYSQL_PASSWORD}@{MYSQL_SERVER}:{MYSQL_PORT}/{MYSQL_DB}"
     MYSQL_SYNC_PREFIX: str = config("MYSQL_SYNC_PREFIX", default="mysql://")
@@ -50,7 +50,7 @@ class PostgresSettings(DatabaseSettings):
     POSTGRES_USER: str = config("POSTGRES_USER", default="postgres")
     POSTGRES_PASSWORD: str = config("POSTGRES_PASSWORD", default="postgres")
     POSTGRES_SERVER: str = config("POSTGRES_SERVER", default="localhost")
-    POSTGRES_PORT: str = config("POSTGRES_PORT", default=5432)
+    POSTGRES_PORT: int = config("POSTGRES_PORT", default=5432)
     POSTGRES_DB: str = config("POSTGRES_DB", default="postgres")
     POSTGRES_SYNC_PREFIX: str = config("POSTGRES_SYNC_PREFIX", default="postgresql://")
     POSTGRES_ASYNC_PREFIX: str = config("POSTGRES_ASYNC_PREFIX", default="postgresql+asyncpg://")
@@ -84,7 +84,7 @@ class ClientSideCacheSettings(BaseSettings):
 
 class RedisQueueSettings(BaseSettings):
     REDIS_QUEUE_HOST: str = config("REDIS_QUEUE_HOST", default="localhost")
-    REDIS_QUEUE_PORT: str = config("REDIS_QUEUE_PORT", default=6379)
+    REDIS_QUEUE_PORT: int = config("REDIS_QUEUE_PORT", default=6379)
 
 
 class RedisRateLimiterSettings(BaseSettings):
