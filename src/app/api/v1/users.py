@@ -57,7 +57,7 @@ async def read_users(
     )
 
     return paginated_response(
-        crud_data=users_data["data"],
+        crud_data=users_data,
         page=page, 
         items_per_page=items_per_page
     )

@@ -16,7 +16,7 @@ class PaginatedListResponse(ListResponse[SchemaType]):
 
 
 def paginated_response(
-        crud_data: ListResponse[SchemaType], 
+        crud_data: dict, 
         page: int, 
         items_per_page: int
 ) -> Dict[str, Any]:
