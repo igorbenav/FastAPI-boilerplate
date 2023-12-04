@@ -50,7 +50,7 @@ async def read_posts(
     db: Annotated[AsyncSession, Depends(async_get_db)],
     page: int = 1,
     items_per_page: int = 10
-) -> PaginatedListResponse[PostRead]:
+) -> dict:
     db_user = await crud_users.get(db=db, schema_to_select=UserRead, username=username, is_deleted=False)
     if not db_user:
         raise NotFoundException("User not found")
@@ -65,7 +65,7 @@ async def read_posts(
     )
 
     return paginated_response(
-        crud_data=posts_data, 
+        crud_data=posts_data["data"], 
         page=page, 
         items_per_page=items_per_page
     )
@@ -78,7 +78,7 @@ async def read_post(
     username: str,
     id: int, 
     db: Annotated[AsyncSession, Depends(async_get_db)]
-) -> PostRead:
+) -> dict:
     db_user = await crud_users.get(db=db, schema_to_select=UserRead, username=username, is_deleted=False)
     if db_user is None:
         raise NotFoundException("User not found")

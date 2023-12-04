@@ -36,7 +36,7 @@ async def get_current_user(
         raise UnauthorizedException("User not authenticated.")
 
     if "@" in token_data.username_or_email:
-        user: dict = await crud_users.get(db=db, email=token_data.username_or_email, is_deleted=False)
+        user: dict | None = await crud_users.get(db=db, email=token_data.username_or_email, is_deleted=False)
     else: 
         user = await crud_users.get(db=db, username=token_data.username_or_email, is_deleted=False)
     

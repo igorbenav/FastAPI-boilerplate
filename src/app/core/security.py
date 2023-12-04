@@ -29,7 +29,7 @@ def get_password_hash(password: str) -> str:
 
 async def authenticate_user(username_or_email: str, password: str, db: AsyncSession) -> Union[Dict[str, Any], Literal[False]]:
     if "@" in username_or_email:
-        db_user: dict = await crud_users.get(db=db, email=username_or_email, is_deleted=False)
+        db_user: dict | None = await crud_users.get(db=db, email=username_or_email, is_deleted=False)
     else:
         db_user = await crud_users.get(db=db, username=username_or_email, is_deleted=False)
     

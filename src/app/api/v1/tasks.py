@@ -24,7 +24,7 @@ async def create_task(message: str) -> Dict[str, str]:
     Dict[str, str]
         A dictionary containing the ID of the created task.
     """
-    job = await queue.pool.enqueue_job("sample_background_task", message)
+    job = await queue.pool.enqueue_job("sample_background_task", message) # type: ignore
     return {"id": job.job_id}
 
 

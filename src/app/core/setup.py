@@ -40,7 +40,7 @@ async def create_redis_cache_pool() -> None:
 
 
 async def close_redis_cache_pool() -> None:
-    await cache.client.aclose()
+    await cache.client.aclose() # type: ignore
 
 
 # -------------- queue --------------
@@ -51,7 +51,7 @@ async def create_redis_queue_pool() -> None:
 
 
 async def close_redis_queue_pool() -> None:
-    await queue.pool.aclose()
+    await queue.pool.aclose() # type: ignore
 
 
 # -------------- rate limit --------------
@@ -61,7 +61,7 @@ async def create_redis_rate_limit_pool() -> None:
 
 
 async def close_redis_rate_limit_pool() -> None:
-    await rate_limit.client.aclose()
+    await rate_limit.client.aclose() # type: ignore
 
 
 # -------------- application --------------

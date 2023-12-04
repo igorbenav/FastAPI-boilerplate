@@ -39,7 +39,7 @@ async def read_tiers(
     db: Annotated[AsyncSession, Depends(async_get_db)],
     page: int = 1,
     items_per_page: int = 10
-) -> PaginatedListResponse[TierRead]:
+) -> dict:
     tiers_data = await crud_tiers.get_multi(
         db=db,
         offset=compute_offset(page, items_per_page),
@@ -48,7 +48,7 @@ async def read_tiers(
     )
 
     return paginated_response(
-        crud_data=tiers_data, 
+        crud_data=tiers_data["data"], 
         page=page, 
         items_per_page=items_per_page
     )
@@ -59,7 +59,7 @@ async def read_tier(
     request: Request,
     name: str, 
     db: Annotated[AsyncSession, Depends(async_get_db)]
-) -> TierRead:
+) -> dict:
     db_tier = await crud_tiers.get(db=db, schema_to_select=TierRead, name=name)
     if db_tier is None:
         raise NotFoundException("Tier not found")

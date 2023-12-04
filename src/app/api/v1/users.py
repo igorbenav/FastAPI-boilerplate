@@ -47,17 +47,17 @@ async def read_users(
     db: Annotated[AsyncSession, Depends(async_get_db)],
     page: int = 1,
     items_per_page: int = 10
-) -> PaginatedListResponse[UserRead]:
+) -> dict:
     users_data = await crud_users.get_multi(
         db=db,
         offset=compute_offset(page, items_per_page),
         limit=items_per_page,
-        schema_to_select=UserRead, 
+        schema_to_select=UserRead,
         is_deleted=False
     )
-    
+
     return paginated_response(
-        crud_data=users_data, 
+        crud_data=users_data["data"],
         page=page, 
         items_per_page=items_per_page
     )
@@ -76,7 +76,7 @@ async def read_user(
     request: Request, 
     username: str, 
     db: Annotated[AsyncSession, Depends(async_get_db)]
-) -> UserRead:
+) -> dict:
     db_user = await crud_users.get(db=db, schema_to_select=UserRead, username=username, is_deleted=False)
     if db_user is None:
         raise NotFoundException("User not found")
@@ -144,7 +144,7 @@ async def erase_db_user(
     if not db_user:
         raise NotFoundException("User not found")
     
-    db_user = await crud_users.db_delete(db=db, username=username)
+    await crud_users.db_delete(db=db, username=username)
     await blacklist_token(token=token, db=db)
     return {"message": "User deleted from the database"}
 
@@ -155,7 +155,7 @@ async def read_user_rate_limits(
     username: str,
     db: Annotated[AsyncSession, Depends(async_get_db)]
 ) -> Dict[str, Any]:
-    db_user: dict = await crud_users.get(db=db, username=username, schema_to_select=UserRead)
+    db_user: dict | None = await crud_users.get(db=db, username=username, schema_to_select=UserRead)
     if db_user is None:
         raise NotFoundException("User not found")
 
@@ -182,7 +182,7 @@ async def read_user_tier(
     request: Request,
     username: str,
     db: Annotated[AsyncSession, Depends(async_get_db)]
-) -> Union[UserRead, TierRead]:
+) -> dict | None:
     db_user = await crud_users.get(db=db, username=username, schema_to_select=UserRead)
     if db_user is None:
         raise NotFoundException("User not found")
@@ -195,7 +195,7 @@ async def read_user_tier(
         db=db, 
         join_model=Tier, 
         join_prefix="tier_", 
-        schema_to_select=UserRead, 
+        schema_to_select=UserRead,
         join_schema_to_select=TierRead,
         username=username
     )

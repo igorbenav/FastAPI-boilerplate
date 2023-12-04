@@ -48,7 +48,7 @@ async def read_rate_limits(
     db: Annotated[AsyncSession, Depends(async_get_db)],
     page: int = 1,
     items_per_page: int = 10
-) -> PaginatedListResponse[RateLimitRead]:
+) -> dict:
     db_tier = await crud_tiers.get(db=db, name=tier_name)
     if not db_tier:
         raise NotFoundException("Tier not found")
@@ -62,7 +62,7 @@ async def read_rate_limits(
     )
 
     return paginated_response(
-        crud_data=rate_limits_data, 
+        crud_data=rate_limits_data["data"], 
         page=page, 
         items_per_page=items_per_page
     )
@@ -74,7 +74,7 @@ async def read_rate_limit(
     tier_name: str,
     id: int,
     db: Annotated[AsyncSession, Depends(async_get_db)]
-) -> RateLimitRead:
+) -> dict:
     db_tier = await crud_tiers.get(db=db, name=tier_name)
     if not db_tier:
         raise NotFoundException("Tier not found")
