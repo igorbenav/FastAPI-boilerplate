@@ -67,7 +67,7 @@ class RateLimitUpdate(BaseModel):
     period: int | None = None
     name: str | None = None
 
-    @validator('path', pre=True, allow_reuse=True)
+    @validator('path', pre=True)
     def validate_and_sanitize_path(cls, value: str) -> str:
         return sanitize_path(value)
 
