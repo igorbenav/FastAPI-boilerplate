@@ -1,7 +1,7 @@
 from typing import Annotated
 from datetime import datetime
 
-from pydantic import BaseModel, Field, ConfigDict, validator
+from pydantic import BaseModel, Field, ConfigDict, field_validator
 
 from ..core.schemas import TimestampSchema
 
@@ -23,9 +23,9 @@ class RateLimitBase(BaseModel):
         Field(examples=[60])
     ]
 
-    @validator('path', pre=True, always=True)
-    def validate_and_sanitize_path(cls, value: str) -> str:
-        return sanitize_path(value)
+    @field_validator('path')
+    def validate_and_sanitize_path(cls, v: str):
+        return sanitize_path(v)
 
 
 class RateLimit(TimestampSchema, RateLimitBase):
@@ -62,14 +62,14 @@ class RateLimitCreateInternal(RateLimitCreate):
 
 
 class RateLimitUpdate(BaseModel):
-    path: str | None = None
+    path: str | None = Field(default=None)
     limit: int | None = None
     period: int | None = None
     name: str | None = None
 
-    @validator('path', pre=True)
-    def validate_and_sanitize_path(cls, value: str) -> str:
-        return sanitize_path(value)
+    @field_validator('path')
+    def validate_and_sanitize_path(cls, v: str):
+        return sanitize_path(v) if v is not None else None    
 
 
 class RateLimitUpdateInternal(RateLimitUpdate):
