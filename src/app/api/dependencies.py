@@ -1,7 +1,6 @@
 from typing import Annotated, Union, Any
 
 from sqlalchemy.ext.asyncio import AsyncSession
-from jose import JWTError, jwt
 from fastapi import (
     Depends, 
     HTTPException, 
@@ -13,7 +12,6 @@ from ..core.config import settings
 from ..core.exceptions.http_exceptions import UnauthorizedException, ForbiddenException, RateLimitException
 from ..core.db.database import async_get_db
 from ..core.logger import logging
-from ..core.schemas import TokenData
 from ..core.utils.rate_limit import is_rate_limited
 from ..core.security import verify_token
 from ..crud.crud_rate_limit import crud_rate_limits
