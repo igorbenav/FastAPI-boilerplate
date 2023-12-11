@@ -146,8 +146,30 @@ POSTGRES_PORT=5432 # default "5432", if using docker compose you should use "543
 POSTGRES_DB="your_db"
 ```
 
+For database administration using PGAdmin create the following variables in the .env file
+
+```
+# ------------- pgadmin -------------
+PGADMIN_DEFAULT_EMAIL="your_email_address"
+PGADMIN_DEFAULT_PASSWORD="your_password"
+PGADMIN_LISTEN_PORT=80
+```
+
+To connect to the database, log into the PGAdmin console with the values specified in `PGADMIN_DEFAULT_EMAIL` and `PGADMIN_DEFAULT_PASSWORD`.  
+
+Once in the main PGAdmin screen, click Add Server:
+
+![pgadmin-connect](/Users/gregorymirsky/code/github/FastAPI-boilerplate/assets/pgadmin-connect.png)
+
+1. Hostname/address is `db` (if using containers)
+2. Is the value you specified in `POSTGRES_PORT`
+3. Leave this value as `postgres`
+4. is the value you specified in `POSTGRES_USER`
+5. Is the value you specified in `POSTGRES_PASSWORD`
+
 For crypt:
 Start by running
+
 ```sh
 openssl rand -hex 32
 ```
@@ -1316,7 +1338,7 @@ poetry run arq src.app.worker.WorkerSettings
 In production you may want to run using gunicorn to manage uvicorn workers:
 ```sh
 command: gunicorn app.main:app -w 4 -k uvicorn.workers.UvicornWorker -b 0.0.0.0:8000
-``` 
+```
 Here it's running with 4 workers, but you should test it depending on how many cores your machine has.
 
 To do this if you are using docker compose, just replace the comment:
