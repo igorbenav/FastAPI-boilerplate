@@ -1428,6 +1428,8 @@ CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000", "--reload
 # CMD ["gunicorn", "app.main:app", "-w", "4", "-k", "uvicorn.workers.UvicornWorker". "-b", "0.0.0.0:8000"]
 ```
 
+And finally head to `http://localhost/docs`.
+
 #### 6.2.1 One Server
 If you want to run with one server only, your setup should be ready. Just make sure the only part that is not a comment in `deafult.conf` is:
 ```python
@@ -1446,6 +1448,8 @@ server {
     }
 }
 ```
+
+So just type on your browser: `http://localhost/docs`.
 
 #### 6.2.2 Multiple Servers
 NGINX can distribute incoming network traffic across multiple servers, improving the efficiency and capacity utilization of your application.
@@ -1476,6 +1480,9 @@ server {
     }
 }
 ```
+
+And finally, on your browser: `http://localhost/docs`.
+
 > [!WARNING]
 > Note that we are using `fastapi1:8000` and `fastapi2:8000` as examples, you should replace it with the actual name of your service and the port it's running on.
 
