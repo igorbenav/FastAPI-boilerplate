@@ -159,7 +159,7 @@ To connect to the database, log into the PGAdmin console with the values specifi
 
 Once in the main PGAdmin screen, click Add Server:
 
-![pgadmin-connect](/Users/gregorymirsky/code/github/FastAPI-boilerplate/assets/pgadmin-connect.png)
+![pgadmin-connect](./assets/pgadmin-connect.png)
 
 1. Hostname/address is `db` (if using containers)
 2. Is the value you specified in `POSTGRES_PORT`
