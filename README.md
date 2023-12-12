@@ -108,6 +108,7 @@
 
 ___
 ## 3. Prerequisites
+### 3.0 Start
 Start by using the template, and naming the repository to what you want.
 <p align="left">
     <img src="https://user-images.githubusercontent.com/43156212/277866726-975d1c98-b1c9-4c8e-b4bd-001c8a5728cb.png" alt="clicking use this template button, then create a new repository option" width="35%" height="auto">
@@ -117,6 +118,15 @@ Then clone your created repository (I'm using the base for the example)
 ```sh
 git clone https://github.com/igormagalhaesr/FastAPI-boilerplate
 ```
+
+> [!TIP]
+> If you are in a hurry, you may use one of the following templates (containing a `.env`, `docker-compose.yml` and `Dockerfile`):
+- [Running locally with uvicorn](https://gist.github.com/igorbenav/48ad745120c3f77817e094f3a609111a)
+- [Runing in staging with gunicorn managing uvicorn workers](https://gist.github.com/igorbenav/d0518d4f6bdfb426d4036090f74905ee)
+- [Running in production with NGINX](https://gist.github.com/igorbenav/232c3b73339d6ca74e2bf179a5ef48a1)
+
+> [!WARNING]
+> Do not forget to place `docker-compose.yml` and `Dockerfile` in the `root` folder, while `.env` should be in the `src` folder.
 
 ### 3.1 Environment Variables (.env)
 
