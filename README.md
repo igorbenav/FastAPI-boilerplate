@@ -734,7 +734,7 @@ crud_users.update(db=db, object={name="Updated Name"}, username="myusername")
 To delete we have two options:
 - db_delete: actually deletes the row from the database
 - delete: 
-    - adds `"is_deleted": True` and `deleted_at: datetime.utcnow()` if the model inherits from `PersistentDeletion` (performs a soft delete), but keeps the object in the database.
+    - adds `"is_deleted": True` and `deleted_at: datetime.now(timezone.utc)` if the model inherits from `PersistentDeletion` (performs a soft delete), but keeps the object in the database.
     - actually deletes the row from the database if the model does not inherit from `PersistentDeletion`
 
 ```python

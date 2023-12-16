@@ -13,7 +13,7 @@ from sqlalchemy import (
 )
 from sqlalchemy.dialects.postgresql import UUID
 import uuid
-from datetime import datetime
+from datetime import datetime, timezone
 
 from ..app.core.db.database import async_engine
 from ..app.core.db.database import AsyncSession, local_session
@@ -42,7 +42,7 @@ async def create_first_user(session: AsyncSession) -> None:
             Column("hashed_password", String, nullable=False),
             Column("profile_image_url", String, default="https://profileimageurl.com"),
             Column("uuid", UUID(as_uuid=True), primary_key=True, default=uuid.uuid4, unique=True),
-            Column("created_at", DateTime, default=datetime.utcnow, nullable=False),
+            Column("created_at", DateTime, default=lambda:  datetime.now(timezone.utc).replace(tzinfo=None), nullable=False),
             Column("updated_at", DateTime),
             Column("deleted_at", DateTime),
             Column("is_deleted", Boolean, default=False, index=True),

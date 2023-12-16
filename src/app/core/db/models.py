@@ -1,5 +1,5 @@
 import uuid as uuid_pkg
-from datetime import datetime
+from datetime import datetime, timezone
 from sqlalchemy import Column, DateTime, Boolean, text
 from sqlalchemy.dialects.postgresql import UUID
 
@@ -8,8 +8,8 @@ class UUIDMixin:
 
 
 class TimestampMixin:
-    created_at: datetime = Column(DateTime, default=datetime.utcnow, server_default=text("current_timestamp(0)"))
-    updated_at: datetime = Column(DateTime, nullable=True, onupdate=datetime.utcnow, server_default=text("current_timestamp(0)"))
+    created_at: datetime = Column(DateTime, default=datetime.now(timezone.utc), server_default=text("current_timestamp(0)"))
+    updated_at: datetime = Column(DateTime, nullable=True, onupdate=datetime.now(timezone.utc), server_default=text("current_timestamp(0)"))
 
 
 class SoftDeleteMixin:

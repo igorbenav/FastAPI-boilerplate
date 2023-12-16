@@ -1,6 +1,6 @@
 from typing import Any
 import uuid as uuid_pkg
-from datetime import datetime
+from datetime import datetime, timezone
 
 from pydantic import BaseModel, Field, field_serializer
 
@@ -15,7 +15,7 @@ class UUIDSchema(BaseModel):
 
 
 class TimestampSchema(BaseModel):
-    created_at: datetime = Field(default_factory=datetime.utcnow)
+    created_at: datetime = Field(default_factory=lambda:  datetime.now(timezone.utc).replace(tzinfo=None))
     updated_at: datetime = Field(default=None)
 
     @field_serializer("created_at")
