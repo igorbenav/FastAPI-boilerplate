@@ -1,4 +1,4 @@
-from datetime import datetime, timezone
+from datetime import datetime, UTC
 
 from redis.asyncio import Redis, ConnectionPool
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -22,7 +22,7 @@ async def is_rate_limited(
         logger.error("Redis client is not initialized.")
         raise Exception("Redis client is not initialized.")
 
-    current_timestamp = int(datetime.now(timezone.utc).timestamp())
+    current_timestamp = int(datetime.now(UTC).timestamp())
     window_start = current_timestamp - (current_timestamp % period)
 
     sanitized_path = sanitize_path(path)
