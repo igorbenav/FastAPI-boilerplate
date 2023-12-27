@@ -17,4 +17,4 @@ class Tier(Base):
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), default_factory=lambda:  datetime.now(UTC)
     )
-    updated_at: Mapped[Optional[datetime]] = mapped_column(default=None)
+    updated_at: Mapped[Optional[datetime]] = mapped_column(DateTime(timezone=True), default=None)

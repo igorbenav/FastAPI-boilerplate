@@ -1,3 +1,4 @@
+from typing import Optional
 import uuid as uuid_pkg
 from datetime import datetime, UTC
 
@@ -23,6 +24,6 @@ class Post(Base):
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), default_factory=lambda:  datetime.now(UTC)
     )
-    updated_at: Mapped[datetime | None] = mapped_column(default=None)
-    deleted_at: Mapped[datetime | None] = mapped_column(default=None)
+    updated_at: Mapped[Optional[datetime]] = mapped_column(DateTime(timezone=True), default=None)
+    deleted_at: Mapped[Optional[datetime]] = mapped_column(DateTime(timezone=True), default=None)
     is_deleted: Mapped[bool] = mapped_column(default=False, index=True)
