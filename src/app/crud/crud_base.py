@@ -146,10 +146,13 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType, UpdateSche
         ----
         This method provides a quick way to get the count of records without retrieving the actual data.
         """
-        conditions = [getattr(self._model, key) == value for key, value in kwargs.items()]
-        combined_conditions = and_(*conditions)
+        if kwargs:
+            conditions = [getattr(self._model, key) == value for key, value in kwargs.items()]
+            combined_conditions = and_(*conditions)
+            count_query = select(func.count()).select_from(self._model).filter(combined_conditions)
+        else:
+            count_query = select(func.count()).select_from(self._model)
 
-        count_query = select(func.count()).filter(combined_conditions)
         total_count: int = await db.scalar(count_query)
 
         return total_count
