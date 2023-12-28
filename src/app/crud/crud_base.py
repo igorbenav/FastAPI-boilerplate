@@ -1,5 +1,5 @@
 from typing import Any, Dict, Generic, List, Type, TypeVar, Union
-from datetime import datetime
+from datetime import datetime, UTC
 
 from pydantic import BaseModel
 from sqlalchemy import select, update, delete, func, and_, inspect
@@ -441,7 +441,7 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType, UpdateSche
             update_data = object.model_dump(exclude_unset=True)
         
         if "updated_at" in update_data.keys():
-            update_data["updated_at"] = datetime.utcnow()
+            update_data["updated_at"] = datetime.now(UTC)
 
         stmt = update(self._model) \
             .filter_by(**kwargs) \
@@ -500,7 +500,7 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType, UpdateSche
             if "is_deleted" in self._model.__table__.columns:
                 object_dict = {
                     "is_deleted": True,
-                    "deleted_at": datetime.utcnow()
+                    "deleted_at": datetime.now(UTC)
                 }
                 stmt = update(self._model) \
                     .filter_by(**kwargs) \
