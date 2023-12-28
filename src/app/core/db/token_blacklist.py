@@ -1,9 +1,10 @@
 from datetime import datetime
 
-from sqlalchemy import String, DateTime
+from sqlalchemy import DateTime, String
 from sqlalchemy.orm import Mapped, mapped_column
 
 from .database import Base
+
 
 class TokenBlacklist(Base):
     __tablename__ = "token_blacklist"

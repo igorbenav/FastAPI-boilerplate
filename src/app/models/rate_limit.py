@@ -1,10 +1,11 @@
+from datetime import UTC, datetime
 from typing import Optional
-from datetime import datetime, UTC
 
-from sqlalchemy import String, DateTime, ForeignKey, Integer
+from sqlalchemy import DateTime, ForeignKey, Integer, String
 from sqlalchemy.orm import Mapped, mapped_column
 
 from ..core.db.database import Base
+
 
 class RateLimit(Base):
     __tablename__ = "rate_limit"

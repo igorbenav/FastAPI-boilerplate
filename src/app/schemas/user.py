@@ -1,9 +1,10 @@
-from typing import Annotated, Optional
 from datetime import datetime
+from typing import Annotated, Optional
 
-from pydantic import BaseModel, EmailStr, Field, ConfigDict
+from pydantic import BaseModel, ConfigDict, EmailStr, Field
 
-from ..core.schemas import UUIDSchema, TimestampSchema, PersistentDeletion
+from ..core.schemas import PersistentDeletion, TimestampSchema, UUIDSchema
+
 
 class UserBase(BaseModel):
     name: Annotated[

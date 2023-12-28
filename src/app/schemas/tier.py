@@ -1,9 +1,10 @@
-from typing import Annotated
 from datetime import datetime
+from typing import Annotated
 
 from pydantic import BaseModel, Field
 
 from ..core.schemas import TimestampSchema
+
 
 class TierBase(BaseModel):
     name: Annotated[

@@ -1,10 +1,11 @@
+from datetime import UTC, datetime
 from typing import Optional
-from datetime import datetime, UTC
 
-from sqlalchemy import String, DateTime
+from sqlalchemy import DateTime, String
 from sqlalchemy.orm import Mapped, mapped_column
 
 from ..core.db.database import Base
+
 
 class Tier(Base):
     __tablename__ = "tier"

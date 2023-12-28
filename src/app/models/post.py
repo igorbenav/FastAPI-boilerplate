@@ -1,11 +1,12 @@
-from typing import Optional
 import uuid as uuid_pkg
-from datetime import datetime, UTC
+from datetime import UTC, datetime
+from typing import Optional
 
-from sqlalchemy import String, DateTime, ForeignKey
+from sqlalchemy import DateTime, ForeignKey, String
 from sqlalchemy.orm import Mapped, mapped_column
 
 from ..core.db.database import Base
+
 
 class Post(Base):
     __tablename__ = "post"
