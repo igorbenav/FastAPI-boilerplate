@@ -1,5 +1,5 @@
 from typing import Any, Dict, Generic, List, Type, TypeVar, Union
-from datetime import datetime
+from datetime import datetime, UTC
 
 from pydantic import BaseModel
 from sqlalchemy import select, update, delete, func, and_, inspect
@@ -146,10 +146,13 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType, UpdateSche
         ----
         This method provides a quick way to get the count of records without retrieving the actual data.
         """
-        conditions = [getattr(self._model, key) == value for key, value in kwargs.items()]
-        combined_conditions = and_(*conditions)
+        if kwargs:
+            conditions = [getattr(self._model, key) == value for key, value in kwargs.items()]
+            combined_conditions = and_(*conditions)
+            count_query = select(func.count()).select_from(self._model).filter(combined_conditions)
+        else:
+            count_query = select(func.count()).select_from(self._model)
 
-        count_query = select(func.count()).filter(combined_conditions)
         total_count: int = await db.scalar(count_query)
 
         return total_count
@@ -441,7 +444,7 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType, UpdateSche
             update_data = object.model_dump(exclude_unset=True)
         
         if "updated_at" in update_data.keys():
-            update_data["updated_at"] = datetime.utcnow()
+            update_data["updated_at"] = datetime.now(UTC)
 
         stmt = update(self._model) \
             .filter_by(**kwargs) \
@@ -500,7 +503,7 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType, UpdateSche
             if "is_deleted" in self._model.__table__.columns:
                 object_dict = {
                     "is_deleted": True,
-                    "deleted_at": datetime.utcnow()
+                    "deleted_at": datetime.now(UTC)
                 }
                 stmt = update(self._model) \
                     .filter_by(**kwargs) \

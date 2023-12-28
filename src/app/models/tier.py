@@ -1,5 +1,5 @@
 from typing import Optional
-from datetime import datetime
+from datetime import datetime, UTC
 
 from sqlalchemy import String, DateTime
 from sqlalchemy.orm import Mapped, mapped_column
@@ -15,6 +15,6 @@ class Tier(Base):
     name: Mapped[str] = mapped_column(String, nullable=False, unique=True)
 
     created_at: Mapped[datetime] = mapped_column(
-        DateTime, default_factory=datetime.utcnow
+        DateTime(timezone=True), default_factory=lambda:  datetime.now(UTC)
     )
-    updated_at: Mapped[Optional[datetime]] = mapped_column(default=None)
+    updated_at: Mapped[Optional[datetime]] = mapped_column(DateTime(timezone=True), default=None)

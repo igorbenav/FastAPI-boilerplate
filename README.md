@@ -108,6 +108,7 @@
 
 ___
 ## 3. Prerequisites
+### 3.0 Start
 Start by using the template, and naming the repository to what you want.
 <p align="left">
     <img src="https://user-images.githubusercontent.com/43156212/277866726-975d1c98-b1c9-4c8e-b4bd-001c8a5728cb.png" alt="clicking use this template button, then create a new repository option" width="35%" height="auto">
@@ -117,6 +118,15 @@ Then clone your created repository (I'm using the base for the example)
 ```sh
 git clone https://github.com/igormagalhaesr/FastAPI-boilerplate
 ```
+
+> [!TIP]
+> If you are in a hurry, you may use one of the following templates (containing a `.env`, `docker-compose.yml` and `Dockerfile`):
+- [Running locally with uvicorn](https://gist.github.com/igorbenav/48ad745120c3f77817e094f3a609111a)
+- [Runing in staging with gunicorn managing uvicorn workers](https://gist.github.com/igorbenav/d0518d4f6bdfb426d4036090f74905ee)
+- [Running in production with NGINX](https://gist.github.com/igorbenav/232c3b73339d6ca74e2bf179a5ef48a1)
+
+> [!WARNING]
+> Do not forget to place `docker-compose.yml` and `Dockerfile` in the `root` folder, while `.env` should be in the `src` folder.
 
 ### 3.1 Environment Variables (.env)
 
@@ -746,7 +756,7 @@ crud_users.update(db=db, object={name="Updated Name"}, username="myusername")
 To delete we have two options:
 - db_delete: actually deletes the row from the database
 - delete: 
-    - adds `"is_deleted": True` and `deleted_at: datetime.utcnow()` if the model inherits from `PersistentDeletion` (performs a soft delete), but keeps the object in the database.
+    - adds `"is_deleted": True` and `deleted_at: datetime.now(UTC)` if the model inherits from `PersistentDeletion` (performs a soft delete), but keeps the object in the database.
     - actually deletes the row from the database if the model does not inherit from `PersistentDeletion`
 
 ```python
@@ -1450,6 +1460,8 @@ CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000", "--reload
 # CMD ["gunicorn", "app.main:app", "-w", "4", "-k", "uvicorn.workers.UvicornWorker". "-b", "0.0.0.0:8000"]
 ```
 
+And finally head to `http://localhost/docs`.
+
 #### 6.2.1 One Server
 If you want to run with one server only, your setup should be ready. Just make sure the only part that is not a comment in `deafult.conf` is:
 ```python
@@ -1468,6 +1480,8 @@ server {
     }
 }
 ```
+
+So just type on your browser: `http://localhost/docs`.
 
 #### 6.2.2 Multiple Servers
 NGINX can distribute incoming network traffic across multiple servers, improving the efficiency and capacity utilization of your application.
@@ -1498,6 +1512,9 @@ server {
     }
 }
 ```
+
+And finally, on your browser: `http://localhost/docs`.
+
 > [!WARNING]
 > Note that we are using `fastapi1:8000` and `fastapi2:8000` as examples, you should replace it with the actual name of your service and the port it's running on.
 

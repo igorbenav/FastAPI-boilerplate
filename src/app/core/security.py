@@ -1,8 +1,8 @@
 from typing import Union, Literal, Dict, Any
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, UTC
 
+import bcrypt
 from sqlalchemy.ext.asyncio import AsyncSession
-from passlib.context import CryptContext
 from jose import jwt, JWTError
 from fastapi.security import OAuth2PasswordBearer
 
@@ -17,15 +17,14 @@ ACCESS_TOKEN_EXPIRE_MINUTES = settings.ACCESS_TOKEN_EXPIRE_MINUTES
 REFRESH_TOKEN_EXPIRE_DAYS = settings.REFRESH_TOKEN_EXPIRE_DAYS
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/v1/login")
-crypt_context = CryptContext(schemes=["sha256_crypt"])
 
 async def verify_password(plain_password: str, hashed_password: str) -> bool:
-    out: bool = crypt_context.verify(plain_password, hashed_password)
-    return out
+    correct_password: bool = bcrypt.checkpw(plain_password.encode(), hashed_password.encode())
+    return correct_password
 
 def get_password_hash(password: str) -> str:
-    out: str = crypt_context.hash(password)
-    return out
+    hashed_password: str = bcrypt.hashpw(password.encode(), bcrypt.gensalt()).decode()
+    return hashed_password
 
 async def authenticate_user(username_or_email: str, password: str, db: AsyncSession) -> Union[Dict[str, Any], Literal[False]]:
     if "@" in username_or_email:
@@ -44,9 +43,9 @@ async def authenticate_user(username_or_email: str, password: str, db: AsyncSess
 async def create_access_token(data: dict[str, Any], expires_delta: timedelta | None = None) -> str:
     to_encode = data.copy()
     if expires_delta:
-        expire = datetime.utcnow() + expires_delta
+        expire = datetime.now(UTC).replace(tzinfo=None) + expires_delta
     else:
-        expire = datetime.utcnow() + timedelta(minutes=15)
+        expire = datetime.now(UTC).replace(tzinfo=None) + timedelta(minutes=15)
     to_encode.update({"exp": expire})
     encoded_jwt: str = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
     return encoded_jwt
@@ -54,9 +53,9 @@ async def create_access_token(data: dict[str, Any], expires_delta: timedelta | N
 async def create_refresh_token(data: dict[str, Any], expires_delta: timedelta | None = None) -> str:
     to_encode = data.copy()
     if expires_delta:
-        expire = datetime.utcnow() + expires_delta
+        expire = datetime.now(UTC).replace(tzinfo=None) + expires_delta
     else:
-        expire = datetime.utcnow() + timedelta(days=REFRESH_TOKEN_EXPIRE_DAYS)
+        expire = datetime.now(UTC).replace(tzinfo=None) + timedelta(days=REFRESH_TOKEN_EXPIRE_DAYS)
     to_encode.update({"exp": expire})
     encoded_jwt: str = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
     return encoded_jwt
