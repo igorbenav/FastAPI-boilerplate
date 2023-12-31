@@ -156,6 +156,27 @@ POSTGRES_PORT=5432 # default "5432", if using docker compose you should use "543
 POSTGRES_DB="your_db"
 ```
 
+For database administration using PGAdmin create the following variables in the .env file
+
+```
+# ------------- pgadmin -------------
+PGADMIN_DEFAULT_EMAIL="your_email_address"
+PGADMIN_DEFAULT_PASSWORD="your_password"
+PGADMIN_LISTEN_PORT=80
+```
+
+To connect to the database, log into the PGAdmin console with the values specified in `PGADMIN_DEFAULT_EMAIL` and `PGADMIN_DEFAULT_PASSWORD`.  
+
+Once in the main PGAdmin screen, click Add Server:
+
+![pgadmin-connect]
+
+1. Hostname/address is `db` (if using containers)
+2. Is the value you specified in `POSTGRES_PORT`
+3. Leave this value as `postgres`
+4. is the value you specified in `POSTGRES_USER`
+5. Is the value you specified in `POSTGRES_PASSWORD`
+
 For crypt:
 Start by running
 ```sh

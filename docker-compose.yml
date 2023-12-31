@@ -50,6 +50,20 @@ services:
     expose:
       - "6379"
 
+  #-------- uncomment to run with pgadmin --------
+  # pgadmin:
+  #   container_name: pgadmin4
+  #   image: dpage/pgadmin4:latest
+  #   restart: always
+  #   ports:
+  #     - "5050:80"
+  #   volumes:
+  #     - pgadmin-data:/var/lib/pgadmin 
+  #   env_file:
+  #     - ./src/.env
+  #   depends_on:
+  #     - db
+
   #-------- uncomment to run with nginx --------
   # nginx:
   #   image: nginx:latest
@@ -106,4 +120,5 @@ services:
 volumes:
   postgres-data:
   redis-data:
+  #pgadmin-data:
  
