@@ -1,13 +1,14 @@
-from typing import Dict, Optional, Any
+from typing import Any, Dict, Optional
 
 from arq.jobs import Job as ArqJob
 from fastapi import APIRouter, Depends
 
+from ...api.dependencies import rate_limiter
 from ...core.utils import queue
 from ...schemas.job import Job
-from ...api.dependencies import rate_limiter
 
 router = APIRouter(prefix="/tasks", tags=["tasks"])
+
 
 @router.post("/task", response_model=Job, status_code=201, dependencies=[Depends(rate_limiter)])
 async def create_task(message: str) -> Dict[str, str]:
@@ -24,7 +25,7 @@ async def create_task(message: str) -> Dict[str, str]:
     Dict[str, str]
         A dictionary containing the ID of the created task.
     """
-    job = await queue.pool.enqueue_job("sample_background_task", message) # type: ignore
+    job = await queue.pool.enqueue_job("sample_background_task", message)  # type: ignore
     return {"id": job.job_id}
 
 

@@ -94,7 +94,8 @@
     10. [ARQ Job Queues](#510-arq-job-queues)
     11. [Rate Limiting](#511-rate-limiting)
     12. [JWT Authentication](#512-jwt-authentication)
-    13. [Running](#512-running)
+    13. [Running](#513-running)
+    14. [Create Application](#514-create-application)
 6. [Running in Production](#6-running-in-production)
     1. [Uvicorn Workers with Gunicorn](#61-uvicorn-workers-with-gunicorn)
     2. [Running With NGINX](#62-running-with-nginx)
@@ -435,6 +436,31 @@ poetry run python -m src.scripts.create_first_superuser
 To create the first tier it's similar, you just replace `create_superuser` for `create_tier` service or `create_first_superuser` to `create_first_tier` for scripts. If using `docker compose`, do not forget to uncomment the `create_tier` service in `docker-compose.yml`.
 
 ### 4.4 Database Migrations
+If you are using the db in docker, you need to change this in `docker-compose.yml` to run migrations:
+```sh
+  db:
+    image: postgres:13
+    env_file:
+      - ./src/.env
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    # -------- replace with comment to run migrations with docker --------
+    expose:
+      - "5432"
+    # ports:
+    #  - 5432:5432
+```
+
+Getting:
+```sh
+  db:
+    ...
+    # expose:
+    #  - "5432"
+    ports:
+      - 5432:5432
+```
+
 While in the `src` folder, run Alembic migrations:
 ```sh
 poetry run alembic revision --autogenerate
@@ -1388,6 +1414,26 @@ CMD ["gunicorn", "app.main:app", "-w", "4", "-k", "uvicorn.workers.UvicornWorker
 
 > [!CAUTION]
 > Do not forget to set the `ENVIRONMENT` in `.env` to `production` unless you want the API docs to be public.
+
+### 5.14 Create Application
+If you want to stop tables from being created every time you run the api, you should disable this here:
+```python
+# app/main.py
+
+from .api import router
+from .core.config import settings
+from .core.setup import create_application
+
+# create_tables_on_start defaults to True
+app = create_application(router=router, settings=settings, create_tables_on_start=False)
+```
+
+This `create_application` function is defined in `app/core/setup.py`, and it's a flexible way to configure the behavior of your application.
+
+A few examples:
+- Deactivate or password protect /docs
+- Add client-side cache middleware
+- Add Startup and Shutdown event handlers for cache, queue and rate limit
 
 ### 6.2 Running with NGINX
 NGINX is a high-performance web server, known for its stability, rich feature set, simple configuration, and low resource consumption. NGINX acts as a reverse proxy, that is, it receives client requests, forwards them to the FastAPI server (running via Uvicorn or Gunicorn), and then passes the responses back to the clients.

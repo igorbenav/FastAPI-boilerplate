@@ -1,8 +1,9 @@
-from typing import TypeVar, Generic, List, Dict, Any
+from typing import Any, Dict, Generic, List, TypeVar
 
 from pydantic import BaseModel
 
 SchemaType = TypeVar("SchemaType", bound=BaseModel)
+
 
 class ListResponse(BaseModel, Generic[SchemaType]):
     data: List[SchemaType]
@@ -15,11 +16,7 @@ class PaginatedListResponse(ListResponse[SchemaType]):
     items_per_page: int | None = None
 
 
-def paginated_response(
-        crud_data: dict, 
-        page: int, 
-        items_per_page: int
-) -> Dict[str, Any]:
+def paginated_response(crud_data: dict, page: int, items_per_page: int) -> Dict[str, Any]:
     """
     Create a paginated response based on the provided data and pagination parameters.
 
@@ -46,8 +43,9 @@ def paginated_response(
         "total_count": crud_data["total_count"],
         "has_more": (page * items_per_page) < crud_data["total_count"],
         "page": page,
-        "items_per_page": items_per_page
+        "items_per_page": items_per_page,
     }
+
 
 def compute_offset(page: int, items_per_page: int) -> int:
     """

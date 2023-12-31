@@ -1,16 +1,18 @@
-from typing import Callable, Union, Tuple, List, Dict, Any
 import functools
 import json
 import re
+from collections.abc import Callable
+from typing import Any, Dict, List, Tuple, Union
 
 from fastapi import Request, Response
 from fastapi.encoders import jsonable_encoder
-from redis.asyncio import Redis, ConnectionPool
+from redis.asyncio import ConnectionPool, Redis
 
 from ..exceptions.cache_exceptions import CacheIdentificationInferenceError, InvalidRequestError, MissingClientError
 
 pool: ConnectionPool | None = None
 client: Redis | None = None
+
 
 def _infer_resource_id(kwargs: Dict[str, Any], resource_id_type: Union[type, Tuple[type, ...]]) -> int | str:
     """
@@ -18,11 +20,11 @@ def _infer_resource_id(kwargs: Dict[str, Any], resource_id_type: Union[type, Tup
 
     Parameters
     ----------
-    kwargs: Dict[str, Any] 
+    kwargs: Dict[str, Any]
         A dictionary of keyword arguments.
     resource_id_type: Union[type, Tuple[type, ...]]
         The expected type of the resource ID, which can be integer (int) or a string (str).
-        
+
     Returns
     -------
     Union[None, int, str]
@@ -38,12 +40,12 @@ def _infer_resource_id(kwargs: Dict[str, Any], resource_id_type: Union[type, Tup
         if isinstance(arg_value, resource_id_type):
             if (resource_id_type is int) and ("id" in arg_name):
                 resource_id = arg_value
-            
+
             elif (resource_id_type is int) and ("id" not in arg_name):
                 pass
 
             elif resource_id_type is str:
-                resource_id = arg_value 
+                resource_id = arg_value
 
     if resource_id is None:
         raise CacheIdentificationInferenceError
@@ -70,7 +72,7 @@ def _extract_data_inside_brackets(input_string: str) -> List[str]:
     >>> _extract_data_inside_brackets("The {quick} brown {fox} jumps over the {lazy} dog.")
     ['quick', 'fox', 'lazy']
     """
-    data_inside_brackets = re.findall(r'{(.*?)}', input_string)
+    data_inside_brackets = re.findall(r"{(.*?)}", input_string)
     return data_inside_brackets
 
 
@@ -116,10 +118,7 @@ def _format_prefix(prefix: str, kwargs: Dict[str, Any]) -> str:
     return formatted_prefix
 
 
-def _format_extra_data(
-    to_invalidate_extra: Dict[str, str], 
-    kwargs: Dict[str, Any]
-) -> Dict[str, Any]:
+def _format_extra_data(to_invalidate_extra: Dict[str, str], kwargs: Dict[str, Any]) -> Dict[str, Any]:
     """
     Format extra data based on provided templates and keyword arguments.
 
@@ -129,21 +128,22 @@ def _format_extra_data(
 
     Parameters
     ----------
-    to_invalidate_extra: Dict[str, str] 
+    to_invalidate_extra: Dict[str, str]
         A dictionary where keys are templates and values are the associated values.
     kwargs: Dict[str, Any]
         A dictionary of keyword arguments.
 
     Returns
     -------
-        Dict[str, Any]: A dictionary where keys are formatted templates and values are associated keyword argument values.
+        Dict[str, Any]: A dictionary where keys are formatted templates and values
+        are associated keyword argument values.
     """
     formatted_extra = {}
     for prefix, id_template in to_invalidate_extra.items():
         formatted_prefix = _format_prefix(prefix, kwargs)
         id = _extract_data_inside_brackets(id_template)[0]
         formatted_extra[formatted_prefix] = kwargs[id]
-    
+
     return formatted_extra
 
 
@@ -169,7 +169,7 @@ async def _delete_keys_by_pattern(pattern: str) -> None:
     -----
     - The SCAN command is used with a count of 100 to retrieve keys in batches.
       This count can be adjusted based on the size of your dataset and Redis performance.
-    
+
     - The function uses the delete command to remove keys in bulk. If the dataset
       is extremely large, consider implementing additional logic to handle bulk deletion
       more efficiently.
@@ -188,17 +188,17 @@ async def _delete_keys_by_pattern(pattern: str) -> None:
 
 
 def cache(
-        key_prefix: str, 
-        resource_id_name: Any = None, 
-        expiration: int = 3600, 
-        resource_id_type: Union[type, Tuple[type, ...]] = int,
-        to_invalidate_extra: Dict[str, Any] | None = None,
-        pattern_to_invalidate_extra: List[str] | None = None
+    key_prefix: str,
+    resource_id_name: Any = None,
+    expiration: int = 3600,
+    resource_id_type: Union[type, Tuple[type, ...]] = int,
+    to_invalidate_extra: Dict[str, Any] | None = None,
+    pattern_to_invalidate_extra: List[str] | None = None,
 ) -> Callable:
     """
     Cache decorator for FastAPI endpoints.
 
-    This decorator enables caching the results of FastAPI endpoint functions to improve response times 
+    This decorator enables caching the results of FastAPI endpoint functions to improve response times
     and reduce the load on the application by storing and retrieving data in a cache.
 
     Parameters
@@ -206,18 +206,19 @@ def cache(
     key_prefix: str
         A unique prefix to identify the cache key.
     resource_id_name: Any, optional
-        The name of the resource ID argument in the decorated function. If provided, it is used directly; 
+        The name of the resource ID argument in the decorated function. If provided, it is used directly;
         otherwise, the resource ID is inferred from the function's arguments.
     expiration: int, optional
         The expiration time for the cached data in seconds. Defaults to 3600 seconds (1 hour).
     resource_id_type: Union[type, Tuple[type, ...]], default int
-        The expected type of the resource ID. This can be a single type (e.g., int) or a tuple of types (e.g., (int, str)). 
+        The expected type of the resource ID.
+        This can be a single type (e.g., int) or a tuple of types (e.g., (int, str)).
         Defaults to int. This is used only if resource_id_name is not provided.
     to_invalidate_extra: Dict[str, Any] | None, optional
-        A dictionary where keys are cache key prefixes and values are templates for cache key suffixes. 
+        A dictionary where keys are cache key prefixes and values are templates for cache key suffixes.
         These keys are invalidated when the decorated function is called with a method other than GET.
     pattern_to_invalidate_extra: List[str] | None, optional
-        A list of string patterns for cache keys that should be invalidated when the decorated function is called. 
+        A list of string patterns for cache keys that should be invalidated when the decorated function is called.
         This allows for bulk invalidation of cache keys based on a matching pattern.
 
     Returns
@@ -261,9 +262,9 @@ def cache(
 
     @app.put("/items/{item_id}")
     @cache(
-        key_prefix="item_data", 
-        resource_id_name="item_id", 
-        to_invalidate_extra={"user_items": "{user_id}"}, 
+        key_prefix="item_data",
+        resource_id_name="item_id",
+        to_invalidate_extra={"user_items": "{user_id}"},
         pattern_to_invalidate_extra=["user_*_items:*"]
     )
     async def update_item(request: Request, item_id: int, data: dict, user_id: int):
@@ -274,9 +275,9 @@ def cache(
 
     In this example:
     - When reading user items, the response is cached under a key formed with 'user_items' prefix and 'user_id'.
-    - When updating an item, the cache for this specific item (under 'item_data:item_id') and all caches with keys 
-      starting with 'user_{user_id}_items:' are invalidated. The `to_invalidate_extra` parameter specifically targets 
-      the cache for user-specific item lists, while `pattern_to_invalidate_extra` allows bulk invalidation of all keys 
+    - When updating an item, the cache for this specific item (under 'item_data:item_id') and all caches with keys
+      starting with 'user_{user_id}_items:' are invalidated. The `to_invalidate_extra` parameter specifically targets
+      the cache for user-specific item lists, while `pattern_to_invalidate_extra` allows bulk invalidation of all keys
       matching the pattern 'user_*_items:*', covering all users.
 
     Note
@@ -286,6 +287,7 @@ def cache(
     - Using `pattern_to_invalidate_extra` can be resource-intensive on large datasets. Use it judiciously and
       consider the potential impact on Redis performance.
     """
+
     def wrapper(func: Callable) -> Callable:
         @functools.wraps(func)
         async def inner(request: Request, *args: Any, **kwargs: Any) -> Response:
@@ -296,7 +298,7 @@ def cache(
                 resource_id = kwargs[resource_id_name]
             else:
                 resource_id = _infer_resource_id(kwargs=kwargs, resource_id_type=resource_id_type)
-            
+
             formatted_key_prefix = _format_prefix(key_prefix, kwargs)
             cache_key = f"{formatted_key_prefix}:{resource_id}"
             if request.method == "GET":
@@ -306,7 +308,7 @@ def cache(
                 cached_data = await client.get(cache_key)
                 if cached_data:
                     return json.loads(cached_data.decode())
-                
+
             result = await func(request, *args, **kwargs)
 
             if request.method == "GET":
@@ -317,7 +319,7 @@ def cache(
                 await client.expire(cache_key, expiration)
 
                 serialized_data = json.loads(serialized_data)
-                
+
             else:
                 await client.delete(cache_key)
                 if to_invalidate_extra is not None:
@@ -332,7 +334,7 @@ def cache(
                         await _delete_keys_by_pattern(formatted_pattern + "*")
 
             return result
-        
+
         return inner
 
     return wrapper

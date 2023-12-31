@@ -40,8 +40,11 @@ services:
       - ./src/.env
     volumes:
       - postgres-data:/var/lib/postgresql/data
+    # -------- replace with comment to run migrations with docker --------
     expose:
       - "5432"
+    # ports:
+    #  - 5432:5432
 
   redis:
     image: redis:alpine
