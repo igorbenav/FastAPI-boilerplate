@@ -1,21 +1,16 @@
 from typing import Annotated, Dict
 
-from fastapi import Request, Depends
-from sqlalchemy.ext.asyncio import AsyncSession
 import fastapi
+from fastapi import Depends, Request
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from ...api.dependencies import get_current_superuser
-from ...api.paginated import PaginatedListResponse, paginated_response, compute_offset
+from ...api.paginated import PaginatedListResponse, compute_offset, paginated_response
 from ...core.db.database import async_get_db
-from ...core.exceptions.http_exceptions import NotFoundException, DuplicateValueException, RateLimitException
+from ...core.exceptions.http_exceptions import DuplicateValueException, NotFoundException, RateLimitException
 from ...crud.crud_rate_limit import crud_rate_limits
 from ...crud.crud_tier import crud_tiers
-from ...schemas.rate_limit import (
-    RateLimitRead,
-    RateLimitCreate,
-    RateLimitCreateInternal,
-    RateLimitUpdate
-)
+from ...schemas.rate_limit import RateLimitCreate, RateLimitCreateInternal, RateLimitRead, RateLimitUpdate
 
 router = fastapi.APIRouter(tags=["rate_limits"])
 
@@ -120,7 +115,7 @@ async def patch_rate_limit(
     if db_rate_limit_path is not None:
         raise DuplicateValueException("There is already a rate limit for this path")
 
-    db_rate_limit_name = await crud_rate_limits.exists(db=db)
+    await crud_rate_limits.exists(db=db)
     if db_rate_limit_path is not None:
         raise DuplicateValueException("There is already a rate limit with this name")
 

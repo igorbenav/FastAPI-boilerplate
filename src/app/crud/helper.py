@@ -1,17 +1,19 @@
-from typing import Any, List, Type, Union, Optional
+from typing import Any, List, Optional, Type, Union
+
+from pydantic import BaseModel
 from sqlalchemy import inspect
 from sqlalchemy.orm import DeclarativeMeta
 from sqlalchemy.sql import ColumnElement
-from sqlalchemy.sql.schema import Column
 from sqlalchemy.sql.elements import Label
-
-from pydantic import BaseModel
+from sqlalchemy.sql.schema import Column
 
 from ..core.db.database import Base
 
+
 def _extract_matching_columns_from_schema(model: Type[Base], schema: Union[Type[BaseModel], list, None]) -> List[Any]:
     """
-    Retrieves a list of ORM column objects from a SQLAlchemy model that match the field names in a given Pydantic schema.
+    Retrieves a list of ORM column objects from a SQLAlchemy model that match the
+    field names in a given Pydantic schema.
 
     Parameters
     ----------
@@ -31,12 +33,12 @@ def _extract_matching_columns_from_schema(model: Type[Base], schema: Union[Type[
             schema_fields = schema
         else:
             schema_fields = schema.model_fields.keys()
-        
+
         column_list = []
         for column_name in schema_fields:
             if hasattr(model, column_name):
                 column_list.append(getattr(model, column_name))
-    
+
     return column_list
 
 
@@ -47,7 +49,7 @@ def _extract_matching_columns_from_kwargs(model: Type[Base], kwargs: dict) -> Li
         for column_name in kwargs_fields:
             if hasattr(model, column_name):
                 column_list.append(getattr(model, column_name))
-    
+
     return column_list
 
 
@@ -59,7 +61,10 @@ def _extract_matching_columns_from_column_names(model: Type[Base], column_names:
 
     return column_list
 
-def _auto_detect_join_condition(base_model: Type[DeclarativeMeta], join_model: Type[DeclarativeMeta]) -> Optional[ColumnElement]:
+
+def _auto_detect_join_condition(
+    base_model: Type[DeclarativeMeta], join_model: Type[DeclarativeMeta]
+) -> Optional[ColumnElement]:
     """
     Automatically detects the join condition for SQLAlchemy models based on foreign key relationships.
     This function scans the foreign keys in the base model and tries to match them with columns in the join model.
@@ -88,15 +93,19 @@ def _auto_detect_join_condition(base_model: Type[DeclarativeMeta], join_model: T
     """
     fk_columns = [col for col in inspect(base_model).c if col.foreign_keys]
     join_on = next(
-        (base_model.__table__.c[col.name] == join_model.__table__.c[list(col.foreign_keys)[0].column.name]
-         for col in fk_columns if list(col.foreign_keys)[0].column.table == join_model.__table__),
-        None
+        (
+            base_model.__table__.c[col.name] == join_model.__table__.c[list(col.foreign_keys)[0].column.name]
+            for col in fk_columns
+            if list(col.foreign_keys)[0].column.table == join_model.__table__
+        ),
+        None,
     )
 
     if join_on is None:
         raise ValueError("Could not automatically determine join condition. Please provide join_on.")
 
     return join_on
+
 
 def _add_column_with_prefix(column: Column, prefix: Optional[str]) -> Label:
     """

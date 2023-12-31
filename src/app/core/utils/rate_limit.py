@@ -1,6 +1,6 @@
-from datetime import datetime, UTC
+from datetime import UTC, datetime
 
-from redis.asyncio import Redis, ConnectionPool
+from redis.asyncio import ConnectionPool, Redis
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from ...core.logger import logging

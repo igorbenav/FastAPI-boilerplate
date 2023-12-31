@@ -1,8 +1,8 @@
 import asyncio
+
 import uvloop
 from arq.connections import RedisSettings
 from arq.worker import Worker
-from typing import Any
 
 from .core.config import settings
 

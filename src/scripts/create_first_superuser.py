@@ -1,25 +1,15 @@
 import asyncio
-from sqlalchemy import (
-    select, 
-    Table, 
-    MetaData, 
-    Column, 
-    Integer, 
-    String, 
-    insert, 
-    ForeignKey, 
-    DateTime, 
-    Boolean
-)
-from sqlalchemy.dialects.postgresql import UUID
 import uuid
-from datetime import datetime, UTC
+from datetime import UTC, datetime
 
-from ..app.core.db.database import async_engine
-from ..app.core.db.database import AsyncSession, local_session
+from sqlalchemy import Boolean, Column, DateTime, ForeignKey, Integer, MetaData, String, Table, insert, select
+from sqlalchemy.dialects.postgresql import UUID
+
 from ..app.core.config import settings
-from ..app.models.user import User
+from ..app.core.db.database import AsyncSession, async_engine, local_session
 from ..app.core.security import get_password_hash
+from ..app.models.user import User
+
 
 async def create_first_user(session: AsyncSession) -> None:
     name = settings.ADMIN_NAME

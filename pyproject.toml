@@ -5,12 +5,12 @@ description = "A fully Async FastAPI boilerplate using SQLAlchemy and Pydantic 2
 authors = ["Igor Magalhaes <igor.magalhaes.r@gmail.com>"]
 license = "MIT"
 readme = "README.md"
-packages = [{include = "fastapi_boilerplate"}]
+packages = [{ include = "fastapi_boilerplate" }]
 
 [tool.poetry.dependencies]
 python = "^3.11"
 python-dotenv = "^1.0.0"
-pydantic = {extras = ["email"], version = "^2.4.1"}
+pydantic = { extras = ["email"], version = "^2.4.1" }
 fastapi = "^0.103.1"
 uvicorn = "^0.23.2"
 uvloop = "^0.17.0"
@@ -35,3 +35,42 @@ bcrypt = "^4.1.1"
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
+
+[tool.ruff]
+target-version = "py311"
+line-length = 120
+fix = true
+select = [
+    # https://docs.astral.sh/ruff/rules/#pyflakes-f
+    "F", # Pyflakes
+    # https://docs.astral.sh/ruff/rules/#pycodestyle-e-w
+    "E", # pycodestyle
+    "W", # Warning
+    # https://docs.astral.sh/ruff/rules/#flake8-comprehensions-c4
+    # https://docs.astral.sh/ruff/rules/#mccabe-c90
+    "C", # Complexity (mccabe+) & comprehensions
+    # https://docs.astral.sh/ruff/rules/#pyupgrade-up
+    "UP", # pyupgrade
+    # https://docs.astral.sh/ruff/rules/#isort-i
+    "I", # isort
+]
+ignore = [
+    # https://docs.astral.sh/ruff/rules/#pycodestyle-e-w
+    "E402", # module level import not at top of file
+    # https://docs.astral.sh/ruff/rules/#pyupgrade-up
+    "UP006", # use-pep585-annotation
+    "UP007", # use-pep604-annotation
+    "E741",  # Ambiguous variable name
+    # "UP035", # deprecated-assertion
+]
+[tool.ruff.per-file-ignores]
+"__init__.py" = [
+    "F401", # unused import
+    "F403", # star imports
+]
+
+[tool.ruff.mccabe]
+max-complexity = 24
+
+[tool.ruff.pydocstyle]
+convention = "numpy"
