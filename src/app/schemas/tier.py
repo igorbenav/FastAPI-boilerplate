@@ -7,10 +7,7 @@ from ..core.schemas import TimestampSchema
 
 
 class TierBase(BaseModel):
-    name: Annotated[
-        str, 
-        Field(examples=["free"])
-    ]
+    name: Annotated[str, Field(examples=["free"])]
 
 
 class Tier(TimestampSchema, TierBase):

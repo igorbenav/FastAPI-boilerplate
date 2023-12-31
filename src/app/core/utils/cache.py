@@ -1,7 +1,8 @@
 import functools
 import json
 import re
-from typing import Any, Callable, Dict, List, Tuple, Union
+from collections.abc import Callable
+from typing import Any, Dict, List, Tuple, Union
 
 from fastapi import Request, Response
 from fastapi.encoders import jsonable_encoder
