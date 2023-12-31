@@ -80,19 +80,19 @@ def create_application(
         RedisRateLimiterSettings,
         EnvironmentSettings,
     ],
+    create_tables_on_start: bool = True,
     **kwargs: Any,
 ) -> FastAPI:
     """
     Creates and configures a FastAPI application based on the provided settings.
 
-    This function initializes a FastAPI application, then conditionally configures
-    it with various settings and handlers. The specific configuration is determined
-    by the type of the `settings` object provided.
+    This function initializes a FastAPI application and configures it with various settings
+    and handlers based on the type of the `settings` object provided.
 
     Parameters
     ----------
     router : APIRouter
-        The APIRouter object that contains the routes to be included in the FastAPI application.
+        The APIRouter object containing the routes to be included in the FastAPI application.
 
     settings
         An instance representing the settings for configuring the FastAPI application.
@@ -103,19 +103,27 @@ def create_application(
         - RedisCacheSettings: Sets up event handlers for creating and closing a Redis cache pool.
         - ClientSideCacheSettings: Integrates middleware for client-side caching.
         - RedisQueueSettings: Sets up event handlers for creating and closing a Redis queue pool.
+        - RedisRateLimiterSettings: Sets up event handlers for creating and closing a Redis rate limiter pool.
         - EnvironmentSettings: Conditionally sets documentation URLs and integrates custom routes for API documentation
-        based on environment type.
+          based on the environment type.
+
+    create_tables_on_start : bool
+        A flag to indicate whether to create database tables on application startup.
+        Defaults to True.
 
     **kwargs
-        Extra keyword arguments passed directly to the FastAPI constructor.
+        Additional keyword arguments passed directly to the FastAPI constructor.
 
     Returns
     -------
     FastAPI
         A fully configured FastAPI application instance.
 
+    The function configures the FastAPI application with different features and behaviors
+    based on the provided settings. It includes setting up database connections, Redis pools
+    for caching, queue, and rate limiting, client-side caching, and customizing the API documentation
+    based on the environment settings.
     """
-
     # --- before creating application ---
     if isinstance(settings, AppSettings):
         to_update = {
@@ -135,7 +143,7 @@ def create_application(
     application.include_router(router)
     application.add_event_handler("startup", set_threadpool_tokens)
 
-    if isinstance(settings, DatabaseSettings):
+    if isinstance(settings, DatabaseSettings) and create_tables_on_start:
         application.add_event_handler("startup", create_tables)
 
     if isinstance(settings, RedisCacheSettings):
