@@ -157,8 +157,30 @@ POSTGRES_PORT=5432 # default "5432", if using docker compose you should use "543
 POSTGRES_DB="your_db"
 ```
 
+For database administration using PGAdmin create the following variables in the .env file
+
+```
+# ------------- pgadmin -------------
+PGADMIN_DEFAULT_EMAIL="your_email_address"
+PGADMIN_DEFAULT_PASSWORD="your_password"
+PGADMIN_LISTEN_PORT=80
+```
+
+To connect to the database, log into the PGAdmin console with the values specified in `PGADMIN_DEFAULT_EMAIL` and `PGADMIN_DEFAULT_PASSWORD`.  
+
+Once in the main PGAdmin screen, click Add Server:
+
+![pgadmin-connect](https://private-user-images.githubusercontent.com/43156212/289698727-e15693b6-fae9-4ec6-a597-e70ab6f44133.png?jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJnaXRodWIuY29tIiwiYXVkIjoicmF3LmdpdGh1YnVzZXJjb250ZW50LmNvbSIsImtleSI6ImtleTUiLCJleHAiOjE3MDQwNTEzMDksIm5iZiI6MTcwNDA1MTAwOSwicGF0aCI6Ii80MzE1NjIxMi8yODk2OTg3MjctZTE1NjkzYjYtZmFlOS00ZWM2LWE1OTctZTcwYWI2ZjQ0MTMzLnBuZz9YLUFtei1BbGdvcml0aG09QVdTNC1ITUFDLVNIQTI1NiZYLUFtei1DcmVkZW50aWFsPUFLSUFWQ09EWUxTQTUzUFFLNFpBJTJGMjAyMzEyMzElMkZ1cy1lYXN0LTElMkZzMyUyRmF3czRfcmVxdWVzdCZYLUFtei1EYXRlPTIwMjMxMjMxVDE5MzAwOVomWC1BbXotRXhwaXJlcz0zMDAmWC1BbXotU2lnbmF0dXJlPTk0NmIxN2VhZTRkNGU1MGYzMWUwOTE2Yjg1YzUzOGQ0M2YwNDRiZjI4ZWUwMmM1ODJiNTgxYmY0NjJkOGQ4NDImWC1BbXotU2lnbmVkSGVhZGVycz1ob3N0JmFjdG9yX2lkPTAma2V5X2lkPTAmcmVwb19pZD0wIn0.cKlDYeBvXyGF86PCOYJQ4DvBehfy3Cz5ncf9BN8umE0)
+
+1. Hostname/address is `db` (if using containers)
+2. Is the value you specified in `POSTGRES_PORT`
+3. Leave this value as `postgres`
+4. is the value you specified in `POSTGRES_USER`
+5. Is the value you specified in `POSTGRES_PASSWORD`
+
 For crypt:
 Start by running
+
 ```sh
 openssl rand -hex 32
 ```
@@ -1352,7 +1374,7 @@ poetry run arq src.app.worker.WorkerSettings
 In production you may want to run using gunicorn to manage uvicorn workers:
 ```sh
 command: gunicorn app.main:app -w 4 -k uvicorn.workers.UvicornWorker -b 0.0.0.0:8000
-``` 
+```
 Here it's running with 4 workers, but you should test it depending on how many cores your machine has.
 
 To do this if you are using docker compose, just replace the comment:
