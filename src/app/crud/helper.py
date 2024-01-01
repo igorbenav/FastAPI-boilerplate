@@ -1,4 +1,4 @@
-from typing import Any, List, Optional, Type, Union
+from typing import Any, Optional, Union
 
 from pydantic import BaseModel
 from sqlalchemy import inspect
@@ -10,7 +10,7 @@ from sqlalchemy.sql.schema import Column
 from ..core.db.database import Base
 
 
-def _extract_matching_columns_from_schema(model: Type[Base], schema: Union[Type[BaseModel], list, None]) -> List[Any]:
+def _extract_matching_columns_from_schema(model: type[Base], schema: Union[type[BaseModel], list, None]) -> list[Any]:
     """
     Retrieves a list of ORM column objects from a SQLAlchemy model that match the
     field names in a given Pydantic schema.
@@ -24,7 +24,7 @@ def _extract_matching_columns_from_schema(model: Type[Base], schema: Union[Type[
 
     Returns
     -------
-    List[Any]
+    list[Any]
         A list of ORM column objects from the model that correspond to the field names defined in the schema.
     """
     column_list = list(model.__table__.columns)
@@ -42,7 +42,7 @@ def _extract_matching_columns_from_schema(model: Type[Base], schema: Union[Type[
     return column_list
 
 
-def _extract_matching_columns_from_kwargs(model: Type[Base], kwargs: dict) -> List[Any]:
+def _extract_matching_columns_from_kwargs(model: type[Base], kwargs: dict) -> list[Any]:
     if kwargs is not None:
         kwargs_fields = kwargs.keys()
         column_list = []
@@ -53,7 +53,7 @@ def _extract_matching_columns_from_kwargs(model: Type[Base], kwargs: dict) -> Li
     return column_list
 
 
-def _extract_matching_columns_from_column_names(model: Type[Base], column_names: list) -> List[Any]:
+def _extract_matching_columns_from_column_names(model: type[Base], column_names: list) -> list[Any]:
     column_list = []
     for column_name in column_names:
         if hasattr(model, column_name):
@@ -63,7 +63,7 @@ def _extract_matching_columns_from_column_names(model: Type[Base], column_names:
 
 
 def _auto_detect_join_condition(
-    base_model: Type[DeclarativeMeta], join_model: Type[DeclarativeMeta]
+    base_model: type[DeclarativeMeta], join_model: type[DeclarativeMeta]
 ) -> Optional[ColumnElement]:
     """
     Automatically detects the join condition for SQLAlchemy models based on foreign key relationships.

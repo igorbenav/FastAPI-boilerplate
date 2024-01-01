@@ -2,7 +2,7 @@ import functools
 import json
 import re
 from collections.abc import Callable
-from typing import Any, Dict, List, Tuple, Union
+from typing import Any, Union
 
 from fastapi import Request, Response
 from fastapi.encoders import jsonable_encoder
@@ -14,7 +14,7 @@ pool: ConnectionPool | None = None
 client: Redis | None = None
 
 
-def _infer_resource_id(kwargs: Dict[str, Any], resource_id_type: Union[type, Tuple[type, ...]]) -> int | str:
+def _infer_resource_id(kwargs: dict[str, Any], resource_id_type: Union[type, tuple[type, ...]]) -> int | str:
     """
     Infer the resource ID from a dictionary of keyword arguments.
 
@@ -53,7 +53,7 @@ def _infer_resource_id(kwargs: Dict[str, Any], resource_id_type: Union[type, Tup
     return resource_id
 
 
-def _extract_data_inside_brackets(input_string: str) -> List[str]:
+def _extract_data_inside_brackets(input_string: str) -> list[str]:
     """
     Extract data inside curly brackets from a given string using regular expressions.
 
@@ -76,7 +76,7 @@ def _extract_data_inside_brackets(input_string: str) -> List[str]:
     return data_inside_brackets
 
 
-def _construct_data_dict(data_inside_brackets: List[str], kwargs: Dict[str, Any]) -> Dict[str, Any]:
+def _construct_data_dict(data_inside_brackets: list[str], kwargs: dict[str, Any]) -> dict[str, Any]:
     """
     Construct a dictionary based on data inside brackets and keyword arguments.
 
@@ -97,7 +97,7 @@ def _construct_data_dict(data_inside_brackets: List[str], kwargs: Dict[str, Any]
     return data_dict
 
 
-def _format_prefix(prefix: str, kwargs: Dict[str, Any]) -> str:
+def _format_prefix(prefix: str, kwargs: dict[str, Any]) -> str:
     """
     Format a prefix using keyword arguments.
 
@@ -118,7 +118,7 @@ def _format_prefix(prefix: str, kwargs: Dict[str, Any]) -> str:
     return formatted_prefix
 
 
-def _format_extra_data(to_invalidate_extra: Dict[str, str], kwargs: Dict[str, Any]) -> Dict[str, Any]:
+def _format_extra_data(to_invalidate_extra: dict[str, str], kwargs: dict[str, Any]) -> dict[str, Any]:
     """
     Format extra data based on provided templates and keyword arguments.
 
@@ -191,9 +191,9 @@ def cache(
     key_prefix: str,
     resource_id_name: Any = None,
     expiration: int = 3600,
-    resource_id_type: Union[type, Tuple[type, ...]] = int,
-    to_invalidate_extra: Dict[str, Any] | None = None,
-    pattern_to_invalidate_extra: List[str] | None = None,
+    resource_id_type: Union[type, tuple[type, ...]] = int,
+    to_invalidate_extra: dict[str, Any] | None = None,
+    pattern_to_invalidate_extra: list[str] | None = None,
 ) -> Callable:
     """
     Cache decorator for FastAPI endpoints.
