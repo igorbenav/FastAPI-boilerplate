@@ -1,4 +1,4 @@
-from typing import Annotated, Dict
+from typing import Annotated
 
 import fastapi
 from fastapi import Depends, Request
@@ -50,7 +50,7 @@ async def read_tier(request: Request, name: str, db: Annotated[AsyncSession, Dep
 @router.patch("/tier/{name}", dependencies=[Depends(get_current_superuser)])
 async def patch_tier(
     request: Request, values: TierUpdate, name: str, db: Annotated[AsyncSession, Depends(async_get_db)]
-) -> Dict[str, str]:
+) -> dict[str, str]:
     db_tier = await crud_tiers.get(db=db, schema_to_select=TierRead, name=name)
     if db_tier is None:
         raise NotFoundException("Tier not found")
@@ -60,7 +60,7 @@ async def patch_tier(
 
 
 @router.delete("/tier/{name}", dependencies=[Depends(get_current_superuser)])
-async def erase_tier(request: Request, name: str, db: Annotated[AsyncSession, Depends(async_get_db)]) -> Dict[str, str]:
+async def erase_tier(request: Request, name: str, db: Annotated[AsyncSession, Depends(async_get_db)]) -> dict[str, str]:
     db_tier = await crud_tiers.get(db=db, schema_to_select=TierRead, name=name)
     if db_tier is None:
         raise NotFoundException("Tier not found")

@@ -1,4 +1,4 @@
-from typing import Annotated, Dict
+from typing import Annotated
 
 import fastapi
 from fastapi import Depends, Request
@@ -95,7 +95,7 @@ async def patch_post(
     values: PostUpdate,
     current_user: Annotated[UserRead, Depends(get_current_user)],
     db: Annotated[AsyncSession, Depends(async_get_db)],
-) -> Dict[str, str]:
+) -> dict[str, str]:
     db_user = await crud_users.get(db=db, schema_to_select=UserRead, username=username, is_deleted=False)
     if db_user is None:
         raise NotFoundException("User not found")
@@ -119,7 +119,7 @@ async def erase_post(
     id: int,
     current_user: Annotated[UserRead, Depends(get_current_user)],
     db: Annotated[AsyncSession, Depends(async_get_db)],
-) -> Dict[str, str]:
+) -> dict[str, str]:
     db_user = await crud_users.get(db=db, schema_to_select=UserRead, username=username, is_deleted=False)
     if db_user is None:
         raise NotFoundException("User not found")
@@ -140,7 +140,7 @@ async def erase_post(
 @cache("{username}_post_cache", resource_id_name="id", to_invalidate_extra={"{username}_posts": "{username}"})
 async def erase_db_post(
     request: Request, username: str, id: int, db: Annotated[AsyncSession, Depends(async_get_db)]
-) -> Dict[str, str]:
+) -> dict[str, str]:
     db_user = await crud_users.get(db=db, schema_to_select=UserRead, username=username, is_deleted=False)
     if db_user is None:
         raise NotFoundException("User not found")

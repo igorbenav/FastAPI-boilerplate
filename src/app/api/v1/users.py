@@ -1,4 +1,4 @@
-from typing import Annotated, Any, Dict
+from typing import Annotated, Any
 
 import fastapi
 from fastapi import Depends, Request
@@ -75,7 +75,7 @@ async def patch_user(
     username: str,
     current_user: Annotated[UserRead, Depends(get_current_user)],
     db: Annotated[AsyncSession, Depends(async_get_db)],
-) -> Dict[str, str]:
+) -> dict[str, str]:
     db_user = await crud_users.get(db=db, schema_to_select=UserRead, username=username)
     if db_user is None:
         raise NotFoundException("User not found")
@@ -104,7 +104,7 @@ async def erase_user(
     current_user: Annotated[UserRead, Depends(get_current_user)],
     db: Annotated[AsyncSession, Depends(async_get_db)],
     token: str = Depends(oauth2_scheme),
-) -> Dict[str, str]:
+) -> dict[str, str]:
     db_user = await crud_users.get(db=db, schema_to_select=UserRead, username=username)
     if not db_user:
         raise NotFoundException("User not found")
@@ -123,7 +123,7 @@ async def erase_db_user(
     username: str,
     db: Annotated[AsyncSession, Depends(async_get_db)],
     token: str = Depends(oauth2_scheme),
-) -> Dict[str, str]:
+) -> dict[str, str]:
     db_user = await crud_users.exists(db=db, username=username)
     if not db_user:
         raise NotFoundException("User not found")
@@ -136,7 +136,7 @@ async def erase_db_user(
 @router.get("/user/{username}/rate_limits", dependencies=[Depends(get_current_superuser)])
 async def read_user_rate_limits(
     request: Request, username: str, db: Annotated[AsyncSession, Depends(async_get_db)]
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     db_user: dict | None = await crud_users.get(db=db, username=username, schema_to_select=UserRead)
     if db_user is None:
         raise NotFoundException("User not found")
@@ -183,7 +183,7 @@ async def read_user_tier(
 @router.patch("/user/{username}/tier", dependencies=[Depends(get_current_superuser)])
 async def patch_user_tier(
     request: Request, username: str, values: UserTierUpdate, db: Annotated[AsyncSession, Depends(async_get_db)]
-) -> Dict[str, str]:
+) -> dict[str, str]:
     db_user = await crud_users.get(db=db, username=username, schema_to_select=UserRead)
     if db_user is None:
         raise NotFoundException("User not found")

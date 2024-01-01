@@ -1,5 +1,5 @@
 from datetime import timedelta
-from typing import Annotated, Dict
+from typing import Annotated
 
 import fastapi
 from fastapi import Depends, Request, Response
@@ -26,7 +26,7 @@ async def login_for_access_token(
     response: Response,
     form_data: Annotated[OAuth2PasswordRequestForm, Depends()],
     db: Annotated[AsyncSession, Depends(async_get_db)],
-) -> Dict[str, str]:
+) -> dict[str, str]:
     user = await authenticate_user(username_or_email=form_data.username, password=form_data.password, db=db)
     if not user:
         raise UnauthorizedException("Wrong username, email or password.")
@@ -45,7 +45,7 @@ async def login_for_access_token(
 
 
 @router.post("/refresh")
-async def refresh_access_token(request: Request, db: AsyncSession = Depends(async_get_db)) -> Dict[str, str]:
+async def refresh_access_token(request: Request, db: AsyncSession = Depends(async_get_db)) -> dict[str, str]:
     refresh_token = request.cookies.get("refresh_token")
     if not refresh_token:
         raise UnauthorizedException("Refresh token missing.")

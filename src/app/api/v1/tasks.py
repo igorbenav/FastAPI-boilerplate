@@ -1,4 +1,4 @@
-from typing import Any, Dict, Optional
+from typing import Any, Optional
 
 from arq.jobs import Job as ArqJob
 from fastapi import APIRouter, Depends
@@ -11,7 +11,7 @@ router = APIRouter(prefix="/tasks", tags=["tasks"])
 
 
 @router.post("/task", response_model=Job, status_code=201, dependencies=[Depends(rate_limiter)])
-async def create_task(message: str) -> Dict[str, str]:
+async def create_task(message: str) -> dict[str, str]:
     """
     Create a new background task.
 
@@ -22,7 +22,7 @@ async def create_task(message: str) -> Dict[str, str]:
 
     Returns
     -------
-    Dict[str, str]
+    dict[str, str]
         A dictionary containing the ID of the created task.
     """
     job = await queue.pool.enqueue_job("sample_background_task", message)  # type: ignore
@@ -30,7 +30,7 @@ async def create_task(message: str) -> Dict[str, str]:
 
 
 @router.get("/task/{task_id}")
-async def get_task(task_id: str) -> Optional[Dict[str, Any]]:
+async def get_task(task_id: str) -> Optional[dict[str, Any]]:
     """
     Get information about a specific background task.
 
@@ -41,7 +41,7 @@ async def get_task(task_id: str) -> Optional[Dict[str, Any]]:
 
     Returns
     -------
-    Optional[Dict[str, Any]]
+    Optional[dict[str, Any]]
         A dictionary containing information about the task if found, or None otherwise.
     """
     job = ArqJob(task_id, queue.pool)

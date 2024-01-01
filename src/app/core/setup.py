@@ -1,4 +1,4 @@
-from typing import Any, Dict, Union
+from typing import Any, Union
 
 import anyio
 import fastapi
@@ -176,7 +176,7 @@ def create_application(
                 return get_redoc_html(openapi_url="/openapi.json", title="docs")
 
             @docs_router.get("/openapi.json", include_in_schema=False)
-            async def openapi() -> Dict[str, Any]:
+            async def openapi() -> dict[str, Any]:
                 out: dict = get_openapi(title=application.title, version=application.version, routes=application.routes)
                 return out
 

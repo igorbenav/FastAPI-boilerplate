@@ -1,4 +1,4 @@
-from typing import Annotated, Dict
+from typing import Annotated
 
 import fastapi
 from fastapi import Depends, Request
@@ -79,7 +79,7 @@ async def patch_rate_limit(
     id: int,
     values: RateLimitUpdate,
     db: Annotated[AsyncSession, Depends(async_get_db)],
-) -> Dict[str, str]:
+) -> dict[str, str]:
     db_tier = await crud_tiers.get(db=db, name=tier_name)
     if db_tier is None:
         raise NotFoundException("Tier not found")
@@ -103,7 +103,7 @@ async def patch_rate_limit(
 @router.delete("/tier/{tier_name}/rate_limit/{id}", dependencies=[Depends(get_current_superuser)])
 async def erase_rate_limit(
     request: Request, tier_name: str, id: int, db: Annotated[AsyncSession, Depends(async_get_db)]
-) -> Dict[str, str]:
+) -> dict[str, str]:
     db_tier = await crud_tiers.get(db=db, name=tier_name)
     if not db_tier:
         raise NotFoundException("Tier not found")

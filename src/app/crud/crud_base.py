@@ -1,5 +1,5 @@
 from datetime import UTC, datetime
-from typing import Any, Dict, Generic, List, Type, TypeVar, Union
+from typing import Any, Generic, TypeVar, Union
 
 from pydantic import BaseModel
 from sqlalchemy import and_, delete, func, inspect, select, update
@@ -32,7 +32,7 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType, UpdateSche
         The SQLAlchemy model type.
     """
 
-    def __init__(self, model: Type[ModelType]) -> None:
+    def __init__(self, model: type[ModelType]) -> None:
         self._model = model
 
     async def create(self, db: AsyncSession, object: CreateSchemaType) -> ModelType:
@@ -58,8 +58,8 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType, UpdateSche
         return db_object
 
     async def get(
-        self, db: AsyncSession, schema_to_select: Union[Type[BaseModel], List, None] = None, **kwargs: Any
-    ) -> Dict | None:
+        self, db: AsyncSession, schema_to_select: Union[type[BaseModel], list, None] = None, **kwargs: Any
+    ) -> dict | None:
         """
         Fetch a single record based on filters.
 
@@ -67,14 +67,14 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType, UpdateSche
         ----------
         db : AsyncSession
             The SQLAlchemy async session.
-        schema_to_select : Union[Type[BaseModel], List, None], optional
+        schema_to_select : Union[Type[BaseModel], list, None], optional
             Pydantic schema for selecting specific columns. Default is None to select all columns.
         kwargs : dict
             Filters to apply to the query.
 
         Returns
         -------
-        Dict | None
+        dict | None
             The fetched database row or None if not found.
         """
         to_select = _extract_matching_columns_from_schema(model=self._model, schema=schema_to_select)
@@ -146,9 +146,9 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType, UpdateSche
         db: AsyncSession,
         offset: int = 0,
         limit: int = 100,
-        schema_to_select: Union[Type[BaseModel], List[Type[BaseModel]], None] = None,
+        schema_to_select: Union[type[BaseModel], list[type[BaseModel]], None] = None,
         **kwargs: Any,
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """
         Fetch multiple records based on filters.
 
@@ -160,14 +160,14 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType, UpdateSche
             Number of rows to skip before fetching. Default is 0.
         limit : int, optional
             Maximum number of rows to fetch. Default is 100.
-        schema_to_select : Union[Type[BaseModel], List[Type[BaseModel]], None], optional
+        schema_to_select : Union[Type[BaseModel], list[Type[BaseModel]], None], optional
             Pydantic schema for selecting specific columns. Default is None to select all columns.
         kwargs : dict
             Filters to apply to the query.
 
         Returns
         -------
-        Dict[str, Any]
+        dict[str, Any]
             Dictionary containing the fetched rows under 'data' key and total count under 'total_count'.
         """
         to_select = _extract_matching_columns_from_schema(model=self._model, schema=schema_to_select)
@@ -183,11 +183,11 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType, UpdateSche
     async def get_joined(
         self,
         db: AsyncSession,
-        join_model: Type[ModelType],
+        join_model: type[ModelType],
         join_prefix: str | None = None,
         join_on: Union[Join, None] = None,
-        schema_to_select: Union[Type[BaseModel], List, None] = None,
-        join_schema_to_select: Union[Type[BaseModel], List, None] = None,
+        schema_to_select: Union[type[BaseModel], list, None] = None,
+        join_schema_to_select: Union[type[BaseModel], list, None] = None,
         join_type: str = "left",
         **kwargs: Any,
     ) -> dict | None:
@@ -206,9 +206,9 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType, UpdateSche
         join_on : Join, optional
             SQLAlchemy Join object for specifying the ON clause of the join. If None, the join condition is
             auto-detected based on foreign keys.
-        schema_to_select : Union[Type[BaseModel], List, None], optional
+        schema_to_select : Union[Type[BaseModel], list, None], optional
             Pydantic schema for selecting specific columns from the primary model.
-        join_schema_to_select : Union[Type[BaseModel], List, None], optional
+        join_schema_to_select : Union[Type[BaseModel], list, None], optional
             Pydantic schema for selecting specific columns from the joined model.
         join_type : str, default "left"
             Specifies the type of join operation to perform. Can be "left" for a left outer join
@@ -218,7 +218,7 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType, UpdateSche
 
         Returns
         -------
-        Dict | None
+        dict | None
             The fetched database row or None if not found.
 
         Examples
@@ -307,16 +307,16 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType, UpdateSche
     async def get_multi_joined(
         self,
         db: AsyncSession,
-        join_model: Type[ModelType],
+        join_model: type[ModelType],
         join_prefix: str | None = None,
         join_on: Union[Join, None] = None,
-        schema_to_select: Union[Type[BaseModel], List[Type[BaseModel]], None] = None,
-        join_schema_to_select: Union[Type[BaseModel], List[Type[BaseModel]], None] = None,
+        schema_to_select: Union[type[BaseModel], list[type[BaseModel]], None] = None,
+        join_schema_to_select: Union[type[BaseModel], list[type[BaseModel]], None] = None,
         join_type: str = "left",
         offset: int = 0,
         limit: int = 100,
         **kwargs: Any,
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """
         Fetch multiple records with a join on another model, allowing for pagination.
 
@@ -331,9 +331,9 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType, UpdateSche
         join_on : Join, optional
             SQLAlchemy Join object for specifying the ON clause of the join. If None, the join condition is
             auto-detected based on foreign keys.
-        schema_to_select : Union[Type[BaseModel], List[Type[BaseModel]], None], optional
+        schema_to_select : Union[Type[BaseModel], list[Type[BaseModel]], None], optional
             Pydantic schema for selecting specific columns from the primary model.
-        join_schema_to_select : Union[Type[BaseModel], List[Type[BaseModel]], None], optional
+        join_schema_to_select : Union[Type[BaseModel], list[Type[BaseModel]], None], optional
             Pydantic schema for selecting specific columns from the joined model.
         join_type : str, default "left"
             Specifies the type of join operation to perform. Can be "left" for a left outer join
@@ -347,7 +347,7 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType, UpdateSche
 
         Returns
         -------
-        Dict[str, Any]
+        dict[str, Any]
             A dictionary containing the fetched rows under 'data' key and total count under 'total_count'.
 
         Examples
@@ -399,7 +399,7 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType, UpdateSche
 
         return {"data": data, "total_count": total_count}
 
-    async def update(self, db: AsyncSession, object: Union[UpdateSchemaType, Dict[str, Any]], **kwargs: Any) -> None:
+    async def update(self, db: AsyncSession, object: Union[UpdateSchemaType, dict[str, Any]], **kwargs: Any) -> None:
         """
         Update an existing record in the database.
 
@@ -407,7 +407,7 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType, UpdateSche
         ----------
         db : AsyncSession
             The SQLAlchemy async session.
-        object : Union[UpdateSchemaType, Dict[str, Any]]
+        object : Union[UpdateSchemaType, dict[str, Any]]
             The Pydantic schema or dictionary containing the data to be updated.
         kwargs : dict
             Filters for the update.

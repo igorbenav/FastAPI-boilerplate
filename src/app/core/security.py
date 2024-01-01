@@ -1,5 +1,5 @@
 from datetime import UTC, datetime, timedelta
-from typing import Any, Dict, Literal, Union
+from typing import Any, Literal, Union
 
 import bcrypt
 from fastapi.security import OAuth2PasswordBearer
@@ -31,7 +31,7 @@ def get_password_hash(password: str) -> str:
 
 async def authenticate_user(
     username_or_email: str, password: str, db: AsyncSession
-) -> Union[Dict[str, Any], Literal[False]]:
+) -> Union[dict[str, Any], Literal[False]]:
     if "@" in username_or_email:
         db_user: dict | None = await crud_users.get(db=db, email=username_or_email, is_deleted=False)
     else:
