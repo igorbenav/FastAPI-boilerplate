@@ -34,7 +34,9 @@
 </p>
 
 ## 0. About
+
 **FastAPI boilerplate** creates an extendable async API using FastAPI, Pydantic V2, SQLAlchemy 2.0 and PostgreSQL:
+
 - [`FastAPI`](https://fastapi.tiangolo.com): modern Python web framework for building APIs
 - [`Pydantic V2`](https://docs.pydantic.dev/2.4/): the most widely used data Python validation library, rewritten in Rust [`(5x-50x faster)`](https://docs.pydantic.dev/latest/blog/pydantic-v2-alpha/)
 - [`SQLAlchemy 2.0`](https://docs.sqlalchemy.org/en/20/changelog/whatsnew_20.html): Python SQL toolkit and Object Relational Mapper
@@ -42,9 +44,10 @@
 - [`Redis`](https://redis.io): Open source, in-memory data store used by millions as a cache, message broker and more.
 - [`ARQ`](https://arq-docs.helpmanual.io) Job queues and RPC in python with asyncio and redis.
 - [`Docker Compose`](https://docs.docker.com/compose/) With a single command, create and start all the services from your configuration.
-- [`NGINX`](https://nginx.org/en/) High-performance low resource consumption web server used for Reverse Proxy and Load Balancing. 
+- [`NGINX`](https://nginx.org/en/) High-performance low resource consumption web server used for Reverse Proxy and Load Balancing.
 
 ## 1. Features
+
 - ⚡️ Fully async
 - 🚀 Pydantic V2 and SQLAlchemy 2.0
 - 🔐 User authentication with JWT
@@ -62,83 +65,92 @@
 - ⚖️ NGINX Reverse Proxy and Load Balancing
 
 ## 2. Contents
+
 0. [About](#0-about)
 1. [Features](#1-features)
-    1. [To Do](#11-to-do)
-2. [Contents](#2-contents)
-3. [Prerequisites](#3-prerequisites)
-    1. [Environment Variables (.env)](#31-environment-variables-env)
-    2. [Docker Compose](#32-docker-compose-preferred)
-    3. [From Scratch](#33-from-scratch)
-4. [Usage](#4-usage)
-    1. [Docker Compose](#41-docker-compose)
-    2. [From Scratch](#42-from-scratch)
-        1. [Packages](#421-packages)
-        2. [Running PostgreSQL With Docker](#422-running-postgresql-with-docker)
-        3. [Running Redis with Docker](#423-running-redis-with-docker)
-        4. [Running the API](#424-running-the-api)
-    3. [Creating the first superuser](#43-creating-the-first-superuser)
-    4. [Database Migrations](#44-database-migrations)
-5. [Extending](#5-extending)
-    1. [Project Structure](#51-project-structure)
-    2. [Database Model](#52-database-model)
-    3. [SQLAlchemy Models](#53-sqlalchemy-models)
-    4. [Pydantic Schemas](#54-pydantic-schemas)
-    5. [Alembic Migrations](#55-alembic-migrations)
-    6. [CRUD](#56-crud)
-    7. [Routes](#57-routes)
-        1. [Paginated Responses](#571-paginated-responses)
-        2. [HTTP Exceptions](#572-http-exceptions)
-    8. [Caching](#58-caching)
-    9. [More Advanced Caching](#59-more-advanced-caching)
-    10. [ARQ Job Queues](#510-arq-job-queues)
-    11. [Rate Limiting](#511-rate-limiting)
-    12. [JWT Authentication](#512-jwt-authentication)
-    13. [Running](#513-running)
-    14. [Create Application](#514-create-application)
-6. [Running in Production](#6-running-in-production)
-    1. [Uvicorn Workers with Gunicorn](#61-uvicorn-workers-with-gunicorn)
-    2. [Running With NGINX](#62-running-with-nginx)
-        1. [One Server](#621-one-server)
-        2. [Multiple Servers](#622-multiple-servers)
-7. [Testing](#7-testing)
-8. [Contributing](#8-contributing)
-9. [References](#9-references)
-10. [License](#10-license)
-11. [Contact](#11-contact)
+   1. [To Do](#11-to-do)
+1. [Contents](#2-contents)
+1. [Prerequisites](#3-prerequisites)
+   1. [Environment Variables (.env)](#31-environment-variables-env)
+   1. [Docker Compose](#32-docker-compose-preferred)
+   1. [From Scratch](#33-from-scratch)
+1. [Usage](#4-usage)
+   1. [Docker Compose](#41-docker-compose)
+   1. [From Scratch](#42-from-scratch)
+      1. [Packages](#421-packages)
+      1. [Running PostgreSQL With Docker](#422-running-postgresql-with-docker)
+      1. [Running Redis with Docker](#423-running-redis-with-docker)
+      1. [Running the API](#424-running-the-api)
+   1. [Creating the first superuser](#43-creating-the-first-superuser)
+   1. [Database Migrations](#44-database-migrations)
+1. [Extending](#5-extending)
+   1. [Project Structure](#51-project-structure)
+   1. [Database Model](#52-database-model)
+   1. [SQLAlchemy Models](#53-sqlalchemy-models)
+   1. [Pydantic Schemas](#54-pydantic-schemas)
+   1. [Alembic Migrations](#55-alembic-migrations)
+   1. [CRUD](#56-crud)
+   1. [Routes](#57-routes)
+      1. [Paginated Responses](#571-paginated-responses)
+      1. [HTTP Exceptions](#572-http-exceptions)
+   1. [Caching](#58-caching)
+   1. [More Advanced Caching](#59-more-advanced-caching)
+   1. [ARQ Job Queues](#510-arq-job-queues)
+   1. [Rate Limiting](#511-rate-limiting)
+   1. [JWT Authentication](#512-jwt-authentication)
+   1. [Running](#513-running)
+   1. [Create Application](#514-create-application)
+1. [Running in Production](#6-running-in-production)
+   1. [Uvicorn Workers with Gunicorn](#61-uvicorn-workers-with-gunicorn)
+   1. [Running With NGINX](#62-running-with-nginx)
+      1. [One Server](#621-one-server)
+      1. [Multiple Servers](#622-multiple-servers)
+1. [Testing](#7-testing)
+1. [Contributing](#8-contributing)
+1. [References](#9-references)
+1. [License](#10-license)
+1. [Contact](#11-contact)
 
-___
+______________________________________________________________________
+
 ## 3. Prerequisites
+
 ### 3.0 Start
+
 Start by using the template, and naming the repository to what you want.
+
 <p align="left">
     <img src="https://user-images.githubusercontent.com/43156212/277866726-975d1c98-b1c9-4c8e-b4bd-001c8a5728cb.png" alt="clicking use this template button, then create a new repository option" width="35%" height="auto">
 </p>
 
 Then clone your created repository (I'm using the base for the example)
+
 ```sh
 git clone https://github.com/igormagalhaesr/FastAPI-boilerplate
 ```
 
-> [!TIP]
+> \[!TIP\]
 > If you are in a hurry, you may use one of the following templates (containing a `.env`, `docker-compose.yml` and `Dockerfile`):
+
 - [Running locally with uvicorn](https://gist.github.com/igorbenav/48ad745120c3f77817e094f3a609111a)
 - [Runing in staging with gunicorn managing uvicorn workers](https://gist.github.com/igorbenav/d0518d4f6bdfb426d4036090f74905ee)
 - [Running in production with NGINX](https://gist.github.com/igorbenav/232c3b73339d6ca74e2bf179a5ef48a1)
 
-> [!WARNING]
+> \[!WARNING\]
 > Do not forget to place `docker-compose.yml` and `Dockerfile` in the `root` folder, while `.env` should be in the `src` folder.
 
 ### 3.1 Environment Variables (.env)
 
 Then create a `.env` file inside `src` directory:
+
 ```sh
 touch .env
 ```
 
 Inside of `.env`, create the following app settings variables:
+
 ```
-# ------------- app settings ------------- 
+# ------------- app settings -------------
 APP_NAME="Your app name here"
 APP_DESCRIPTION="Your app description here"
 APP_VERSION="0.1"
@@ -147,7 +159,8 @@ CONTACT_EMAIL="Your email"
 LICENSE_NAME="The license you picked"
 ```
 
-For the database ([`if you don't have a database yet, click here`]()), create:
+For the database ([`if you don't have a database yet, click here`](<>)), create:
+
 ```
 # ------------- database -------------
 POSTGRES_USER="your_postgres_user"
@@ -166,17 +179,17 @@ PGADMIN_DEFAULT_PASSWORD="your_password"
 PGADMIN_LISTEN_PORT=80
 ```
 
-To connect to the database, log into the PGAdmin console with the values specified in `PGADMIN_DEFAULT_EMAIL` and `PGADMIN_DEFAULT_PASSWORD`.  
+To connect to the database, log into the PGAdmin console with the values specified in `PGADMIN_DEFAULT_EMAIL` and `PGADMIN_DEFAULT_PASSWORD`.
 
 Once in the main PGAdmin screen, click Add Server:
 
 ![pgadmin-connect](https://private-user-images.githubusercontent.com/43156212/289698727-e15693b6-fae9-4ec6-a597-e70ab6f44133.png?jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJnaXRodWIuY29tIiwiYXVkIjoicmF3LmdpdGh1YnVzZXJjb250ZW50LmNvbSIsImtleSI6ImtleTUiLCJleHAiOjE3MDQwNTEzMDksIm5iZiI6MTcwNDA1MTAwOSwicGF0aCI6Ii80MzE1NjIxMi8yODk2OTg3MjctZTE1NjkzYjYtZmFlOS00ZWM2LWE1OTctZTcwYWI2ZjQ0MTMzLnBuZz9YLUFtei1BbGdvcml0aG09QVdTNC1ITUFDLVNIQTI1NiZYLUFtei1DcmVkZW50aWFsPUFLSUFWQ09EWUxTQTUzUFFLNFpBJTJGMjAyMzEyMzElMkZ1cy1lYXN0LTElMkZzMyUyRmF3czRfcmVxdWVzdCZYLUFtei1EYXRlPTIwMjMxMjMxVDE5MzAwOVomWC1BbXotRXhwaXJlcz0zMDAmWC1BbXotU2lnbmF0dXJlPTk0NmIxN2VhZTRkNGU1MGYzMWUwOTE2Yjg1YzUzOGQ0M2YwNDRiZjI4ZWUwMmM1ODJiNTgxYmY0NjJkOGQ4NDImWC1BbXotU2lnbmVkSGVhZGVycz1ob3N0JmFjdG9yX2lkPTAma2V5X2lkPTAmcmVwb19pZD0wIn0.cKlDYeBvXyGF86PCOYJQ4DvBehfy3Cz5ncf9BN8umE0)
 
 1. Hostname/address is `db` (if using containers)
-2. Is the value you specified in `POSTGRES_PORT`
-3. Leave this value as `postgres`
-4. is the value you specified in `POSTGRES_USER`
-5. Is the value you specified in `POSTGRES_PASSWORD`
+1. Is the value you specified in `POSTGRES_PORT`
+1. Leave this value as `postgres`
+1. is the value you specified in `POSTGRES_USER`
+1. Is the value you specified in `POSTGRES_PASSWORD`
 
 For crypt:
 Start by running
@@ -186,6 +199,7 @@ openssl rand -hex 32
 ```
 
 And then create in `.env`:
+
 ```
 # ------------- crypt -------------
 SECRET_KEY= # result of openssl rand -hex 32
@@ -195,6 +209,7 @@ REFRESH_TOKEN_EXPIRE_DAYS= # days until token expires, default 7
 ```
 
 Then for the first admin user:
+
 ```
 # ------------- admin -------------
 ADMIN_NAME="your_name"
@@ -204,6 +219,7 @@ ADMIN_PASSWORD="your_password"
 ```
 
 For redis caching:
+
 ```
 # ------------- redis cache-------------
 REDIS_CACHE_HOST="your_host" # default "localhost", if using docker compose you should use "redis"
@@ -211,27 +227,32 @@ REDIS_CACHE_PORT=6379 # default "6379", if using docker compose you should use "
 ```
 
 And for client-side caching:
+
 ```
 # ------------- redis client-side cache -------------
 CLIENT_CACHE_MAX_AGE=30 # default "30"
 ```
 
 For ARQ Job Queues:
+
 ```
 # ------------- redis queue -------------
 REDIS_QUEUE_HOST="your_host" # default "localhost", if using docker compose you should use "redis"
 REDIS_QUEUE_PORT=6379 # default "6379", if using docker compose you should use "6379"
 ```
-> [!WARNING]
+
+> \[!WARNING\]
 > You may use the same redis for both caching and queue while developing, but the recommendation is using two separate containers for production.
 
 To create the first tier:
+
 ```
 # ------------- first tier -------------
 TIER_NAME="free"
 ```
 
 For the rate limiter:
+
 ```
 # ------------- redis rate limit -------------
 REDIS_RATE_LIMIT_HOST="localhost"   # default="localhost", if using docker compose you should use "redis"
@@ -244,6 +265,7 @@ DEFAULT_RATE_LIMIT_PERIOD=3600      # default=3600
 ```
 
 For tests (optional to run):
+
 ```
 # ------------- test -------------
 TEST_NAME="Tester User"
@@ -253,16 +275,20 @@ TEST_PASSWORD="Str1ng$t"
 ```
 
 And Finally the environment:
+
 ```
 # ------------- environment -------------
 ENVIRONMENT="local"
 ```
+
 `ENVIRONMENT` can be one of `local`, `staging` and `production`, defaults to local, and changes the behavior of api `docs` endpoints:
+
 - **local:** `/docs`, `/redoc` and `/openapi.json` available
 - **staging:** `/docs`, `/redoc` and `/openapi.json` available for superusers
 - **production:** `/docs`, `/redoc` and `/openapi.json` not available
 
 ### 3.2 Docker Compose (preferred)
+
 To do it using docker compose, ensure you have docker and docker compose installed, then:
 While in the base project directory (FastAPI-boilerplate here), run:
 
@@ -270,11 +296,13 @@ While in the base project directory (FastAPI-boilerplate here), run:
 docker compose up
 ```
 
-You should have a `web` container, `postgres` container, a `worker` container and a `redis` container running.  
+You should have a `web` container, `postgres` container, a `worker` container and a `redis` container running.
 Then head to `http://127.0.0.1:8000/docs`.
 
 ### 3.3 From Scratch
+
 Install poetry:
+
 ```sh
 pip install poetry
 ```
@@ -282,6 +310,7 @@ pip install poetry
 ## 4. Usage
 
 ### 4.1 Docker Compose
+
 If you used docker compose, your setup is done. You just need to ensure that when you run (while in the base folder):
 
 ```sh
@@ -289,6 +318,7 @@ docker compose up
 ```
 
 You get the following outputs (in addition to many other outputs):
+
 ```sh
 fastapi-boilerplate-worker-1  | ... redis_version=x.x.x mem_usage=999K clients_connected=1 db_keys=0
 ...
@@ -302,22 +332,28 @@ So you may skip to [5. Extending](#5-extending).
 ### 4.2 From Scratch
 
 #### 4.2.1. Packages
+
 In the `root` directory (`FastAPI-boilerplate` if you didn't change anything), run to install required packages:
+
 ```sh
 poetry install
 ```
+
 Ensuring it ran without any problem.
 
 #### 4.2.2. Running PostgreSQL With Docker
-> [!NOTE]
+
+> \[!NOTE\]
 > If you already have a PostgreSQL running, you may skip this step.
 
 Install docker if you don't have it yet, then run:
+
 ```sh
 docker pull postgres
 ```
 
 And pick the port, name, user and password, replacing the fields:
+
 ```sh
 docker run -d \
     -p {PORT}:{PORT} \
@@ -328,6 +364,7 @@ docker run -d \
 ```
 
 Such as:
+
 ```sh
 docker run -d \
     -p 5432:5432 \
@@ -338,15 +375,18 @@ docker run -d \
 ```
 
 #### 4.2.3. Running redis With Docker
-> [!NOTE]
+
+> \[!NOTE\]
 > If you already have a redis running, you may skip this step.
 
 Install docker if you don't have it yet, then run:
+
 ```sh
 docker pull redis:alpine
 ```
 
 And pick the name and port, replacing the fields:
+
 ```sh
 docker run -d \
   --name {NAME}  \
@@ -355,6 +395,7 @@ redis:alpine
 ```
 
 Such as
+
 ```sh
 docker run -d \
   --name redis  \
@@ -363,24 +404,29 @@ redis:alpine
 ```
 
 #### 4.2.4. Running the API
+
 While in the `root` folder, run to start the application with uvicorn server:
+
 ```sh
 poetry run uvicorn src.app.main:app --reload
 ```
-> [!TIP]
+
+> \[!TIP\]
 > The --reload flag enables auto-reload once you change (and save) something in the project
 
 ### 4.3 Creating the first superuser
+
 #### 4.3.1 Docker Compose
 
-> [!WARNING]
+> \[!WARNING\]
 > Make sure DB and tables are created before running create_superuser (db should be running and the api should run at least once before)
 
 If you are using docker compose, you should uncomment this part of the docker-compose.yml:
+
 ```
   #-------- uncomment to create first superuser --------
   # create_superuser:
-  #   build: 
+  #   build:
   #     context: .
   #     dockerfile: Dockerfile
   #   env_file:
@@ -393,10 +439,11 @@ If you are using docker compose, you should uncomment this part of the docker-co
 ```
 
 Getting:
+
 ```
   #-------- uncomment to create first superuser --------
   create_superuser:
-    build: 
+    build:
       context: .
       dockerfile: Dockerfile
     env_file:
@@ -409,35 +456,42 @@ Getting:
 ```
 
 While in the base project folder run to start the services:
+
 ```sh
 docker-compose up -d
 ```
 
 It will automatically run the create_superuser script as well, but if you want to rerun eventually:
+
 ```sh
 docker-compose run --rm create_superuser
 ```
 
 to stop the create_superuser service:
+
 ```sh
 docker-compose stop create_superuser
 ```
 
 #### 4.3.2 From Scratch
+
 While in the `root` folder, run (after you started the application at least once to create the tables):
+
 ```sh
 poetry run python -m src.scripts.create_first_superuser
 ```
 
 ### 4.3.3 Creating the first tier
 
-> [!WARNING]
+> \[!WARNING\]
 > Make sure DB and tables are created before running create_tier (db should be running and the api should run at least once before)
 
 To create the first tier it's similar, you just replace `create_superuser` for `create_tier` service or `create_first_superuser` to `create_first_tier` for scripts. If using `docker compose`, do not forget to uncomment the `create_tier` service in `docker-compose.yml`.
 
 ### 4.4 Database Migrations
+
 If you are using the db in docker, you need to change this in `docker-compose.yml` to run migrations:
+
 ```sh
   db:
     image: postgres:13
@@ -453,6 +507,7 @@ If you are using the db in docker, you need to change this in `docker-compose.ym
 ```
 
 Getting:
+
 ```sh
   db:
     ...
@@ -463,21 +518,27 @@ Getting:
 ```
 
 While in the `src` folder, run Alembic migrations:
+
 ```sh
 poetry run alembic revision --autogenerate
 ```
 
 And to apply the migration
+
 ```sh
 poetry run alembic upgrade head
 ```
 
-[!NOTE]
+\[!NOTE\]
+
 > If you do not have poetry, you may run it without poetry after running `pip install alembic`
 
-## 5. Extending 
+## 5. Extending
+
 ### 5.1 Project Structure
+
 First, you may want to take a look at the project structure and understand what each file is doing.
+
 ```sh
 .
 ├── Dockerfile                        # Dockerfile for building the application container.
@@ -588,17 +649,20 @@ First, you may want to take a look at the project structure and understand what 
 ```
 
 ### 5.2 Database Model
+
 Create the new entities and relationships and add them to the model <br>
 ![diagram](https://user-images.githubusercontent.com/43156212/284426387-bdafc637-0473-4b71-890d-29e79da288cf.png)
 
 #### 5.2.1 Token Blacklist
+
 Note that this table is used to blacklist the `JWT` tokens (it's how you log a user out) <br>
 ![diagram](https://user-images.githubusercontent.com/43156212/284426382-b2f3c0ca-b8ea-4f20-b47e-de1bad2ca283.png)
 
 ### 5.3 SQLAlchemy Models
+
 Inside `app/models`, create a new `entity.py` for each new entity (replacing entity with the name) and define the attributes according to [SQLAlchemy 2.0 standards](https://docs.sqlalchemy.org/en/20/orm/mapping_styles.html#orm-mapping-styles):
 
-> [!WARNING]
+> \[!WARNING\]
 > Note that since it inherits from `Base`, the new model is mapped as a python `dataclass`, so optional attributes (arguments with a default value) should be defined after required  attributes.
 
 ```python
@@ -607,69 +671,81 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.core.db.database import Base
 
-class Entity(Base):
-  __tablename__ = "entity"
 
-  id: Mapped[int] = mapped_column(
-    "id", autoincrement=True, nullable=False, unique=True, primary_key=True, init=False
-  )
-  name: Mapped[str] = mapped_column(String(30))
-  ...
+class Entity(Base):
+    __tablename__ = "entity"
+
+    id: Mapped[int] = mapped_column("id", autoincrement=True, nullable=False, unique=True, primary_key=True, init=False)
+    name: Mapped[str] = mapped_column(String(30))
+    ...
 ```
 
 ### 5.4 Pydantic Schemas
+
 Inside `app/schemas`, create a new `entity.py` for for each new entity (replacing entity with the name) and create the schemas according to [Pydantic V2](https://docs.pydantic.dev/latest/#pydantic-examples) standards:
+
 ```python
 from typing import Annotated
 
 from pydantic import BaseModel, EmailStr, Field, HttpUrl, ConfigDict
 
+
 class EntityBase(BaseModel):
-  name: Annotated[
-    str, 
-    Field(min_length=2, max_length=30, examples=["Entity Name"])
-    ...
-  ]
+    name: Annotated[
+        str,
+        Field(min_length=2, max_length=30, examples=["Entity Name"]),
+    ]
+
 
 class Entity(EntityBase):
-  ...
+    ...
+
 
 class EntityRead(EntityBase):
-  ...
+    ...
+
 
 class EntityCreate(EntityBase):
-  ...
+    ...
+
 
 class EntityCreateInternal(EntityCreate):
-  ...
+    ...
+
 
 class EntityUpdate(BaseModel):
-  ...
+    ...
+
 
 class EntityUpdateInternal(BaseModel):
-  ...
+    ...
+
 
 class EntityDelete(BaseModel):
-    model_config = ConfigDict(extra='forbid')
+    model_config = ConfigDict(extra="forbid")
 
     is_deleted: bool
     deleted_at: datetime
-
 ```
 
 ### 5.5 Alembic Migrations
+
 Then, while in the `src` folder, run Alembic migrations:
+
 ```sh
 poetry run alembic revision --autogenerate
 ```
 
 And to apply the migration
+
 ```sh
 poetry run alembic upgrade head
 ```
 
 ### 5.6 CRUD
+
 Inside `app/crud`, create a new `crud_entities.py` inheriting from `CRUDBase` for each new entity:
+
 ```python
 from app.crud.crud_base import CRUDBase
 from app.models.entity import Entity
@@ -680,6 +756,7 @@ crud_entity = CRUDEntity(Entity)
 ```
 
 So, for users:
+
 ```python
 # crud_users.py
 from app.model.user import User
@@ -688,28 +765,30 @@ from app.schemas.user import UserCreateInternal, UserUpdate, UserUpdateInternal,
 CRUDUser = CRUDBase[User, UserCreateInternal, UserUpdate, UserUpdateInternal, UserDelete]
 crud_users = CRUDUser(User)
 ```
+
 #### 5.6.1 Get
+
 When actually using the crud in an endpoint, to get data you just pass the database connection and the attributes as kwargs:
+
 ```python
 # Here I'm getting the first user with email == user.email (email is unique in this case)
 user = await crud_users.get(db=db, email=user.email)
 ```
 
 #### 5.6.2 Get Multi
+
 To get a list of objects with the attributes, you should use the get_multi:
+
 ```python
 # Here I'm getting at most 10 users with the name 'User Userson' except for the first 3
-user = await crud_users.get_multi(
-  db=db,
-  offset=3,
-  limit=100,
-  name="User Userson"
-)
+user = await crud_users.get_multi(db=db, offset=3, limit=100, name="User Userson")
 ```
-> [!WARNING]
+
+> \[!WARNING\]
 > Note that get_multi returns a python `dict`.
 
 Which will return a python dict with the following structure:
+
 ```javascript
 {
   "data": [
@@ -736,54 +815,57 @@ Which will return a python dict with the following structure:
 ```
 
 #### 5.6.3 Create
+
 To create, you pass a `CreateSchemaType` object with the attributes, such as a `UserCreate` pydantic schema:
+
 ```python
 from app.schemas.user import UserCreate
 
 # Creating the object
-user_internal = UserCreate(
-  name="user",
-  username="myusername",
-  email="user@example.com"
-)
+user_internal = UserCreate(name="user", username="myusername", email="user@example.com")
 
 # Passing the object to be created
 crud_users.create(db=db, object=user_internal)
 ```
 
 #### 5.6.4 Exists
+
 To just check if there is at least one row that matches a certain set of attributes, you should use `exists`
+
 ```python
 # This queries only the email variable
 # It returns True if there's at least one or False if there is none
-crud_users.exists(db=db, email=user@example.com)
+crud_users.exists(db=db, email=user @ example.com)
 ```
 
 #### 5.6.5 Count
+
 You can also get the count of a certain object with the specified filter:
+
 ```python
 # Here I'm getting the count of users with the name 'User Userson'
-user = await crud_users.count(
-  db=db,
-  name="User Userson"
-)
+user = await crud_users.count(db=db, name="User Userson")
 ```
 
 #### 5.6.6 Update
+
 To update you pass an `object` which may be a `pydantic schema` or just a regular `dict`, and the kwargs.
 You will update with `objects` the rows that match your `kwargs`.
+
 ```python
-# Here I'm updating the user with username == "myusername". 
+# Here I'm updating the user with username == "myusername".
 # #I'll change his name to "Updated Name"
-crud_users.update(db=db, object={name="Updated Name"}, username="myusername")
+crud_users.update(db=db, object={"name": "Updated Name"}, username="myusername")
 ```
 
 #### 5.6.7 Delete
+
 To delete we have two options:
+
 - db_delete: actually deletes the row from the database
-- delete: 
-    - adds `"is_deleted": True` and `deleted_at: datetime.now(UTC)` if the model inherits from `PersistentDeletion` (performs a soft delete), but keeps the object in the database.
-    - actually deletes the row from the database if the model does not inherit from `PersistentDeletion`
+- delete:
+  - adds `"is_deleted": True` and `deleted_at: datetime.now(UTC)` if the model inherits from `PersistentDeletion` (performs a soft delete), but keeps the object in the database.
+  - actually deletes the row from the database if the model does not inherit from `PersistentDeletion`
 
 ```python
 # Here I'll just change is_deleted to True
@@ -794,6 +876,7 @@ crud_users.db_delete(db=db, username="myusername")
 ```
 
 #### 5.6.8 Get Joined
+
 To retrieve data with a join operation, you can use the get_joined method from your CRUD module. Here's how to do it:
 
 ```python
@@ -802,11 +885,12 @@ result = await crud_users.get_joined(
     db=db,  # The SQLAlchemy async session.
     join_model=Tier,  # The model to join with (e.g., Tier).
     schema_to_select=UserSchema,  # Pydantic schema for selecting User model columns (optional).
-    join_schema_to_select=TierSchema  # Pydantic schema for selecting Tier model columns (optional).
+    join_schema_to_select=TierSchema,  # Pydantic schema for selecting Tier model columns (optional).
 )
 ```
 
 **Relevant Parameters:**
+
 - `join_model`: The model you want to join with (e.g., Tier).
 - `join_prefix`: Optional prefix to be added to all columns of the joined model. If None, no prefix is added.
 - `join_on`: SQLAlchemy Join object for specifying the ON clause of the join. If None, the join condition is auto-detected based on foreign keys.
@@ -818,6 +902,7 @@ result = await crud_users.get_joined(
 This method allows you to perform a join operation, selecting columns from both models, and retrieve a single record.
 
 #### 5.6.9 Get Multi Joined
+
 Similarly, to retrieve multiple records with a join operation, you can use the get_multi_joined method. Here's how:
 
 ```python
@@ -829,11 +914,12 @@ result = await crud_users.get_multi_joined(
     join_on=and_(User.tier_id == Tier.id, User.is_superuser == True),  # Custom join condition.
     schema_to_select=UserSchema,  # Pydantic schema for selecting User model columns.
     join_schema_to_select=TierSchema,  # Pydantic schema for selecting Tier model columns.
-    username="john_doe"  # Additional filter parameters.
+    username="john_doe",  # Additional filter parameters.
 )
 ```
 
 **Relevant Parameters:**
+
 - `join_model`: The model you want to join with (e.g., Tier).
 - `join_prefix`: Optional prefix to be added to all columns of the joined model. If None, no prefix is added.
 - `join_on`: SQLAlchemy Join object for specifying the ON clause of the join. If None, the join condition is auto-detected based on foreign keys.
@@ -841,25 +927,29 @@ result = await crud_users.get_multi_joined(
 - `join_schema_to_select`: A Pydantic schema to select specific columns from the joined model (e.g., TierSchema).
 - `join_type`: pecifies the type of join operation to perform. Can be "left" for a left outer join or "inner" for an inner join. Default "left".
 - `kwargs`: Filters to apply to the primary query.
-- `offset`: The offset (number of records to skip) for pagination. Default 0.            
+- `offset`: The offset (number of records to skip) for pagination. Default 0.
 - `limit`: The limit (maximum number of records to return) for pagination. Default 100.
 - `kwargs`: Filters to apply to the primary query.
 
-
 #### More Efficient Selecting
+
 For the `get` and `get_multi` methods we have the option to define a `schema_to_select` attribute, which is what actually makes the queries more efficient. When you pass a `pydantic schema` (preferred) or a list of the names of the attributes in `schema_to_select` to the `get` or `get_multi` methods, only the attributes in the schema will be selected.
+
 ```python
 from app.schemas.user import UserRead
+
 # Here it's selecting all of the user's data
 crud_user.get(db=db, username="myusername")
 
-# Now it's only selecting the data that is in UserRead. 
+# Now it's only selecting the data that is in UserRead.
 # Since that's my response_model, it's all I need
 crud_user.get(db=db, username="myusername", schema_to_select=UserRead)
 ```
 
 ### 5.7 Routes
+
 Inside `app/api/v1`, create a new `entities.py` file and create the desired routes
+
 ```python
 from typing import Annotated
 
@@ -867,35 +957,39 @@ from fastapi import Depends
 
 from app.schemas.entity import EntityRead
 from app.core.db.database import async_get_db
+
 ...
 
 router = fastapi.APIRouter(tags=["entities"])
 
+
 @router.get("/entities/{id}", response_model=List[EntityRead])
-async def read_entities(
-  request: Request,
-  id: int,
-  db: Annotated[AsyncSession, Depends(async_get_db)]
-):
-  entity = await crud_entities.get(db=db, id=id)  
-  
-  return entity
+async def read_entities(request: Request, id: int, db: Annotated[AsyncSession, Depends(async_get_db)]):
+    entity = await crud_entities.get(db=db, id=id)
+
+    return entity
+
 
 ...
 ```
+
 Then in `app/api/v1/__init__.py` add the router such as:
+
 ```python
 from fastapi import APIRouter
 from app.api.v1.entity import router as entity_router
+
 ...
 
-router = APIRouter(prefix="/v1") # this should be there already
+router = APIRouter(prefix="/v1")  # this should be there already
 ...
 router.include_router(entity_router)
 ```
 
 #### 5.7.1 Paginated Responses
+
 With the `get_multi` method we get a python `dict` with full suport for pagination:
+
 ```javascript
 {
   "data": [
@@ -918,45 +1012,42 @@ With the `get_multi` method we get a python `dict` with full suport for paginati
   "has_more": false,
   "page": 1,
   "items_per_page": 10
-} 
+}
 ```
 
 And in the endpoint, we can import from `app/api/paginated` the following functions and Pydantic Schema:
+
 ```python
 from app.api.paginated import (
-  PaginatedListResponse, # What you'll use as a response_model to validate
-  paginated_response,    # Creates a paginated response based on the parameters
-  compute_offset         # Calculate the offset for pagination ((page - 1) * items_per_page)
+    PaginatedListResponse,  # What you'll use as a response_model to validate
+    paginated_response,  # Creates a paginated response based on the parameters
+    compute_offset,  # Calculate the offset for pagination ((page - 1) * items_per_page)
 )
 ```
 
 Then let's create the endpoint:
+
 ```python
 import fastapi
 
-from app.schemas.entity imoport EntityRead
+from app.schemas.entity import EntityRead
+
 ...
+
 
 @router.get("/entities", response_model=PaginatedListResponse[EntityRead])
 async def read_entities(
-    request: Request, 
-    db: Annotated[AsyncSession, Depends(async_get_db)],
-    page: int = 1,
-    items_per_page: int = 10
+    request: Request, db: Annotated[AsyncSession, Depends(async_get_db)], page: int = 1, items_per_page: int = 10
 ):
     entities_data = await crud_entity.get_multi(
         db=db,
         offset=compute_offset(page, items_per_page),
         limit=items_per_page,
-        schema_to_select=UserRead, 
-        is_deleted=False
+        schema_to_select=UserRead,
+        is_deleted=False,
     )
-    
-    return paginated_response(
-        crud_data=entities_data, 
-        page=page,
-        items_per_page=items_per_page
-    )
+
+    return paginated_response(crud_data=entities_data, page=page, items_per_page=items_per_page)
 ```
 
 #### 5.7.2 HTTP Exceptions
@@ -968,14 +1059,15 @@ from app.core.exceptions.http_exceptions import NotFoundException
 
 # If you want to specify the detail, just add the message
 if not user:
-  raise NotFoundException("User not found")
+    raise NotFoundException("User not found")
 
 # Or you may just use the default message
 if not post:
-  raise NotFoundException()
+    raise NotFoundException()
 ```
 
 **The predefined possibilities in http_exceptions are the following:**
+
 - `CustomException`: 500 internal error
 - `BadRequestException`: 400 bad request
 - `NotFoundException`: 404 not found
@@ -985,49 +1077,48 @@ if not post:
 - `DuplicateValueException`: 422 unprocessable entity
 - `RateLimitException`: 429 too many requests
 
-
 ### 5.8 Caching
+
 The `cache` decorator allows you to cache the results of FastAPI endpoint functions, enhancing response times and reducing the load on your application by storing and retrieving data in a cache.
 
-Caching the response of an endpoint is really simple, just apply the `cache` decorator to the endpoint function. 
+Caching the response of an endpoint is really simple, just apply the `cache` decorator to the endpoint function.
 
-> [!WARNING]
+> \[!WARNING\]
 > Note that you should always pass request as a variable to your endpoint function if you plan to use the cache decorator.
 
 ```python
 ...
 from app.core.utils.cache import cache
 
+
 @app.get("/sample/{my_id}")
-@cache(
-    key_prefix="sample_data",
-    expiration=3600,
-    resource_id_name="my_id"
-)
+@cache(key_prefix="sample_data", expiration=3600, resource_id_name="my_id")
 async def sample_endpoint(request: Request, my_id: int):
     # Endpoint logic here
     return {"data": "my_data"}
 ```
 
 The way it works is:
+
 - the data is saved in redis with the following cache key: `sample_data:{my_id}`
 - then the time to expire is set as 3600 seconds (that's the default)
 
 Another option is not passing the `resource_id_name`, but passing the `resource_id_type` (default int):
+
 ```python
 ...
 from app.core.utils.cache import cache
 
+
 @app.get("/sample/{my_id}")
-@cache(
-    key_prefix="sample_data",
-    resource_id_type=int
-)
+@cache(key_prefix="sample_data", resource_id_type=int)
 async def sample_endpoint(request: Request, my_id: int):
     # Endpoint logic here
     return {"data": "my_data"}
 ```
+
 In this case, what will happen is:
+
 - the `resource_id` will be inferred from the keyword arguments (`my_id` in this case)
 - the data is saved in redis with the following cache key: `sample_data:{my_id}`
 - then the the time to expire is set as 3600 seconds (that's the default)
@@ -1035,11 +1126,12 @@ In this case, what will happen is:
 Passing resource_id_name is usually preferred.
 
 ### 5.9 More Advanced Caching
-The behaviour of the `cache` decorator changes based on the request method of your endpoint. 
+
+The behaviour of the `cache` decorator changes based on the request method of your endpoint.
 It caches the result if you are passing it to a **GET** endpoint, and it invalidates the cache with this key_prefix and id if passed to other endpoints (**PATCH**, **DELETE**).
 
-
 #### Invalidating Extra Keys
+
 If you also want to invalidate cache with a different key, you can use the decorator with the `to_invalidate_extra` variable.
 
 In the following example, I want to invalidate the cache for a certain `user_id`, since I'm deleting it, but I also want to invalidate the cache for the list of users, so it will not be out of sync.
@@ -1048,67 +1140,63 @@ In the following example, I want to invalidate the cache for a certain `user_id`
 # The cache here will be saved as "{username}_posts:{username}":
 @router.get("/{username}/posts", response_model=List[PostRead])
 @cache(key_prefix="{username}_posts", resource_id_name="username")
-async def read_posts(
-    request: Request,
-    username: str, 
-    db: Annotated[AsyncSession, Depends(async_get_db)]
-):
+async def read_posts(request: Request, username: str, db: Annotated[AsyncSession, Depends(async_get_db)]):
     ...
+
 
 ...
 
 # Invalidating cache for the former endpoint by just passing the key_prefix and id as a dictionary:
 @router.delete("/{username}/post/{id}")
 @cache(
-    "{username}_post_cache", 
-    resource_id_name="id", 
-    to_invalidate_extra={"{username}_posts": "{username}"} # also invalidate "{username}_posts:{username}" cache
+    "{username}_post_cache",
+    resource_id_name="id",
+    to_invalidate_extra={"{username}_posts": "{username}"},  # also invalidate "{username}_posts:{username}" cache
 )
 async def erase_post(
-    request: Request, 
+    request: Request,
     username: str,
     id: int,
     current_user: Annotated[UserRead, Depends(get_current_user)],
-    db: Annotated[AsyncSession, Depends(async_get_db)]
+    db: Annotated[AsyncSession, Depends(async_get_db)],
 ):
     ...
 
+
 # And now I'll also invalidate when I update the user:
 @router.patch("/{username}/post/{id}", response_model=PostRead)
-@cache(
-    "{username}_post_cache", 
-    resource_id_name="id", 
-    to_invalidate_extra={"{username}_posts": "{username}"} 
-)
+@cache("{username}_post_cache", resource_id_name="id", to_invalidate_extra={"{username}_posts": "{username}"})
 async def patch_post(
     request: Request,
     username: str,
     id: int,
     values: PostUpdate,
     current_user: Annotated[UserRead, Depends(get_current_user)],
-    db: Annotated[AsyncSession, Depends(async_get_db)]
+    db: Annotated[AsyncSession, Depends(async_get_db)],
 ):
     ...
 ```
 
-> [!WARNING]
+> \[!WARNING\]
 > Note that adding `to_invalidate_extra` will not work for **GET** requests.
 
 #### Invalidate Extra By Pattern
+
 Let's assume we have an endpoint with a paginated response, such as:
+
 ```python
 @router.get("/{username}/posts", response_model=PaginatedListResponse[PostRead])
 @cache(
-    key_prefix="{username}_posts:page_{page}:items_per_page:{items_per_page}", 
+    key_prefix="{username}_posts:page_{page}:items_per_page:{items_per_page}",
     resource_id_name="username",
-    expiration=60
+    expiration=60,
 )
 async def read_posts(
     request: Request,
     username: str,
     db: Annotated[AsyncSession, Depends(async_get_db)],
     page: int = 1,
-    items_per_page: int = 10
+    items_per_page: int = 10,
 ):
     db_user = await crud_users.get(db=db, schema_to_select=UserRead, username=username, is_deleted=False)
     if not db_user:
@@ -1120,14 +1208,10 @@ async def read_posts(
         limit=items_per_page,
         schema_to_select=PostRead,
         created_by_user_id=db_user["id"],
-        is_deleted=False
+        is_deleted=False,
     )
 
-    return paginated_response(
-        crud_data=posts_data, 
-        page=page, 
-        items_per_page=items_per_page
-    )
+    return paginated_response(crud_data=posts_data, page=page, items_per_page=items_per_page)
 ```
 
 Just passing `to_invalidate_extra` will not work to invalidate this cache, since the key will change based on the `page` and `items_per_page` values.
@@ -1135,32 +1219,31 @@ To overcome this we may use the `pattern_to_invalidate_extra` parameter:
 
 ```python
 @router.patch("/{username}/post/{id}")
-@cache(
-    "{username}_post_cache", 
-    resource_id_name="id", 
-    pattern_to_invalidate_extra=["{username}_posts:*"]
-)
+@cache("{username}_post_cache", resource_id_name="id", pattern_to_invalidate_extra=["{username}_posts:*"])
 async def patch_post(
     request: Request,
     username: str,
     id: int,
     values: PostUpdate,
     current_user: Annotated[UserRead, Depends(get_current_user)],
-    db: Annotated[AsyncSession, Depends(async_get_db)]
+    db: Annotated[AsyncSession, Depends(async_get_db)],
 ):
-...
+    ...
 ```
 
 Now it will invalidate all caches with a key that matches the pattern `"{username}_posts:*`, which will work for the paginated responses.
 
-> [!CAUTION]
+> \[!CAUTION\]
 > Using `pattern_to_invalidate_extra` can be resource-intensive on large datasets. Use it judiciously and consider the potential impact on Redis performance. Be cautious with patterns that could match a large number of keys, as deleting many keys simultaneously may impact the performance of the Redis server.
 
 #### Client-side Caching
+
 For `client-side caching`, all you have to do is let the `Settings` class defined in `app/core/config.py` inherit from the `ClientSideCacheSettings` class. You can set the `CLIENT_CACHE_MAX_AGE` value in `.env,` it defaults to 60 (seconds).
 
 ### 5.10 ARQ Job Queues
+
 Create the background task in `app/worker.py`:
+
 ```python
 ...
 # -------- background tasks --------
@@ -1170,17 +1253,23 @@ async def sample_background_task(ctx, name: str) -> str:
 ```
 
 Then add the function to the `WorkerSettings` class `functions` variable:
+
 ```python
 # -------- class --------
 ...
+
+
 class WorkerSettings:
     functions = [sample_background_task]
     ...
 ```
 
 Add the task to be enqueued in a **POST** endpoint and get the info in a **GET**:
+
 ```python
 ...
+
+
 @router.post("/task", response_model=Job, status_code=201)
 async def create_task(message: str):
     job = await queue.pool.enqueue_job("sample_background_task", message)
@@ -1191,17 +1280,19 @@ async def create_task(message: str):
 async def get_task(task_id: str):
     job = ArqJob(task_id, queue.pool)
     return await job.info()
-
 ```
 
 And finally run the worker in parallel to your fastapi application.
 
 If you are using `docker compose`, the worker is already running.
 If you are doing it from scratch, run while in the `root` folder:
+
 ```sh
 poetry run arq src.app.worker.WorkerSettings
 ```
+
 ### 5.11 Rate Limiting
+
 To limit how many times a user can make a request in a certain interval of time (very useful to create subscription plans or just to protect your API against DDOS), you may just use the `rate_limiter` dependency:
 
 ```python
@@ -1211,6 +1302,7 @@ from app.api.dependencies import rate_limiter
 from app.core.utils import queue
 from app.schemas.job import Job
 
+
 @router.post("/task", response_model=Job, status_code=201, dependencies=[Depends(rate_limiter)])
 async def create_task(message: str):
     job = await queue.pool.enqueue_job("sample_background_task", message)
@@ -1219,7 +1311,7 @@ async def create_task(message: str):
 
 By default, if no token is passed in the header (that is - the user is not authenticated), the user will be limited by his IP address with the default `limit` (how many times the user can make this request every period) and `period` (time in seconds) defined in `.env`.
 
-Even though this is useful, real power comes from creating `tiers` (categories of users) and standard `rate_limits` (`limits` and `periods` defined for specific `paths` - that is - endpoints) for these tiers. 
+Even though this is useful, real power comes from creating `tiers` (categories of users) and standard `rate_limits` (`limits` and `periods` defined for specific `paths` - that is - endpoints) for these tiers.
 
 All of the `tier` and `rate_limit` models, schemas, and endpoints are already created in the respective folders (and usable only by superusers). You may use the `create_tier` script to create the first tier (it uses the `.env` variable `TIER_NAME`, which is all you need to create a tier) or just use the api:
 
@@ -1235,12 +1327,12 @@ And a `pro` tier:
     <img src="https://user-images.githubusercontent.com/43156212/282275107-5a6ca593-ccc0-4965-b2db-09ec5ecad91c.png" alt="passing name = pro to api request body" width="70%" height="auto">
 </p>
 
-Then I'll associate a `rate_limit` for the path `api/v1/tasks/task` for each of them, I'll associate a `rate limit` for the path `api/v1/tasks/task`. 
+Then I'll associate a `rate_limit` for the path `api/v1/tasks/task` for each of them, I'll associate a `rate limit` for the path `api/v1/tasks/task`.
 
-> [!WARNING]
+> \[!WARNING\]
 > Do not forget to add `api/v1/...` or any other prefix to the beggining of your path. For the structure of the boilerplate, `api/v1/<rest_of_the_path>`
 
-1 request every hour (3600 seconds) for the free tier: 
+1 request every hour (3600 seconds) for the free tier:
 
 <p align="left">
     <img src="https://user-images.githubusercontent.com/43156212/282275105-95d31e19-b798-4f03-98f0-3e9d1844f7b3.png" alt="passing path=api/v1/tasks/task, limit=1, period=3600, name=api_v1_tasks:1:3600 to free tier rate limit" width="70%" height="auto">
@@ -1252,7 +1344,7 @@ Then I'll associate a `rate_limit` for the path `api/v1/tasks/task` for each of 
     <img src="https://user-images.githubusercontent.com/43156212/282275108-deec6f46-9d47-4f01-9899-ca42da0f0363.png" alt="passing path=api/v1/tasks/task, limit=10, period=3600, name=api_v1_tasks:10:3600 to pro tier rate limit" width="70%" height="auto">
 </p>
 
-Now let's read all the tiers available (`GET api/v1/tiers`): 
+Now let's read all the tiers available (`GET api/v1/tiers`):
 
 ```javascript
 {
@@ -1296,27 +1388,31 @@ And read the `rate_limits` for the `pro` tier to ensure it's working (`GET api/v
 }
 ```
 
-Now, whenever an authenticated user makes a `POST` request to the `api/v1/tasks/task`, they'll use the quota that is defined by their tier. 
+Now, whenever an authenticated user makes a `POST` request to the `api/v1/tasks/task`, they'll use the quota that is defined by their tier.
 You may check this getting the token from the `api/v1/login` endpoint, then passing it in the request header:
+
 ```sh
 curl -X POST 'http://127.0.0.1:8000/api/v1/tasks/task?message=test' \
 -H 'Authorization: Bearer <your-token-here>'
 ```
 
-> [!TIP]
+> \[!TIP\]
 > Since the `rate_limiter` dependency uses the `get_optional_user` dependency instead of `get_current_user`, it will not require authentication to be used, but will behave accordingly if the user is authenticated (and token is passed in header). If you want to ensure authentication, also use `get_current_user` if you need.
 
 To change a user's tier, you may just use the `PATCH api/v1/user/{username}/tier` endpoint.
-Note that for flexibility (since this is a boilerplate), it's not necessary to previously inform a tier_id to create a user, but you probably should set every user to a certain tier (let's say `free`) once they are created. 
+Note that for flexibility (since this is a boilerplate), it's not necessary to previously inform a tier_id to create a user, but you probably should set every user to a certain tier (let's say `free`) once they are created.
 
-> [!WARNING]
+> \[!WARNING\]
 > If a user does not have a `tier` or the tier does not have a defined `rate limit` for the path and the token is still passed to the request, the default `limit` and `period` will be used, this will be saved in `app/logs`.
 
 ### 5.12 JWT Authentication
+
 #### 5.12.1 Details
+
 The JWT in this boilerplate is created in the following way:
+
 1. **JWT Access Tokens:** how you actually access protected resources is passing this token in the request header.
-2. **Refresh Tokens:** you use this type of token to get an `access token`, which you'll use to access protected resources. 
+1. **Refresh Tokens:** you use this type of token to get an `access token`, which you'll use to access protected resources.
 
 The `access token` is short lived (default 30 minutes) to reduce the damage of a potential leak. The `refresh token`, on the other hand, is long lived (default 7 days), and you use it to renew your `access token` without the need to provide username and password every time it expires.
 
@@ -1329,21 +1425,24 @@ Since the `refresh token` lasts for a longer time, it's stored as a cookie in a 
 response.set_cookie(
     key="refresh_token",
     value=refresh_token,
-    httponly=True,               # Prevent access through JavaScript
-    secure=True,                 # Ensure cookie is sent over HTTPS only
-    samesite='Lax',              # Default to Lax for reasonable balance between security and usability
-    max_age=<number_of_seconds>  # Set a max age for the cookie
+    httponly=True,  # Prevent access through JavaScript
+    secure=True,  # Ensure cookie is sent over HTTPS only
+    samesite="Lax",  # Default to Lax for reasonable balance between security and usability
+    max_age=number_of_seconds,  # Set a max age for the cookie
 )
 ...
 ```
 
 You may change it to suit your needs. The possible options for `samesite` are:
+
 - `Lax`: Cookies will be sent in top-level navigations (like clicking on a link to go to another site), but not in API requests or images loaded from other sites.
 - `Strict`: Cookies will be sent in top-level navigations (like clicking on a link to go to another site), but not in API requests or images loaded from other sites.
 - `None`: Cookies will be sent with both same-site and cross-site requests.
 
 #### 5.12.2 Usage
+
 What you should do with the client is:
+
 - `Login`: Send credentials to `/api/v1/login`. Store the returned access token in memory for subsequent requests.
 - `Accessing Protected Routes`: Include the access token in the Authorization header.
 - `Token Renewal`: On access token expiry, the front end should automatically call `/api/v1/refresh` for a new token.
@@ -1353,33 +1452,42 @@ What you should do with the client is:
 This authentication setup in the provides a robust, secure, and user-friendly way to handle user sessions in your API applications.
 
 ### 5.13 Running
+
 If you are using docker compose, just running the following command should ensure everything is working:
+
 ```sh
 docker compose up
 ```
 
 If you are doing it from scratch, ensure your postgres and your redis are running, then
 while in the `root` folder, run to start the application with uvicorn server:
+
 ```sh
 poetry run uvicorn src.app.main:app --reload
 ```
 
 And for the worker:
+
 ```sh
 poetry run arq src.app.worker.WorkerSettings
 ```
 
 ## 6. Running in Production
+
 ### 6.1 Uvicorn Workers with Gunicorn
+
 In production you may want to run using gunicorn to manage uvicorn workers:
+
 ```sh
 command: gunicorn app.main:app -w 4 -k uvicorn.workers.UvicornWorker -b 0.0.0.0:8000
 ```
+
 Here it's running with 4 workers, but you should test it depending on how many cores your machine has.
 
 To do this if you are using docker compose, just replace the comment:
 This part in `docker-compose.yml`:
-```python
+
+```YAML
 # docker-compose.yml
 
 # -------- replace with comment to run with gunicorn --------
@@ -1388,7 +1496,8 @@ command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
 ```
 
 Should be changed to:
-```python
+
+```YAML
 # docker-compose.yml
 
 # -------- replace with comment to run with uvicorn --------
@@ -1397,8 +1506,9 @@ command: gunicorn app.main:app -w 4 -k uvicorn.workers.UvicornWorker -b 0.0.0.0:
 ```
 
 And the same in `Dockerfile`:
-This part: 
-```python
+This part:
+
+```Dockerfile
 # Dockerfile
 
 CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]
@@ -1406,18 +1516,21 @@ CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000", "--reload
 ```
 
 Should be changed to:
-```python
+
+```Dockerfile
 # Dockerfile
 
 # CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]
 CMD ["gunicorn", "app.main:app", "-w", "4", "-k", "uvicorn.workers.UvicornWorker". "-b", "0.0.0.0:8000"]
 ```
 
-> [!CAUTION]
+> \[!CAUTION\]
 > Do not forget to set the `ENVIRONMENT` in `.env` to `production` unless you want the API docs to be public.
 
 ### 5.14 Create Application
+
 If you want to stop tables from being created every time you run the api, you should disable this here:
+
 ```python
 # app/main.py
 
@@ -1432,32 +1545,36 @@ app = create_application(router=router, settings=settings, create_tables_on_star
 This `create_application` function is defined in `app/core/setup.py`, and it's a flexible way to configure the behavior of your application.
 
 A few examples:
+
 - Deactivate or password protect /docs
 - Add client-side cache middleware
 - Add Startup and Shutdown event handlers for cache, queue and rate limit
 
 ### 6.2 Running with NGINX
+
 NGINX is a high-performance web server, known for its stability, rich feature set, simple configuration, and low resource consumption. NGINX acts as a reverse proxy, that is, it receives client requests, forwards them to the FastAPI server (running via Uvicorn or Gunicorn), and then passes the responses back to the clients.
 
 To run with NGINX, you start by uncommenting the following part in your `docker-compose.yml`:
+
 ```python
 # docker-compose.yml
 
 ...
-  #-------- uncomment to run with nginx --------
-  # nginx:
-  #   image: nginx:latest
-  #   ports:
-  #     - "80:80"
-  #   volumes:
-  #     - ./default.conf:/etc/nginx/conf.d/default.conf
-  #   depends_on:
-  #     - web
+# -------- uncomment to run with nginx --------
+# nginx:
+#   image: nginx:latest
+#   ports:
+#     - "80:80"
+#   volumes:
+#     - ./default.conf:/etc/nginx/conf.d/default.conf
+#   depends_on:
+#     - web
 ...
 ```
 
 Which should be changed to:
-```python
+
+```YAML
 # docker-compose.yml
 
 ...
@@ -1474,7 +1591,8 @@ Which should be changed to:
 ```
 
 Then comment the following part:
-```python
+
+```YAML
 # docker-compose.yml
 
 services:
@@ -1486,7 +1604,8 @@ services:
 ```
 
 Which becomes:
-```python
+
+```YAML
 # docker-compose.yml
 
 services:
@@ -1499,7 +1618,8 @@ services:
 
 Then pick the way you want to run (uvicorn or gunicorn managing uvicorn workers) in `Dockerfile`.
 The one you want should be uncommented, comment the other one.
-```python
+
+```Dockerfile
 # Dockerfile
 
 CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]
@@ -1509,8 +1629,10 @@ CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000", "--reload
 And finally head to `http://localhost/docs`.
 
 #### 6.2.1 One Server
+
 If you want to run with one server only, your setup should be ready. Just make sure the only part that is not a comment in `deafult.conf` is:
-```python
+
+```conf
 # default.conf
 
 # ---------------- Running With One Server ----------------
@@ -1530,10 +1652,12 @@ server {
 So just type on your browser: `http://localhost/docs`.
 
 #### 6.2.2 Multiple Servers
+
 NGINX can distribute incoming network traffic across multiple servers, improving the efficiency and capacity utilization of your application.
 
 To run with multiple servers, just comment the `Running With One Server` part in `default.conf` and Uncomment the other one:
-```python
+
+```conf
 # default.conf
 
 # ---------------- Running With One Server ----------------
@@ -1550,7 +1674,7 @@ server {
     listen 80;
 
     location / {
-        proxy_pass http://fastapi_app; 
+        proxy_pass http://fastapi_app;
         proxy_set_header Host $host;
         proxy_set_header X-Real-IP $remote_addr;
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
@@ -1561,11 +1685,13 @@ server {
 
 And finally, on your browser: `http://localhost/docs`.
 
-> [!WARNING]
+> \[!WARNING\]
 > Note that we are using `fastapi1:8000` and `fastapi2:8000` as examples, you should replace it with the actual name of your service and the port it's running on.
 
 ## 7. Testing
+
 For tests, ensure you have in `.env`:
+
 ```
 # ------------- test -------------
 TEST_NAME="Tester User"
@@ -1574,7 +1700,8 @@ TEST_USERNAME="testeruser"
 TEST_PASSWORD="Str1ng$t"
 ```
 
-While in the tests folder, create your test file with the name "test_{entity}.py", replacing entity with what you're testing
+While in the tests folder, create your test file with the name "test\_{entity}.py", replacing entity with what you're testing
+
 ```sh
 touch test_items.py
 ```
@@ -1584,13 +1711,15 @@ Finally create your tests (you may want to copy the structure in test_user.py)
 Now, to run:
 
 ### 7.1  Docker Compose
+
 First you need to uncomment the following part in the `docker-compose.yml` file:
+
 ```
   #-------- uncomment to run tests --------
   # pytest:
-  #   build: 
+  #   build:
   #     context: .
-  #     dockerfile: Dockerfile 
+  #     dockerfile: Dockerfile
   #   env_file:
   #     - ./src/.env
   #   depends_on:
@@ -1603,12 +1732,13 @@ First you need to uncomment the following part in the `docker-compose.yml` file:
 ```
 
 You'll get:
+
 ```
   #-------- uncomment to run tests --------
   pytest:
-    build: 
+    build:
       context: .
-      dockerfile: Dockerfile 
+      dockerfile: Dockerfile
     env_file:
       - ./src/.env
     depends_on:
@@ -1627,6 +1757,7 @@ docker-compose up -d
 ```
 
 It will automatically run the tests, but if you want to run again later:
+
 ```sh
 docker-compose run --rm pytest
 ```
@@ -1634,30 +1765,37 @@ docker-compose run --rm pytest
 ### 7.2  From Scratch
 
 While in the `root` folder, run:
+
 ```sh
 poetry run python -m pytest
 ```
 
 ## 8. Contributing
+
 Contributions are appreciated, even if just reporting bugs, documenting stuff or answering questions. To contribute with a feature:
+
 1. Fork it (https://github.com/igormagalhaesr/FastAPI-boilerplate)
-2. Create your feature branch (`git checkout -b feature/fooBar`)
-3. Test your changes while in the root folder `poetry run python -m pytest`
-4. Install pre-commit `pip install pre-commit` and install the hooks `pre-commit install`
-5. Commit your changes (`git commit -am 'Add some fooBar'`)
-6. Push to the branch (`git push origin feature/fooBar`)
-7. Create a new Pull Request
+1. Create your feature branch (`git checkout -b feature/fooBar`)
+1. Test your changes while in the root folder `poetry run python -m pytest`
+1. Install pre-commit `pip install pre-commit` and install the hooks `pre-commit install`
+1. Commit your changes (`git commit -am 'Add some fooBar'`)
+1. Push to the branch (`git push origin feature/fooBar`)
+1. Create a new Pull Request
 
 ## 9. References
+
 This project was inspired by a few projects, it's based on them with things changed to the way I like (and pydantic, sqlalchemy updated)
-* [`Full Stack FastAPI and PostgreSQL`](https://github.com/tiangolo/full-stack-fastapi-postgresql) by @tiangolo himself
-* [`FastAPI Microservices`](https://github.com/Kludex/fastapi-microservices) by @kludex which heavily inspired this boilerplate
-* [`Async Web API with FastAPI + SQLAlchemy 2.0`](https://github.com/rhoboro/async-fastapi-sqlalchemy) for sqlalchemy 2.0 ORM examples
-* [`FastaAPI Rocket Boilerplate`](https://github.com/asacristani/fastapi-rocket-boilerplate/tree/main) for docker compose
+
+- [`Full Stack FastAPI and PostgreSQL`](https://github.com/tiangolo/full-stack-fastapi-postgresql) by @tiangolo himself
+- [`FastAPI Microservices`](https://github.com/Kludex/fastapi-microservices) by @kludex which heavily inspired this boilerplate
+- [`Async Web API with FastAPI + SQLAlchemy 2.0`](https://github.com/rhoboro/async-fastapi-sqlalchemy) for sqlalchemy 2.0 ORM examples
+- [`FastaAPI Rocket Boilerplate`](https://github.com/asacristani/fastapi-rocket-boilerplate/tree/main) for docker compose
 
 ## 10. License
+
 [`MIT`](LICENSE.md)
 
 ## 11. Contact
+
 Igor Magalhaes – [@igormagalhaesr](https://twitter.com/igormagalhaesr) – igormagalhaesr@gmail.com
 [github.com/igorbenav](https://github.com/igorbenav/)
