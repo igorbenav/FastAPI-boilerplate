@@ -1643,9 +1643,10 @@ Contributions are appreciated, even if just reporting bugs, documenting stuff or
 1. Fork it (https://github.com/igormagalhaesr/FastAPI-boilerplate)
 2. Create your feature branch (`git checkout -b feature/fooBar`)
 3. Test your changes while in the root folder `poetry run python -m pytest`
-4. Commit your changes (`git commit -am 'Add some fooBar'`)
-5. Push to the branch (`git push origin feature/fooBar`)
-6. Create a new Pull Request
+4. Install pre-commit `pip install pre-commit` and install the hooks `pre-commit install`
+5. Commit your changes (`git commit -am 'Add some fooBar'`)
+6. Push to the branch (`git push origin feature/fooBar`)
+7. Create a new Pull Request
 
 ## 9. References
 This project was inspired by a few projects, it's based on them with things changed to the way I like (and pydantic, sqlalchemy updated)
