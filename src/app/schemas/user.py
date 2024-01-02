@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import Annotated, Optional
+from typing import Annotated
 
 from pydantic import BaseModel, ConfigDict, EmailStr, Field
 
@@ -42,13 +42,13 @@ class UserCreateInternal(UserBase):
 class UserUpdate(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
-    name: Annotated[Optional[str], Field(min_length=2, max_length=30, examples=["User Userberg"], default=None)]
+    name: Annotated[str | None, Field(min_length=2, max_length=30, examples=["User Userberg"], default=None)]
     username: Annotated[
-        Optional[str], Field(min_length=2, max_length=20, pattern=r"^[a-z0-9]+$", examples=["userberg"], default=None)
+        str | None, Field(min_length=2, max_length=20, pattern=r"^[a-z0-9]+$", examples=["userberg"], default=None)
     ]
-    email: Annotated[Optional[EmailStr], Field(examples=["user.userberg@example.com"], default=None)]
+    email: Annotated[EmailStr | None, Field(examples=["user.userberg@example.com"], default=None)]
     profile_image_url: Annotated[
-        Optional[str],
+        str | None,
         Field(
             pattern=r"^(https?|ftp)://[^\s/$.?#].[^\s]*$", examples=["https://www.profileimageurl.com"], default=None
         ),

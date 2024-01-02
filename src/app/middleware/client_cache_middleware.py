@@ -3,8 +3,7 @@ from starlette.middleware.base import BaseHTTPMiddleware, RequestResponseEndpoin
 
 
 class ClientCacheMiddleware(BaseHTTPMiddleware):
-    """
-    Middleware to set the `Cache-Control` header for client-side caching on all responses.
+    """Middleware to set the `Cache-Control` header for client-side caching on all responses.
 
     Parameters
     ----------
@@ -34,8 +33,7 @@ class ClientCacheMiddleware(BaseHTTPMiddleware):
         self.max_age = max_age
 
     async def dispatch(self, request: Request, call_next: RequestResponseEndpoint) -> Response:
-        """
-        Process the request and set the `Cache-Control` header in the response.
+        """Process the request and set the `Cache-Control` header in the response.
 
         Parameters
         ----------

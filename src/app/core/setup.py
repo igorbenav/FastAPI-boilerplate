@@ -1,4 +1,4 @@
-from typing import Any, Union
+from typing import Any
 
 import anyio
 import fastapi
@@ -71,20 +71,19 @@ async def set_threadpool_tokens(number_of_tokens: int = 100) -> None:
 # -------------- application --------------
 def create_application(
     router: APIRouter,
-    settings: Union[
-        DatabaseSettings,
-        RedisCacheSettings,
-        AppSettings,
-        ClientSideCacheSettings,
-        RedisQueueSettings,
-        RedisRateLimiterSettings,
-        EnvironmentSettings,
-    ],
+    settings: (
+        DatabaseSettings
+        | RedisCacheSettings
+        | AppSettings
+        | ClientSideCacheSettings
+        | RedisQueueSettings
+        | RedisRateLimiterSettings
+        | EnvironmentSettings
+    ),
     create_tables_on_start: bool = True,
     **kwargs: Any,
 ) -> FastAPI:
-    """
-    Creates and configures a FastAPI application based on the provided settings.
+    """Creates and configures a FastAPI application based on the provided settings.
 
     This function initializes a FastAPI application and configures it with various settings
     and handlers based on the type of the `settings` object provided.

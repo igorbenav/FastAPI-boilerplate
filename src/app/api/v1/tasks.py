@@ -1,4 +1,4 @@
-from typing import Any, Optional
+from typing import Any
 
 from arq.jobs import Job as ArqJob
 from fastapi import APIRouter, Depends
@@ -12,8 +12,7 @@ router = APIRouter(prefix="/tasks", tags=["tasks"])
 
 @router.post("/task", response_model=Job, status_code=201, dependencies=[Depends(rate_limiter)])
 async def create_task(message: str) -> dict[str, str]:
-    """
-    Create a new background task.
+    """Create a new background task.
 
     Parameters
     ----------
@@ -30,9 +29,8 @@ async def create_task(message: str) -> dict[str, str]:
 
 
 @router.get("/task/{task_id}")
-async def get_task(task_id: str) -> Optional[dict[str, Any]]:
-    """
-    Get information about a specific background task.
+async def get_task(task_id: str) -> dict[str, Any] | None:
+    """Get information about a specific background task.
 
     Parameters
     ----------
