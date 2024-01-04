@@ -1,4 +1,4 @@
-from typing import Any, Optional, Union
+from typing import Any
 
 from pydantic import BaseModel
 from sqlalchemy import inspect
@@ -10,10 +10,9 @@ from sqlalchemy.sql.schema import Column
 from ..core.db.database import Base
 
 
-def _extract_matching_columns_from_schema(model: type[Base], schema: Union[type[BaseModel], list, None]) -> list[Any]:
-    """
-    Retrieves a list of ORM column objects from a SQLAlchemy model that match the
-    field names in a given Pydantic schema.
+def _extract_matching_columns_from_schema(model: type[Base], schema: type[BaseModel] | list | None) -> list[Any]:
+    """Retrieves a list of ORM column objects from a SQLAlchemy model that match the field names in a given
+    Pydantic schema.
 
     Parameters
     ----------
@@ -64,10 +63,9 @@ def _extract_matching_columns_from_column_names(model: type[Base], column_names:
 
 def _auto_detect_join_condition(
     base_model: type[DeclarativeMeta], join_model: type[DeclarativeMeta]
-) -> Optional[ColumnElement]:
-    """
-    Automatically detects the join condition for SQLAlchemy models based on foreign key relationships.
-    This function scans the foreign keys in the base model and tries to match them with columns in the join model.
+) -> ColumnElement | None:
+    """Automatically detects the join condition for SQLAlchemy models based on foreign key relationships. This
+    function scans the foreign keys in the base model and tries to match them with columns in the join model.
 
     Parameters
     ----------
@@ -107,9 +105,8 @@ def _auto_detect_join_condition(
     return join_on
 
 
-def _add_column_with_prefix(column: Column, prefix: Optional[str]) -> Label:
-    """
-    Creates a SQLAlchemy column label with an optional prefix.
+def _add_column_with_prefix(column: Column, prefix: str | None) -> Label:
+    """Creates a SQLAlchemy column label with an optional prefix.
 
     Parameters
     ----------

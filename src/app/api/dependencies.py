@@ -1,4 +1,4 @@
-from typing import Annotated, Any, Union
+from typing import Annotated, Any
 
 from fastapi import Depends, HTTPException, Request
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -23,7 +23,7 @@ DEFAULT_PERIOD = settings.DEFAULT_RATE_LIMIT_PERIOD
 
 async def get_current_user(
     token: Annotated[str, Depends(oauth2_scheme)], db: Annotated[AsyncSession, Depends(async_get_db)]
-) -> Union[dict[str, Any], None]:
+) -> dict[str, Any] | None:
     token_data = await verify_token(token, db)
     if token_data is None:
         raise UnauthorizedException("User not authenticated.")

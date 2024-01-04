@@ -1,5 +1,5 @@
 from datetime import UTC, datetime
-from typing import Any, Generic, TypeVar, Union
+from typing import Any, Generic, TypeVar
 
 from pydantic import BaseModel
 from sqlalchemy import and_, delete, func, inspect, select, update
@@ -23,8 +23,7 @@ DeleteSchemaType = TypeVar("DeleteSchemaType", bound=BaseModel)
 
 
 class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType, UpdateSchemaInternalType, DeleteSchemaType]):
-    """
-    Base class for CRUD operations on a model.
+    """Base class for CRUD operations on a model.
 
     Parameters
     ----------
@@ -36,8 +35,7 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType, UpdateSche
         self._model = model
 
     async def create(self, db: AsyncSession, object: CreateSchemaType) -> ModelType:
-        """
-        Create a new record in the database.
+        """Create a new record in the database.
 
         Parameters
         ----------
@@ -58,10 +56,9 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType, UpdateSche
         return db_object
 
     async def get(
-        self, db: AsyncSession, schema_to_select: Union[type[BaseModel], list, None] = None, **kwargs: Any
+        self, db: AsyncSession, schema_to_select: type[BaseModel] | list | None = None, **kwargs: Any
     ) -> dict | None:
-        """
-        Fetch a single record based on filters.
+        """Fetch a single record based on filters.
 
         Parameters
         ----------
@@ -89,8 +86,7 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType, UpdateSche
         return None
 
     async def exists(self, db: AsyncSession, **kwargs: Any) -> bool:
-        """
-        Check if a record exists based on filters.
+        """Check if a record exists based on filters.
 
         Parameters
         ----------
@@ -111,8 +107,7 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType, UpdateSche
         return result.first() is not None
 
     async def count(self, db: AsyncSession, **kwargs: Any) -> int:
-        """
-        Count the records based on filters.
+        """Count the records based on filters.
 
         Parameters
         ----------
@@ -146,11 +141,10 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType, UpdateSche
         db: AsyncSession,
         offset: int = 0,
         limit: int = 100,
-        schema_to_select: Union[type[BaseModel], list[type[BaseModel]], None] = None,
+        schema_to_select: type[BaseModel] | list[type[BaseModel]] | None = None,
         **kwargs: Any,
     ) -> dict[str, Any]:
-        """
-        Fetch multiple records based on filters.
+        """Fetch multiple records based on filters.
 
         Parameters
         ----------
@@ -185,14 +179,13 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType, UpdateSche
         db: AsyncSession,
         join_model: type[ModelType],
         join_prefix: str | None = None,
-        join_on: Union[Join, None] = None,
-        schema_to_select: Union[type[BaseModel], list, None] = None,
-        join_schema_to_select: Union[type[BaseModel], list, None] = None,
+        join_on: Join | None = None,
+        schema_to_select: type[BaseModel] | list | None = None,
+        join_schema_to_select: type[BaseModel] | list | None = None,
         join_type: str = "left",
         **kwargs: Any,
     ) -> dict | None:
-        """
-        Fetches a single record with a join on another model. If 'join_on' is not provided, the method attempts
+        """Fetches a single record with a join on another model. If 'join_on' is not provided, the method attempts
         to automatically detect the join condition using foreign key relationships.
 
         Parameters
@@ -226,16 +219,14 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType, UpdateSche
         Simple example: Joining User and Tier models without explicitly providing join_on
         ```python
         result = await crud_user.get_joined(
-            db=session,
-            join_model=Tier,
-            schema_to_select=UserSchema,
-            join_schema_to_select=TierSchema
+            db=session, join_model=Tier, schema_to_select=UserSchema, join_schema_to_select=TierSchema
         )
         ```
 
         Complex example: Joining with a custom join condition, additional filter parameters, and a prefix
         ```python
         from sqlalchemy import and_
+
         result = await crud_user.get_joined(
             db=session,
             join_model=Tier,
@@ -243,7 +234,7 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType, UpdateSche
             join_on=and_(User.tier_id == Tier.id, User.is_superuser == True),
             schema_to_select=UserSchema,
             join_schema_to_select=TierSchema,
-            username="john_doe"
+            username="john_doe",
         )
         ```
 
@@ -265,7 +256,7 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType, UpdateSche
             "tier_id": 2,
             "tier_name": "Premium",
             "tier_created_at": "2022-12-01T10:00:00",
-            "tier_updated_at": "2023-01-01T11:00:00"
+            "tier_updated_at": "2023-01-01T11:00:00",
         }
         ```
         """
@@ -309,16 +300,15 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType, UpdateSche
         db: AsyncSession,
         join_model: type[ModelType],
         join_prefix: str | None = None,
-        join_on: Union[Join, None] = None,
-        schema_to_select: Union[type[BaseModel], list[type[BaseModel]], None] = None,
-        join_schema_to_select: Union[type[BaseModel], list[type[BaseModel]], None] = None,
+        join_on: Join | None = None,
+        schema_to_select: type[BaseModel] | list[type[BaseModel]] | None = None,
+        join_schema_to_select: type[BaseModel] | list[type[BaseModel]] | None = None,
         join_type: str = "left",
         offset: int = 0,
         limit: int = 100,
         **kwargs: Any,
     ) -> dict[str, Any]:
-        """
-        Fetch multiple records with a join on another model, allowing for pagination.
+        """Fetch multiple records with a join on another model, allowing for pagination.
 
         Parameters
         ----------
@@ -399,9 +389,8 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType, UpdateSche
 
         return {"data": data, "total_count": total_count}
 
-    async def update(self, db: AsyncSession, object: Union[UpdateSchemaType, dict[str, Any]], **kwargs: Any) -> None:
-        """
-        Update an existing record in the database.
+    async def update(self, db: AsyncSession, object: UpdateSchemaType | dict[str, Any], **kwargs: Any) -> None:
+        """Update an existing record in the database.
 
         Parameters
         ----------
@@ -430,8 +419,7 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType, UpdateSche
         await db.commit()
 
     async def db_delete(self, db: AsyncSession, **kwargs: Any) -> None:
-        """
-        Delete a record in the database.
+        """Delete a record in the database.
 
         Parameters
         ----------
@@ -449,8 +437,7 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType, UpdateSche
         await db.commit()
 
     async def delete(self, db: AsyncSession, db_row: Row | None = None, **kwargs: Any) -> None:
-        """
-        Soft delete a record if it has "is_deleted" attribute, otherwise perform a hard delete.
+        """Soft delete a record if it has "is_deleted" attribute, otherwise perform a hard delete.
 
         Parameters
         ----------

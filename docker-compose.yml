@@ -2,7 +2,7 @@ version: '3.8'
 
 services:
   web:
-    build: 
+    build:
       context: .
       dockerfile: Dockerfile
     # -------- replace with comment to run with gunicorn --------
@@ -22,7 +22,7 @@ services:
       - ./src/app:/code/app
 
   worker:
-    build: 
+    build:
       context: .
       dockerfile: Dockerfile
     command: arq app.worker.WorkerSettings
@@ -61,7 +61,7 @@ services:
   #   ports:
   #     - "5050:80"
   #   volumes:
-  #     - pgadmin-data:/var/lib/pgadmin 
+  #     - pgadmin-data:/var/lib/pgadmin
   #   env_file:
   #     - ./src/.env
   #   depends_on:
@@ -79,7 +79,7 @@ services:
 
   #-------- uncomment to create first superuser --------
   # create_superuser:
-  #   build: 
+  #   build:
   #     context: .
   #     dockerfile: Dockerfile
   #   env_file:
@@ -93,9 +93,9 @@ services:
 
   #-------- uncomment to run tests --------
   # pytest:
-  #   build: 
+  #   build:
   #     context: .
-  #     dockerfile: Dockerfile 
+  #     dockerfile: Dockerfile
   #   env_file:
   #     - ./src/.env
   #   depends_on:
@@ -108,7 +108,7 @@ services:
 
   #-------- uncomment to create first tier --------
   # create_tier:
-  #   build: 
+  #   build:
   #     context: .
   #     dockerfile: Dockerfile
   #   env_file:

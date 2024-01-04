@@ -17,8 +17,7 @@ class PaginatedListResponse(ListResponse[SchemaType]):
 
 
 def paginated_response(crud_data: dict, page: int, items_per_page: int) -> dict[str, Any]:
-    """
-    Create a paginated response based on the provided data and pagination parameters.
+    """Create a paginated response based on the provided data and pagination parameters.
 
     Parameters
     ----------
@@ -48,8 +47,7 @@ def paginated_response(crud_data: dict, page: int, items_per_page: int) -> dict[
 
 
 def compute_offset(page: int, items_per_page: int) -> int:
-    """
-    Calculate the offset for pagination based on the given page number and items per page.
+    """Calculate the offset for pagination based on the given page number and items per page.
 
     The offset represents the starting point in a dataset for the items on a given page.
     For example, if each page displays 10 items and you want to display page 3, the offset will be 20,

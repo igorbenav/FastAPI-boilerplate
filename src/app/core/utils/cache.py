@@ -2,7 +2,7 @@ import functools
 import json
 import re
 from collections.abc import Callable
-from typing import Any, Union
+from typing import Any
 
 from fastapi import Request, Response
 from fastapi.encoders import jsonable_encoder
@@ -14,9 +14,8 @@ pool: ConnectionPool | None = None
 client: Redis | None = None
 
 
-def _infer_resource_id(kwargs: dict[str, Any], resource_id_type: Union[type, tuple[type, ...]]) -> int | str:
-    """
-    Infer the resource ID from a dictionary of keyword arguments.
+def _infer_resource_id(kwargs: dict[str, Any], resource_id_type: type | tuple[type, ...]) -> int | str:
+    """Infer the resource ID from a dictionary of keyword arguments.
 
     Parameters
     ----------
@@ -54,8 +53,7 @@ def _infer_resource_id(kwargs: dict[str, Any], resource_id_type: Union[type, tup
 
 
 def _extract_data_inside_brackets(input_string: str) -> list[str]:
-    """
-    Extract data inside curly brackets from a given string using regular expressions.
+    """Extract data inside curly brackets from a given string using regular expressions.
 
     Parameters
     ----------
@@ -77,8 +75,7 @@ def _extract_data_inside_brackets(input_string: str) -> list[str]:
 
 
 def _construct_data_dict(data_inside_brackets: list[str], kwargs: dict[str, Any]) -> dict[str, Any]:
-    """
-    Construct a dictionary based on data inside brackets and keyword arguments.
+    """Construct a dictionary based on data inside brackets and keyword arguments.
 
     Parameters
     ----------
@@ -98,8 +95,7 @@ def _construct_data_dict(data_inside_brackets: list[str], kwargs: dict[str, Any]
 
 
 def _format_prefix(prefix: str, kwargs: dict[str, Any]) -> str:
-    """
-    Format a prefix using keyword arguments.
+    """Format a prefix using keyword arguments.
 
     Parameters
     ----------
@@ -119,8 +115,7 @@ def _format_prefix(prefix: str, kwargs: dict[str, Any]) -> str:
 
 
 def _format_extra_data(to_invalidate_extra: dict[str, str], kwargs: dict[str, Any]) -> dict[str, Any]:
-    """
-    Format extra data based on provided templates and keyword arguments.
+    """Format extra data based on provided templates and keyword arguments.
 
     This function takes a dictionary of templates and their associated values and a dictionary of keyword arguments.
     It formats the templates with the corresponding values from the keyword arguments and returns a dictionary
@@ -148,8 +143,7 @@ def _format_extra_data(to_invalidate_extra: dict[str, str], kwargs: dict[str, An
 
 
 async def _delete_keys_by_pattern(pattern: str) -> None:
-    """
-    Delete keys from Redis that match a given pattern using the SCAN command.
+    """Delete keys from Redis that match a given pattern using the SCAN command.
 
     This function iteratively scans the Redis key space for keys that match a specific pattern
     and deletes them. It uses the SCAN command to efficiently find keys, which is more
@@ -191,12 +185,11 @@ def cache(
     key_prefix: str,
     resource_id_name: Any = None,
     expiration: int = 3600,
-    resource_id_type: Union[type, tuple[type, ...]] = int,
+    resource_id_type: type | tuple[type, ...] = int,
     to_invalidate_extra: dict[str, Any] | None = None,
     pattern_to_invalidate_extra: list[str] | None = None,
 ) -> Callable:
-    """
-    Cache decorator for FastAPI endpoints.
+    """Cache decorator for FastAPI endpoints.
 
     This decorator enables caching the results of FastAPI endpoint functions to improve response times
     and reduce the load on the application by storing and retrieving data in a cache.
@@ -254,18 +247,20 @@ def cache(
 
     app = FastAPI()
 
+
     @app.get("/users/{user_id}/items")
     @cache(key_prefix="user_items", resource_id_name="user_id", expiration=1200)
     async def read_user_items(request: Request, user_id: int):
         # Endpoint logic to fetch user's items
         return {"items": "user specific items"}
 
+
     @app.put("/items/{item_id}")
     @cache(
         key_prefix="item_data",
         resource_id_name="item_id",
         to_invalidate_extra={"user_items": "{user_id}"},
-        pattern_to_invalidate_extra=["user_*_items:*"]
+        pattern_to_invalidate_extra=["user_*_items:*"],
     )
     async def update_item(request: Request, item_id: int, data: dict, user_id: int):
         # Update logic for an item
