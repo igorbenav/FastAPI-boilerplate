@@ -8,7 +8,7 @@ from .core.config import settings
 
 asyncio.set_event_loop_policy(uvloop.EventLoopPolicy())
 
-logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
+logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s")
 
 REDIS_QUEUE_HOST = settings.REDIS_QUEUE_HOST
 REDIS_QUEUE_PORT = settings.REDIS_QUEUE_PORT
@@ -22,11 +22,11 @@ async def sample_background_task(ctx: Worker, name: str) -> str:
 
 # -------- base functions --------
 async def startup(ctx: Worker) -> None:
-    logging.debug('Worker Started')
+    logging.info('Worker Started')
 
 
 async def shutdown(ctx: Worker) -> None:
-    logging.debug("Worker end")
+    logging.info("Worker end")
 
 
 # -------- class --------
