@@ -1,5 +1,5 @@
 import asyncio
-
+import logging
 import uvloop
 from arq.connections import RedisSettings
 from arq.worker import Worker
@@ -7,6 +7,8 @@ from arq.worker import Worker
 from .core.config import settings
 
 asyncio.set_event_loop_policy(uvloop.EventLoopPolicy())
+
+logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s")
 
 REDIS_QUEUE_HOST = settings.REDIS_QUEUE_HOST
 REDIS_QUEUE_PORT = settings.REDIS_QUEUE_PORT
@@ -20,11 +22,11 @@ async def sample_background_task(ctx: Worker, name: str) -> str:
 
 # -------- base functions --------
 async def startup(ctx: Worker) -> None:
-    print("worker start")
+    logging.info('Worker Started')
 
 
 async def shutdown(ctx: Worker) -> None:
-    print("worker end")
+    logging.info("Worker end")
 
 
 # -------- class --------
