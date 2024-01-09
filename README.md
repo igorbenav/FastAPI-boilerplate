@@ -561,7 +561,7 @@ First, you may want to take a look at the project structure and understand what 
     ├── app                           # Main application directory.
     │   ├── __init__.py               # Initialization file for the app package.
     │   ├── main.py                   # Main entry point of the FastAPI application.
-    │   ├── worker.py                 # Worker script for background tasks.
+    │   │
     │   │
     │   ├── api                       # Folder containing API-related logic.
     │   │   ├── __init__.py
@@ -598,11 +598,16 @@ First, you may want to take a look at the project structure and understand what 
     │   │   │   ├── cache_exceptions.py   # Exceptions related to cache operations.
     │   │   │   └── http_exceptions.py    # HTTP-related exceptions.
     │   │   │
-    │   │   └── utils                 # Utility functions and helpers.
+    │   │   ├── utils                 # Utility functions and helpers.
+    │   │   │   ├── __init__.py
+    │   │   │   ├── cache.py          # Cache-related utilities.
+    │   │   │   ├── queue.py          # Utilities for task queue management.
+    │   │   │   └── rate_limit.py     # Rate limiting utilities.
+    │   │   │
+    │   │   └── worker                # Worker script for background tasks.
     │   │       ├── __init__.py
-    │   │       ├── cache.py          # Cache-related utilities.
-    │   │       ├── queue.py          # Utilities for task queue management.
-    │   │       └── rate_limit.py     # Rate limiting utilities.
+    │   │       ├── settings.py       # Worker configuration and settings.
+    │   │       └── functions.py      # Async task definitions and management.
     │   │
     │   ├── crud                      # CRUD operations for the application.
     │   │   ├── __init__.py
@@ -1242,7 +1247,7 @@ For `client-side caching`, all you have to do is let the `Settings` class define
 
 ### 5.10 ARQ Job Queues
 
-Create the background task in `app/worker.py`:
+Create the background task in `app/core/worker/functions.py`:
 
 ```python
 ...
@@ -1252,7 +1257,7 @@ async def sample_background_task(ctx, name: str) -> str:
     return f"Task {name} is complete!"
 ```
 
-Then add the function to the `WorkerSettings` class `functions` variable:
+Then add the function to the `WorkerSettings` class `functions` variable in `app/core/worker/settings.py`:
 
 ```python
 # -------- class --------
