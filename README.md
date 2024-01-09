@@ -1293,7 +1293,7 @@ If you are using `docker compose`, the worker is already running.
 If you are doing it from scratch, run while in the `root` folder:
 
 ```sh
-poetry run arq src.app.worker.WorkerSettings
+poetry run arq src.app.core.worker.settings.WorkerSettings
 ```
 
 ### 5.11 Rate Limiting
@@ -1474,7 +1474,7 @@ poetry run uvicorn src.app.main:app --reload
 And for the worker:
 
 ```sh
-poetry run arq src.app.worker.WorkerSettings
+poetry run arq src.app.core.worker.settings.WorkerSettings
 ```
 
 ## 6. Running in Production
