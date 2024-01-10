@@ -44,4 +44,4 @@ async def get_task(task_id: str) -> dict[str, Any] | None:
     """
     job = ArqJob(task_id, queue.pool)
     job_info: dict = await job.info()
-    return job_info
+    return vars(job_info)
