@@ -5,7 +5,7 @@ description = "A fully Async FastAPI boilerplate using SQLAlchemy and Pydantic 2
 authors = ["Igor Magalhaes <igor.magalhaes.r@gmail.com>"]
 license = "MIT"
 readme = "README.md"
-packages = [{ include = "fastapi_boilerplate" }]
+packages = [{ include = "src" }]
 
 [tool.poetry.dependencies]
 python = "^3.11"
