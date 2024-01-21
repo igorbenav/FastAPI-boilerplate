@@ -1777,33 +1777,7 @@ poetry run python -m pytest
 
 ## 8. Contributing
 
-Contributions are appreciated, even if just reporting bugs, documenting stuff or answering questions. To contribute with a feature:
-
-#### Setting Up for Contribution
-
-1. **Fork the Repository**: Begin by forking the project repository. You can do this by visiting https://github.com/igormagalhaesr/FastAPI-boilerplate and clicking the "Fork" button.
-1. **Create a Feature Branch**: Once you've forked the repo, create a branch for your feature by running `git checkout -b feature/fooBar`.
-1. **Testing Changes**: Ensure that your changes do not break existing functionality by running tests. In the root folder, execute poetry run `python -m pytest` to run the tests.
-
-#### Using pre-commit for Better Code Quality
-
-It helps in identifying simple issues before submission to code review. By running automated checks, pre-commit can ensure code quality and consistency.
-
-1. **Install Pre-commit**:
-   - **Installation**: Install pre-commit in your development environment. Use the command `pip install pre-commit`.
-   - **Setting Up Hooks**: After installing pre-commit, set up the hooks with `pre-commit install`. This command will install hooks into your .git/ directory which will automatically check your commits for issues.
-1. **Committing Your Changes**:
-   After making your changes, use `git commit -am 'Add some fooBar'` to commit them. Pre-commit will run automatically on your files when you commit, ensuring that they meet the required standards.
-   Note: If pre-commit identifies issues, it may block your commit. Fix these issues and commit again. This ensures that all contributions are of high quality.
-1. **Pushing Changes and Creating Pull Request**:
-   Push your changes to the branch using `git push origin feature/fooBar`.
-   Visit your fork on GitHub and create a new Pull Request to the main repository.
-
-#### Additional Notes
-
-**Stay Updated**: Keep your fork updated with the main repository to avoid merge conflicts. Regularly fetch and merge changes from the upstream repository.
-**Adhere to Project Conventions**: Follow the coding style, conventions, and commit message guidelines of the project.
-**Open Communication**: Feel free to ask questions or discuss your ideas by opening an issue or in discussions.
+Read [contributing](CONTRIBUTING.md).
 
 ## 9. References
 
