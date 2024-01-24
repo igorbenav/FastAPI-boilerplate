@@ -55,8 +55,8 @@
 - 🏬 Easy redis caching
 - 👜 Easy client-side caching
 - 🚦 ARQ integration for task queue
-- ⚙️ Efficient querying (only queries what's needed) with support for joins
-- ⎘ Out of the box pagination support
+- ⚙️ Efficient and robust queries with <a href="https://github.com/igorbenav/fastcrud">fastcrud</a>
+- ⎘ Out of the box offset and cursor pagination support with <a href="https://github.com/igorbenav/fastcrud">fastcrud</a>
 - 🛑 Rate Limiter dependency
 - 👮 FastAPI docs behind authentication and hidden based on the environment
 - 🦾 Easily extendable
@@ -749,14 +749,15 @@ poetry run alembic upgrade head
 
 ### 5.6 CRUD
 
-Inside `app/crud`, create a new `crud_entities.py` inheriting from `CRUDBase` for each new entity:
+Inside `app/crud`, create a new `crud_entities.py` inheriting from `FastCRUD` for each new entity:
 
 ```python
-from app.crud.crud_base import CRUDBase
+from fastcrud import FastCRUD
+
 from app.models.entity import Entity
 from app.schemas.entity import EntityCreateInternal, EntityUpdate, EntityUpdateInternal, EntityDelete
 
-CRUDEntity = CRUDBase[Entity, EntityCreateInternal, EntityUpdate, EntityUpdateInternal, EntityDelete]
+CRUDEntity = FastCRUD[Entity, EntityCreateInternal, EntityUpdate, EntityUpdateInternal, EntityDelete]
 crud_entity = CRUDEntity(Entity)
 ```
 
@@ -767,7 +768,7 @@ So, for users:
 from app.model.user import User
 from app.schemas.user import UserCreateInternal, UserUpdate, UserUpdateInternal, UserDelete
 
-CRUDUser = CRUDBase[User, UserCreateInternal, UserUpdate, UserUpdateInternal, UserDelete]
+CRUDUser = FastCRUD[User, UserCreateInternal, UserUpdate, UserUpdateInternal, UserDelete]
 crud_users = CRUDUser(User)
 ```
 

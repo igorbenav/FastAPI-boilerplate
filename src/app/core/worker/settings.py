@@ -1,6 +1,7 @@
 from arq.connections import RedisSettings
+
 from ...core.config import settings
-from .functions import sample_background_task, startup, shutdown
+from .functions import sample_background_task, shutdown, startup
 
 REDIS_QUEUE_HOST = settings.REDIS_QUEUE_HOST
 REDIS_QUEUE_PORT = settings.REDIS_QUEUE_PORT
