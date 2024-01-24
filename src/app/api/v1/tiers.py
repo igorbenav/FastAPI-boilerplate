@@ -24,7 +24,8 @@ async def write_tier(
         raise DuplicateValueException("Tier Name not available")
 
     tier_internal = TierCreateInternal(**tier_internal_dict)
-    return await crud_tiers.create(db=db, object=tier_internal)
+    created_tier: TierRead = await crud_tiers.create(db=db, object=tier_internal)
+    return created_tier
 
 
 @router.get("/tiers", response_model=PaginatedListResponse[TierRead])
@@ -40,7 +41,7 @@ async def read_tiers(
 
 @router.get("/tier/{name}", response_model=TierRead)
 async def read_tier(request: Request, name: str, db: Annotated[AsyncSession, Depends(async_get_db)]) -> dict:
-    db_tier = await crud_tiers.get(db=db, schema_to_select=TierRead, name=name)
+    db_tier: TierRead | None = await crud_tiers.get(db=db, schema_to_select=TierRead, name=name)
     if db_tier is None:
         raise NotFoundException("Tier not found")
 

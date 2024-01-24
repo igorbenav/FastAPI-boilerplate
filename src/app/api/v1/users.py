@@ -36,7 +36,8 @@ async def write_user(
     del user_internal_dict["password"]
 
     user_internal = UserCreateInternal(**user_internal_dict)
-    return await crud_users.create(db=db, object=user_internal)
+    created_user: UserRead = await crud_users.create(db=db, object=user_internal)
+    return created_user
 
 
 @router.get("/users", response_model=PaginatedListResponse[UserRead])
@@ -61,7 +62,9 @@ async def read_users_me(request: Request, current_user: Annotated[UserRead, Depe
 
 @router.get("/user/{username}", response_model=UserRead)
 async def read_user(request: Request, username: str, db: Annotated[AsyncSession, Depends(async_get_db)]) -> dict:
-    db_user = await crud_users.get(db=db, schema_to_select=UserRead, username=username, is_deleted=False)
+    db_user: UserRead | None = await crud_users.get(
+        db=db, schema_to_select=UserRead, username=username, is_deleted=False
+    )
     if db_user is None:
         raise NotFoundException("User not found")
 
@@ -168,7 +171,7 @@ async def read_user_tier(
     if not db_tier:
         raise NotFoundException("Tier not found")
 
-    joined = await crud_users.get_joined(
+    joined: dict = await crud_users.get_joined(
         db=db,
         join_model=Tier,
         join_prefix="tier_",

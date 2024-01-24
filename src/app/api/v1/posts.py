@@ -36,7 +36,8 @@ async def write_post(
     post_internal_dict["created_by_user_id"] = db_user["id"]
 
     post_internal = PostCreateInternal(**post_internal_dict)
-    return await crud_posts.create(db=db, object=post_internal)
+    created_post: PostRead = await crud_posts.create(db=db, object=post_internal)
+    return created_post
 
 
 @router.get("/{username}/posts", response_model=PaginatedListResponse[PostRead])
@@ -77,7 +78,7 @@ async def read_post(
     if db_user is None:
         raise NotFoundException("User not found")
 
-    db_post = await crud_posts.get(
+    db_post: PostRead | None = await crud_posts.get(
         db=db, schema_to_select=PostRead, id=id, created_by_user_id=db_user["id"], is_deleted=False
     )
     if db_post is None:
