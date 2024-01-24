@@ -1,5 +1,6 @@
 import asyncio
 import logging
+
 import uvloop
 from arq.worker import Worker
 
