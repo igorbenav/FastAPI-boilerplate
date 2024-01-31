@@ -1,3 +1,14 @@
+x-logging: &default-logging
+  driver: loki
+  options:
+    loki-url: 'http://localhost:3100/api/prom/push'
+    loki-pipeline-stages: |
+      - multiline:
+          firstline: '^\d{4}-\d{2}-\d{2} \d{1,2}:\d{2}:\d{2}'
+          max_wait_time: 3s
+      - regex:
+          expression: '^(?P<time>\d{4}-\d{2}-\d{2} \d{1,2}:\d{2}:\d{2},d{3}) (?P<message>(?s:.*))$$'
+
 version: '3.8'
 
 services:
@@ -20,6 +31,7 @@ services:
       - redis
     volumes:
       - ./src/app:/code/app
+    logging: *default-logging
 
   worker:
     build:
@@ -33,6 +45,7 @@ services:
       - redis
     volumes:
       - ./src/app:/code/app
+    logging: *default-logging
 
   db:
     image: postgres:13
@@ -53,6 +66,56 @@ services:
     expose:
       - "6379"
 
+  loki:
+    container_name: loki
+    image: grafana/loki:2.8.3
+    command: -config.file=/etc/loki/local-config.yaml
+    ports:
+      - "3100:3100"
+
+  prometheus:
+    image: prom/prometheus
+    container_name: prometheus
+    ports:
+      - 9090:9090
+    volumes:
+      - ./dashboard/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+    depends_on:
+      - loki
+      - web
+    logging: *default-logging
+
+  grafana:
+    image: grafana/grafana
+    container_name: grafana
+    ports:
+      - 3000:3000
+    volumes:
+      - ./dashboard/grafana/datasources:/etc/grafana/provisioning/datasources
+      - ./dashboard/grafana/provisioning/dashboards:/etc/grafana/provisioning/dashboards
+    depends_on:
+      - loki
+      - prometheus
+      - tempo
+    logging: *default-logging
+
+  tempo:
+    container_name: tempo
+    image: grafana/tempo:2.1.1
+    command:
+      [
+        "--target=all",
+        "--storage.trace.backend=local",
+        "--storage.trace.local.path=/var/tempo",
+        "--auth.enabled=false"
+      ]
+    ports:
+      - "14250:14250"
+    depends_on:
+      - loki
+    logging: *default-logging
   #-------- uncomment to run with pgadmin --------
   # pgadmin:
   #   container_name: pgadmin4
@@ -122,5 +185,4 @@ services:
 
 volumes:
   postgres-data:
-  redis-data:
-  #pgadmin-data:
+  redis-data: #pgadmin-data:
