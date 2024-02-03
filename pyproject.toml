@@ -11,7 +11,7 @@ packages = [{ include = "src" }]
 python = "^3.11"
 python-dotenv = "^1.0.0"
 pydantic = { extras = ["email"], version = "^2.4.1" }
-fastapi = "^0.103.1"
+fastapi = "^0.109.1"
 uvicorn = "^0.23.2"
 uvloop = "^0.17.0"
 httptools = "^0.6.0"
@@ -22,7 +22,7 @@ SQLAlchemy-Utils = "^0.41.1"
 python-jose = "^3.3.0"
 SQLAlchemy = "^2.0.21"
 pytest = "^7.4.2"
-python-multipart = "^0.0.6"
+python-multipart = "^0.0.7"
 greenlet = "^2.0.2"
 httpx = "^0.25.0"
 pydantic-settings = "^2.0.3"
@@ -30,7 +30,7 @@ redis = "^5.0.1"
 arq = "^0.25.0"
 gunicorn = "^21.2.0"
 bcrypt = "^4.1.1"
-fastcrud = "^0.1.5"
+fastcrud = "^0.4.0"
 
 
 [build-system]
