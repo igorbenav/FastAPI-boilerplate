@@ -32,6 +32,7 @@ services:
       - redis
     volumes:
       - ./src/app:/code/app
+      - ./src/.env:/code/.env
     logging: *default-logging
 
   worker:
@@ -47,6 +48,7 @@ services:
       - redis
     volumes:
       - ./src/app:/code/app
+      - ./src/.env:/code/.env
     logging: *default-logging
 
   db:

@@ -1636,7 +1636,7 @@ And finally head to `http://localhost/docs`.
 
 #### 6.2.1 One Server
 
-If you want to run with one server only, your setup should be ready. Just make sure the only part that is not a comment in `deafult.conf` is:
+If you want to run with one server only, your setup should be ready. Just make sure the only part that is not a comment in `default.conf` is:
 
 ```conf
 # default.conf
