@@ -193,7 +193,11 @@ def create_application(
 
     if isinstance(settings, AppSettings):
         # Setting metrics middleware
-        application.add_middleware(PrometheusMiddleware, app_name=settings.APP_NAME)
+        application.add_middleware(
+            PrometheusMiddleware,
+            app_name=settings.APP_NAME,
+            excluded_handlers=["/docs", "/redoc", "/openapi.json", "/metrics"],
+        )
         application.add_route("/metrics", metrics)
         if isinstance(settings, OpenTelemeterySettings):
             setting_otlp(application, settings.APP_NAME, settings.OTLP_GRPC_ENDPOINT)

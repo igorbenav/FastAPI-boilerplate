@@ -1,3 +1,4 @@
+import re
 import time
 
 from prometheus_client import Counter, Gauge, Histogram
@@ -41,9 +42,10 @@ REQUESTS_IN_PROGRESS = Gauge(
 
 
 class PrometheusMiddleware(BaseHTTPMiddleware):
-    def __init__(self, app: ASGIApp, app_name: str = "fastapi-app") -> None:
+    def __init__(self, app: ASGIApp, app_name: str, excluded_handlers: list[str]) -> None:
         super().__init__(app)
         self.app_name = app_name
+        self.excluded_handlers = [re.compile(path) for path in excluded_handlers]
         INFO.labels(app_name=self.app_name).inc()
 
     async def dispatch(self, request: Request, call_next: RequestResponseEndpoint) -> Response:
@@ -75,11 +77,11 @@ class PrometheusMiddleware(BaseHTTPMiddleware):
 
         return response
 
-    @staticmethod
-    def get_path(request: Request) -> tuple[str, bool]:
-        for route in request.app.routes:
-            match, child_scope = route.matches(request.scope)
-            if match == Match.FULL:
-                return route.path, True
+    def get_path(self, request: Request) -> tuple[str, bool]:
+        if not any(pattern.search(request.url.path) for pattern in self.excluded_handlers):
+            for route in request.app.routes:
+                match, child_scope = route.matches(request.scope)
+                if match == Match.FULL:
+                    return route.path, True
 
         return request.url.path, False
