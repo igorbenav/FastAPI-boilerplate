@@ -192,5 +192,6 @@ services:
   #     - ./src:/code/src
 
 volumes:
+  #pgadmin-data:
   postgres-data:
-  redis-data: #pgadmin-data:
+  redis-data:
