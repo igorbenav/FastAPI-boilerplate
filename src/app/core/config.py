@@ -99,6 +99,10 @@ class DefaultRateLimitSettings(BaseSettings):
     DEFAULT_RATE_LIMIT_PERIOD: int = config("DEFAULT_RATE_LIMIT_PERIOD", default=3600)
 
 
+class OpenTelemeterySettings(BaseSettings):
+    OTLP_GRPC_ENDPOINT: str = config("OTLP_GRPC_ENDPOINT", default="http://tempo:4317")
+
+
 class EnvironmentOption(Enum):
     LOCAL = "local"
     STAGING = "staging"
@@ -121,6 +125,7 @@ class Settings(
     RedisRateLimiterSettings,
     DefaultRateLimitSettings,
     EnvironmentSettings,
+    OpenTelemeterySettings,
 ):
     pass
 

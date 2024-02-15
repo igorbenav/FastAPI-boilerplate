@@ -13,12 +13,14 @@ from fastapi.openapi.utils import get_openapi
 
 from ..api.dependencies import get_current_superuser
 from ..middleware.client_cache_middleware import ClientCacheMiddleware
+from ..middleware.prometheus_middleware import PrometheusMiddleware
 from .config import (
     AppSettings,
     ClientSideCacheSettings,
     DatabaseSettings,
     EnvironmentOption,
     EnvironmentSettings,
+    OpenTelemeterySettings,
     RedisCacheSettings,
     RedisQueueSettings,
     RedisRateLimiterSettings,
@@ -26,6 +28,7 @@ from .config import (
 )
 from .db.database import Base
 from .db.database import async_engine as engine
+from .tracking import metrics, setting_otlp
 from .utils import cache, queue, rate_limit
 
 
@@ -125,6 +128,7 @@ def create_application(
         | RedisQueueSettings
         | RedisRateLimiterSettings
         | EnvironmentSettings
+        | OpenTelemeterySettings
     ),
     create_tables_on_start: bool = True,
     **kwargs: Any,
@@ -185,6 +189,13 @@ def create_application(
     lifespan = lifespan_factory(settings, create_tables_on_start=create_tables_on_start)
 
     application = FastAPI(lifespan=lifespan, **kwargs)
+
+    if isinstance(settings, AppSettings):
+        # Setting metrics middleware
+        application.add_middleware(PrometheusMiddleware, app_name=settings.APP_NAME)
+        application.add_route("/metrics", metrics)
+        if isinstance(settings, OpenTelemeterySettings):
+            setting_otlp(application, settings.APP_NAME, settings.OTLP_GRPC_ENDPOINT)
 
     if isinstance(settings, ClientSideCacheSettings):
         application.add_middleware(ClientCacheMiddleware, max_age=settings.CLIENT_CACHE_MAX_AGE)
