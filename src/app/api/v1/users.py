@@ -115,7 +115,7 @@ async def erase_user(
     if username != current_user["username"]:
         raise ForbiddenException()
 
-    await crud_users.delete(db=db, db_row=db_user, username=username)
+    await crud_users.delete(db=db, username=username)
     await blacklist_token(token=token, db=db)
     return {"message": "User deleted"}
 

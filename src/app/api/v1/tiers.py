@@ -66,5 +66,5 @@ async def erase_tier(request: Request, name: str, db: Annotated[AsyncSession, De
     if db_tier is None:
         raise NotFoundException("Tier not found")
 
-    await crud_tiers.delete(db=db, db_row=db_tier, name=name)
+    await crud_tiers.delete(db=db, name=name)
     return {"message": "Tier deleted"}
