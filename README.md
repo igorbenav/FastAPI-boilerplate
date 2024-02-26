@@ -68,7 +68,6 @@
 
 0. [About](#0-about)
 1. [Features](#1-features)
-   1. [To Do](#11-to-do)
 1. [Contents](#2-contents)
 1. [Prerequisites](#3-prerequisites)
    1. [Environment Variables (.env)](#31-environment-variables-env)
@@ -159,7 +158,7 @@ CONTACT_EMAIL="Your email"
 LICENSE_NAME="The license you picked"
 ```
 
-For the database ([`if you don't have a database yet, click here`](<>)), create:
+For the database ([`if you don't have a database yet, click here`](#422-running-postgresql-with-docker)), create:
 
 ```
 # ------------- database -------------
