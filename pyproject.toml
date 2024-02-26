@@ -31,6 +31,11 @@ arq = "^0.25.0"
 gunicorn = "^21.2.0"
 bcrypt = "^4.1.1"
 fastcrud = "^0.6.0"
+prometheus-client = "^0.17.1"
+opentelemetry-distro = "^0.42b0"
+opentelemetry-instrumentation-fastapi = "^0.42b0"
+opentelemetry-instrumentation-logging = "^0.42b0"
+opentelemetry-exporter-otlp = "^1.21.0"
 
 
 [build-system]
