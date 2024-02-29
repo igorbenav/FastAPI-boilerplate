@@ -1,11 +1,10 @@
 from typing import Annotated, Any
 
-import fastapi
-from fastapi import Depends, Request
+from fastapi import APIRouter, Depends, Request
 from sqlalchemy.ext.asyncio import AsyncSession
+from fastcrud.paginated import PaginatedListResponse, compute_offset, paginated_response
 
 from ...api.dependencies import get_current_superuser, get_current_user
-from ...api.paginated import PaginatedListResponse, compute_offset, paginated_response
 from ...core.db.database import async_get_db
 from ...core.exceptions.http_exceptions import DuplicateValueException, ForbiddenException, NotFoundException
 from ...core.security import blacklist_token, get_password_hash, oauth2_scheme
@@ -16,7 +15,7 @@ from ...models.tier import Tier
 from ...schemas.tier import TierRead
 from ...schemas.user import UserCreate, UserCreateInternal, UserRead, UserTierUpdate, UserUpdate
 
-router = fastapi.APIRouter(tags=["users"])
+router = APIRouter(tags=["users"])
 
 
 @router.post("/user", response_model=UserRead, status_code=201)
