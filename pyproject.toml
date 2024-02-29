@@ -30,7 +30,7 @@ redis = "^5.0.1"
 arq = "^0.25.0"
 gunicorn = "^21.2.0"
 bcrypt = "^4.1.1"
-fastcrud = "^0.6.0"
+fastcrud = "^0.7.0"
 
 
 [build-system]

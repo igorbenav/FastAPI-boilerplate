@@ -1,17 +1,16 @@
 from typing import Annotated
 
-import fastapi
-from fastapi import Depends, Request
+from fastapi import APIRouter, Depends, Request
 from sqlalchemy.ext.asyncio import AsyncSession
+from fastcrud.paginated import PaginatedListResponse, compute_offset, paginated_response
 
 from ...api.dependencies import get_current_superuser
-from ...api.paginated import PaginatedListResponse, compute_offset, paginated_response
 from ...core.db.database import async_get_db
 from ...core.exceptions.http_exceptions import DuplicateValueException, NotFoundException
 from ...crud.crud_tier import crud_tiers
 from ...schemas.tier import TierCreate, TierCreateInternal, TierRead, TierUpdate
 
-router = fastapi.APIRouter(tags=["tiers"])
+router = APIRouter(tags=["tiers"])
 
 
 @router.post("/tier", dependencies=[Depends(get_current_superuser)], status_code=201)
