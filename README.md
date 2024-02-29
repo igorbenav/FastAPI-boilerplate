@@ -565,7 +565,6 @@ First, you may want to take a look at the project structure and understand what 
     │   ├── api                       # Folder containing API-related logic.
     │   │   ├── __init__.py
     │   │   ├── dependencies.py       # Defines dependencies for use across API endpoints.
-    │   │   ├── paginated.py          # Utilities for API response pagination.
     │   │   │
     │   │   └── v1                    # Version 1 of the API.
     │   │       ├── __init__.py
@@ -1020,10 +1019,10 @@ With the `get_multi` method we get a python `dict` with full suport for paginati
 }
 ```
 
-And in the endpoint, we can import from `app/api/paginated` the following functions and Pydantic Schema:
+And in the endpoint, we can import from `fastcrud.paginated` the following functions and Pydantic Schema:
 
 ```python
-from app.api.paginated import (
+from fastcrud.paginated import (
     PaginatedListResponse,  # What you'll use as a response_model to validate
     paginated_response,  # Creates a paginated response based on the parameters
     compute_offset,  # Calculate the offset for pagination ((page - 1) * items_per_page)
