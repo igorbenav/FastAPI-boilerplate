@@ -1,6 +1,6 @@
 import asyncio
-import uuid
 import logging
+import uuid
 from datetime import UTC, datetime
 
 from sqlalchemy import Boolean, Column, DateTime, ForeignKey, Integer, MetaData, String, Table, insert, select
@@ -60,10 +60,10 @@ async def create_first_user(session: AsyncSession) -> None:
                 await conn.commit()
 
             logger.info(f"Admin user {username} created successfully.")
-        
+
         else:
             logger.info(f"Admin user {username} already exists.")
-    
+
     except Exception as e:
         logger.error(f"Error creating admin user: {e}")
 
