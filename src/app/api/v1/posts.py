@@ -1,4 +1,4 @@
-from typing import Annotated
+from typing import Annotated, Any
 
 from fastapi import APIRouter, Depends, Request
 from fastcrud.paginated import PaginatedListResponse, compute_offset, paginated_response
@@ -65,7 +65,8 @@ async def read_posts(
         is_deleted=False,
     )
 
-    return paginated_response(crud_data=posts_data, page=page, items_per_page=items_per_page)
+    response: dict[str, Any] = paginated_response(crud_data=posts_data, page=page, items_per_page=items_per_page)
+    return response
 
 
 @router.get("/{username}/post/{id}", response_model=PostRead)

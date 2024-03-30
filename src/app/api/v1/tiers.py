@@ -1,8 +1,8 @@
-from typing import Annotated
+from typing import Annotated, Any
 
 from fastapi import APIRouter, Depends, Request
-from sqlalchemy.ext.asyncio import AsyncSession
 from fastcrud.paginated import PaginatedListResponse, compute_offset, paginated_response
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from ...api.dependencies import get_current_superuser
 from ...core.db.database import async_get_db
@@ -35,7 +35,8 @@ async def read_tiers(
         db=db, offset=compute_offset(page, items_per_page), limit=items_per_page, schema_to_select=TierRead
     )
 
-    return paginated_response(crud_data=tiers_data, page=page, items_per_page=items_per_page)
+    response: dict[str, Any] = paginated_response(crud_data=tiers_data, page=page, items_per_page=items_per_page)
+    return response
 
 
 @router.get("/tier/{name}", response_model=TierRead)

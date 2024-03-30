@@ -1,4 +1,4 @@
-from typing import Annotated
+from typing import Annotated, Any
 
 from fastapi import APIRouter, Depends, Request
 from fastcrud.paginated import PaginatedListResponse, compute_offset, paginated_response
@@ -54,7 +54,8 @@ async def read_rate_limits(
         tier_id=db_tier["id"],
     )
 
-    return paginated_response(crud_data=rate_limits_data, page=page, items_per_page=items_per_page)
+    response: dict[str, Any] = paginated_response(crud_data=rate_limits_data, page=page, items_per_page=items_per_page)
+    return response
 
 
 @router.get("/tier/{tier_name}/rate_limit/{id}", response_model=RateLimitRead)
