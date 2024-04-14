@@ -1440,7 +1440,7 @@ response.set_cookie(
 You may change it to suit your needs. The possible options for `samesite` are:
 
 - `Lax`: Cookies will be sent in top-level navigations (like clicking on a link to go to another site), but not in API requests or images loaded from other sites.
-- `Strict`: Cookies will be sent in top-level navigations (like clicking on a link to go to another site), but not in API requests or images loaded from other sites.
+- `Strict`: Cookies are sent only on top-level navigations from the same site that set the cookie, enhancing privacy but potentially disrupting user sessions.
 - `None`: Cookies will be sent with both same-site and cross-site requests.
 
 #### 5.12.2 Usage
