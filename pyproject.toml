@@ -28,7 +28,7 @@ httpx = "^0.26.0"
 pydantic-settings = "^2.0.3"
 redis = "^5.0.1"
 arq = "^0.25.0"
-gunicorn = "^21.2.0"
+gunicorn = "^22.0.0"
 bcrypt = "^4.1.1"
 fastcrud = "^0.11.0"
 
