@@ -623,7 +623,7 @@ First, you may want to take a look at the project structure and understand what 
     │   ├── middleware                # Middleware components for the application.
     │   │   └── client_cache_middleware.py  # Middleware for client-side caching.
     │   │
-    │   ├── models                    # ORM models for the application (Deprecated/Unused).
+    │   ├── models                    # ORM models for the application.
     │   │   ├── __init__.py
     │   │   ├── post.py               # ORM model for posts.
     │   │   ├── rate_limit.py         # ORM model for rate limiting.
