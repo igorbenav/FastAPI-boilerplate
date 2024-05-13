@@ -46,7 +46,7 @@
 - [`Docker Compose`](https://docs.docker.com/compose/) With a single command, create and start all the services from your configuration.
 - [`NGINX`](https://nginx.org/en/) High-performance low resource consumption web server used for Reverse Proxy and Load Balancing.
 
-> \[!TIP\] 
+> \[!TIP\]
 > If you want the `SQLModel` version instead, head to [SQLModel-boilerplate](https://github.com/igorbenav/SQLModel-boilerplate).
 
 ## 1. Features
@@ -66,6 +66,8 @@
 - 🤸‍♂️ Flexible
 - 🚚 Easy running with docker compose
 - ⚖️ NGINX Reverse Proxy and Load Balancing
+- 📊 Prometheus metrics with Grafana dashboards monitoring
+- 📖 Loki and open telemetrics for logging
 
 ## 2. Contents
 
@@ -100,9 +102,10 @@
    1. [ARQ Job Queues](#510-arq-job-queues)
    1. [Rate Limiting](#511-rate-limiting)
    1. [JWT Authentication](#512-jwt-authentication)
-   1. [Running](#513-running)
-   1. [Create Application](#514-create-application)
-   2. [Opting Out of Services](#515-opting-out-of-services)
+   1. [Grafana Dashboards](#513-grafana-dashboards)
+   1. [Running](#514-running)
+   1. [Create Application](#515-create-application)
+   1. [Opting Out of Services](#516-opting-out-of-services)
 1. [Running in Production](#6-running-in-production)
    1. [Uvicorn Workers with Gunicorn](#61-uvicorn-workers-with-gunicorn)
    1. [Running With NGINX](#62-running-with-nginx)
@@ -587,6 +590,7 @@ First, you may want to take a look at the project structure and understand what 
     │   │   ├── schemas.py            # Pydantic schemas for data validation.
     │   │   ├── security.py           # Security utilities, such as password hashing.
     │   │   ├── setup.py              # Setup file for the FastAPI app instance.
+    │   │   ├── tracking.py           # Metrics endpoint and open telemetrics setup
     │   │   │
     │   │   ├── db                    # Core Database related modules.
     │   │   │   ├── __init__.py
@@ -625,6 +629,7 @@ First, you may want to take a look at the project structure and understand what 
     │   │
     │   ├── middleware                # Middleware components for the application.
     │   │   └── client_cache_middleware.py  # Middleware for client-side caching.
+    │   │   └── prometheus_middleware.py    # Middleware for prometheus metrics.
     │   │
     │   ├── models                    # ORM models for the application.
     │   │   ├── __init__.py
@@ -1459,7 +1464,48 @@ What you should do with the client is:
 
 This authentication setup in the provides a robust, secure, and user-friendly way to handle user sessions in your API applications.
 
-### 5.13 Running
+### 5.13 Grafana Dashboards
+
+For real-time monitoring, make sure to uncomment the containers related to monitoring:
+
+- loki
+- prometheus
+- grafana
+- tempo
+
+Also, for propper uniform logging, uncomment the x-logging and add the default logging to the worker and web.
+
+```Dockerfile
+x-logging: &default-logging
+  driver: loki
+  options:
+    loki-url: 'http://localhost:3100/api/prom/push'
+    loki-pipeline-stages: |
+      - multiline:
+          firstline: '^\d{4}-\d{2}-\d{2} \d{1,2}:\d{2}:\d{2}'
+          max_wait_time: 3s
+      - regex:
+          expression: '^(?P<time>\d{4}-\d{2}-\d{2} \d{1,2}:\d{2}:\d{2},d{3}) (?P<message>(?s:.*))$$'
+...
+web:
+  ...
+  logging: *default-logging
+
+worker:
+  ...
+  logging: *default-logging
+
+```
+
+Lastly, Install the loki plugin:
+
+```sh
+docker plugin install grafana/loki-docker-driver:2.9.2 --alias loki --grant-all-permissions
+```
+
+The dashboard graphs can be edited in `dashboard/grafana/provisioning/dashboards/fastapi-observability.json`
+
+### 5.14 Running
 
 If you are using docker compose, just running the following command should ensure everything is working:
 
@@ -1479,7 +1525,8 @@ And for the worker:
 ```sh
 poetry run arq src.app.core.worker.settings.WorkerSettings
 ```
-### 5.14 Create Application
+
+### 5.15 Create Application
 
 If you want to stop tables from being created every time you run the api, you should disable this here:
 
@@ -1502,7 +1549,7 @@ A few examples:
 - Add client-side cache middleware
 - Add Startup and Shutdown event handlers for cache, queue and rate limit
 
-### 5.15 Opting Out of Services
+### 5.16 Opting Out of Services
 
 To opt out of services (like `Redis`, `Queue`, `Rate Limiter`), head to the `Settings` class in `src/app/core/config`:
 
@@ -1518,6 +1565,7 @@ current_file_dir = os.path.dirname(os.path.realpath(__file__))
 env_path = os.path.join(current_file_dir, "..", "..", ".env")
 config = Config(env_path)
 ...
+
 
 class Settings(
     AppSettings,
