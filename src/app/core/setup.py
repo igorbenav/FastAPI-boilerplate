@@ -82,6 +82,7 @@ def lifespan_factory(
         | RedisQueueSettings
         | RedisRateLimiterSettings
         | EnvironmentSettings
+        | OpenTelemeterySettings
     ),
     create_tables_on_start: bool = True,
 ) -> Callable[[FastAPI], _AsyncGeneratorContextManager[Any]]:
@@ -155,6 +156,7 @@ def create_application(
         - RedisRateLimiterSettings: Sets up event handlers for creating and closing a Redis rate limiter pool.
         - EnvironmentSettings: Conditionally sets documentation URLs and integrates custom routes for API documentation
           based on the environment type.
+        - OpenTelemeterySettings: Configures OpenTelemetry tracing for the FastAPI application.
 
     create_tables_on_start : bool
         A flag to indicate whether to create database tables on application startup.
