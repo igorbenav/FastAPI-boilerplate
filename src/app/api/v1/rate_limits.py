@@ -1,18 +1,17 @@
-from typing import Annotated
+from typing import Annotated, Any
 
-import fastapi
-from fastapi import Depends, Request
+from fastapi import APIRouter, Depends, Request
+from fastcrud.paginated import PaginatedListResponse, compute_offset, paginated_response
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from ...api.dependencies import get_current_superuser
-from ...api.paginated import PaginatedListResponse, compute_offset, paginated_response
 from ...core.db.database import async_get_db
 from ...core.exceptions.http_exceptions import DuplicateValueException, NotFoundException, RateLimitException
 from ...crud.crud_rate_limit import crud_rate_limits
 from ...crud.crud_tier import crud_tiers
 from ...schemas.rate_limit import RateLimitCreate, RateLimitCreateInternal, RateLimitRead, RateLimitUpdate
 
-router = fastapi.APIRouter(tags=["rate_limits"])
+router = APIRouter(tags=["rate_limits"])
 
 
 @router.post("/tier/{tier_name}/rate_limit", dependencies=[Depends(get_current_superuser)], status_code=201)
@@ -55,7 +54,8 @@ async def read_rate_limits(
         tier_id=db_tier["id"],
     )
 
-    return paginated_response(crud_data=rate_limits_data, page=page, items_per_page=items_per_page)
+    response: dict[str, Any] = paginated_response(crud_data=rate_limits_data, page=page, items_per_page=items_per_page)
+    return response
 
 
 @router.get("/tier/{tier_name}/rate_limit/{id}", response_model=RateLimitRead)
@@ -115,5 +115,5 @@ async def erase_rate_limit(
     if db_rate_limit is None:
         raise RateLimitException("Rate Limit not found")
 
-    await crud_rate_limits.delete(db=db, db_row=db_rate_limit, id=db_rate_limit["id"])
+    await crud_rate_limits.delete(db=db, id=db_rate_limit["id"])
     return {"message": "Rate Limit deleted"}

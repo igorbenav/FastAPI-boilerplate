@@ -1,8 +1,7 @@
 from datetime import timedelta
 from typing import Annotated
 
-import fastapi
-from fastapi import Depends, Request, Response
+from fastapi import APIRouter, Depends, Request, Response
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -18,7 +17,7 @@ from ...core.security import (
     verify_token,
 )
 
-router = fastapi.APIRouter(tags=["login"])
+router = APIRouter(tags=["login"])
 
 
 @router.post("/login", response_model=Token)
