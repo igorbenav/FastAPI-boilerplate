@@ -46,6 +46,9 @@
 - [`Docker Compose`](https://docs.docker.com/compose/) With a single command, create and start all the services from your configuration.
 - [`NGINX`](https://nginx.org/en/) High-performance low resource consumption web server used for Reverse Proxy and Load Balancing.
 
+> \[!TIP\] 
+> If you want the `SQLModel` version instead, head to [SQLModel-boilerplate](https://github.com/igorbenav/SQLModel-boilerplate).
+
 ## 1. Features
 
 - ⚡️ Fully async
@@ -68,7 +71,6 @@
 
 0. [About](#0-about)
 1. [Features](#1-features)
-   1. [To Do](#11-to-do)
 1. [Contents](#2-contents)
 1. [Prerequisites](#3-prerequisites)
    1. [Environment Variables (.env)](#31-environment-variables-env)
@@ -100,6 +102,7 @@
    1. [JWT Authentication](#512-jwt-authentication)
    1. [Running](#513-running)
    1. [Create Application](#514-create-application)
+   2. [Opting Out of Services](#515-opting-out-of-services)
 1. [Running in Production](#6-running-in-production)
    1. [Uvicorn Workers with Gunicorn](#61-uvicorn-workers-with-gunicorn)
    1. [Running With NGINX](#62-running-with-nginx)
@@ -159,7 +162,7 @@ CONTACT_EMAIL="Your email"
 LICENSE_NAME="The license you picked"
 ```
 
-For the database ([`if you don't have a database yet, click here`](<>)), create:
+For the database ([`if you don't have a database yet, click here`](#422-running-postgresql-with-docker)), create:
 
 ```
 # ------------- database -------------
@@ -566,7 +569,6 @@ First, you may want to take a look at the project structure and understand what 
     │   ├── api                       # Folder containing API-related logic.
     │   │   ├── __init__.py
     │   │   ├── dependencies.py       # Defines dependencies for use across API endpoints.
-    │   │   ├── paginated.py          # Utilities for API response pagination.
     │   │   │
     │   │   └── v1                    # Version 1 of the API.
     │   │       ├── __init__.py
@@ -624,7 +626,7 @@ First, you may want to take a look at the project structure and understand what 
     │   ├── middleware                # Middleware components for the application.
     │   │   └── client_cache_middleware.py  # Middleware for client-side caching.
     │   │
-    │   ├── models                    # ORM models for the application (Deprecated/Unused).
+    │   ├── models                    # ORM models for the application.
     │   │   ├── __init__.py
     │   │   ├── post.py               # ORM model for posts.
     │   │   ├── rate_limit.py         # ORM model for rate limiting.
@@ -687,7 +689,7 @@ class Entity(Base):
 
 ### 5.4 Pydantic Schemas
 
-Inside `app/schemas`, create a new `entity.py` for for each new entity (replacing entity with the name) and create the schemas according to [Pydantic V2](https://docs.pydantic.dev/latest/#pydantic-examples) standards:
+Inside `app/schemas`, create a new `entity.py` for each new entity (replacing entity with the name) and create the schemas according to [Pydantic V2](https://docs.pydantic.dev/latest/#pydantic-examples) standards:
 
 ```python
 from typing import Annotated
@@ -1021,10 +1023,10 @@ With the `get_multi` method we get a python `dict` with full suport for paginati
 }
 ```
 
-And in the endpoint, we can import from `app/api/paginated` the following functions and Pydantic Schema:
+And in the endpoint, we can import from `fastcrud.paginated` the following functions and Pydantic Schema:
 
 ```python
-from app.api.paginated import (
+from fastcrud.paginated import (
     PaginatedListResponse,  # What you'll use as a response_model to validate
     paginated_response,  # Creates a paginated response based on the parameters
     compute_offset,  # Calculate the offset for pagination ((page - 1) * items_per_page)
@@ -1442,7 +1444,7 @@ response.set_cookie(
 You may change it to suit your needs. The possible options for `samesite` are:
 
 - `Lax`: Cookies will be sent in top-level navigations (like clicking on a link to go to another site), but not in API requests or images loaded from other sites.
-- `Strict`: Cookies will be sent in top-level navigations (like clicking on a link to go to another site), but not in API requests or images loaded from other sites.
+- `Strict`: Cookies are sent only on top-level navigations from the same site that set the cookie, enhancing privacy but potentially disrupting user sessions.
 - `None`: Cookies will be sent with both same-site and cross-site requests.
 
 #### 5.12.2 Usage
@@ -1476,6 +1478,124 @@ And for the worker:
 
 ```sh
 poetry run arq src.app.core.worker.settings.WorkerSettings
+```
+### 5.14 Create Application
+
+If you want to stop tables from being created every time you run the api, you should disable this here:
+
+```python
+# app/main.py
+
+from .api import router
+from .core.config import settings
+from .core.setup import create_application
+
+# create_tables_on_start defaults to True
+app = create_application(router=router, settings=settings, create_tables_on_start=False)
+```
+
+This `create_application` function is defined in `app/core/setup.py`, and it's a flexible way to configure the behavior of your application.
+
+A few examples:
+
+- Deactivate or password protect /docs
+- Add client-side cache middleware
+- Add Startup and Shutdown event handlers for cache, queue and rate limit
+
+### 5.15 Opting Out of Services
+
+To opt out of services (like `Redis`, `Queue`, `Rate Limiter`), head to the `Settings` class in `src/app/core/config`:
+
+```python
+# src/app/core/config
+import os
+from enum import Enum
+
+from pydantic_settings import BaseSettings
+from starlette.config import Config
+
+current_file_dir = os.path.dirname(os.path.realpath(__file__))
+env_path = os.path.join(current_file_dir, "..", "..", ".env")
+config = Config(env_path)
+...
+
+class Settings(
+    AppSettings,
+    PostgresSettings,
+    CryptSettings,
+    FirstUserSettings,
+    TestSettings,
+    RedisCacheSettings,
+    ClientSideCacheSettings,
+    RedisQueueSettings,
+    RedisRateLimiterSettings,
+    DefaultRateLimitSettings,
+    EnvironmentSettings,
+):
+    pass
+
+
+settings = Settings()
+```
+
+And remove the Settings of the services you do not need. For example, without using redis (removed `Cache`, `Queue` and `Rate limit`):
+
+```python
+class Settings(
+    AppSettings,
+    PostgresSettings,
+    CryptSettings,
+    FirstUserSettings,
+    TestSettings,
+    ClientSideCacheSettings,
+    DefaultRateLimitSettings,
+    EnvironmentSettings,
+):
+    pass
+```
+
+Then comment or remove the services you do not want from `docker-compose.yml`. Here, I removed `redis` and `worker` services:
+
+```yml
+version: '3.8'
+
+services:
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    # -------- replace with comment to run with gunicorn --------
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+    # command: gunicorn app.main:app -w 4 -k uvicorn.workers.UvicornWorker -b 0.0.0.0:8000
+    env_file:
+      - ./src/.env
+    # -------- replace with comment if you are using nginx --------
+    ports:
+      - "8000:8000"
+    # expose:
+    #   - "8000"
+    depends_on:
+      - db
+      - redis
+    volumes:
+      - ./src/app:/code/app
+      - ./src/.env:/code/.env
+  db:
+    image: postgres:13
+    env_file:
+      - ./src/.env
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    # -------- replace with comment to run migrations with docker --------
+    expose:
+      - "5432"
+    # ports:
+    #  - 5432:5432
+
+volumes:
+  postgres-data:
+  redis-data:
+  #pgadmin-data:
 ```
 
 ## 6. Running in Production
@@ -1532,29 +1652,6 @@ CMD ["gunicorn", "app.main:app", "-w", "4", "-k", "uvicorn.workers.UvicornWorker
 
 > \[!CAUTION\]
 > Do not forget to set the `ENVIRONMENT` in `.env` to `production` unless you want the API docs to be public.
-
-### 5.14 Create Application
-
-If you want to stop tables from being created every time you run the api, you should disable this here:
-
-```python
-# app/main.py
-
-from .api import router
-from .core.config import settings
-from .core.setup import create_application
-
-# create_tables_on_start defaults to True
-app = create_application(router=router, settings=settings, create_tables_on_start=False)
-```
-
-This `create_application` function is defined in `app/core/setup.py`, and it's a flexible way to configure the behavior of your application.
-
-A few examples:
-
-- Deactivate or password protect /docs
-- Add client-side cache middleware
-- Add Startup and Shutdown event handlers for cache, queue and rate limit
 
 ### 6.2 Running with NGINX
 

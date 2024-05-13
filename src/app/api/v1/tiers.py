@@ -1,17 +1,16 @@
-from typing import Annotated
+from typing import Annotated, Any
 
-import fastapi
-from fastapi import Depends, Request
+from fastapi import APIRouter, Depends, Request
+from fastcrud.paginated import PaginatedListResponse, compute_offset, paginated_response
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from ...api.dependencies import get_current_superuser
-from ...api.paginated import PaginatedListResponse, compute_offset, paginated_response
 from ...core.db.database import async_get_db
 from ...core.exceptions.http_exceptions import DuplicateValueException, NotFoundException
 from ...crud.crud_tier import crud_tiers
 from ...schemas.tier import TierCreate, TierCreateInternal, TierRead, TierUpdate
 
-router = fastapi.APIRouter(tags=["tiers"])
+router = APIRouter(tags=["tiers"])
 
 
 @router.post("/tier", dependencies=[Depends(get_current_superuser)], status_code=201)
@@ -36,7 +35,8 @@ async def read_tiers(
         db=db, offset=compute_offset(page, items_per_page), limit=items_per_page, schema_to_select=TierRead
     )
 
-    return paginated_response(crud_data=tiers_data, page=page, items_per_page=items_per_page)
+    response: dict[str, Any] = paginated_response(crud_data=tiers_data, page=page, items_per_page=items_per_page)
+    return response
 
 
 @router.get("/tier/{name}", response_model=TierRead)
@@ -66,5 +66,5 @@ async def erase_tier(request: Request, name: str, db: Annotated[AsyncSession, De
     if db_tier is None:
         raise NotFoundException("Tier not found")
 
-    await crud_tiers.delete(db=db, db_row=db_tier, name=name)
+    await crud_tiers.delete(db=db, name=name)
     return {"message": "Tier deleted"}

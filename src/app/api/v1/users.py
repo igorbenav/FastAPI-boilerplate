@@ -1,11 +1,10 @@
 from typing import Annotated, Any
 
-import fastapi
-from fastapi import Depends, Request
+from fastapi import APIRouter, Depends, Request
+from fastcrud.paginated import PaginatedListResponse, compute_offset, paginated_response
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from ...api.dependencies import get_current_superuser, get_current_user
-from ...api.paginated import PaginatedListResponse, compute_offset, paginated_response
 from ...core.db.database import async_get_db
 from ...core.exceptions.http_exceptions import DuplicateValueException, ForbiddenException, NotFoundException
 from ...core.security import blacklist_token, get_password_hash, oauth2_scheme
@@ -16,7 +15,7 @@ from ...models.tier import Tier
 from ...schemas.tier import TierRead
 from ...schemas.user import UserCreate, UserCreateInternal, UserRead, UserTierUpdate, UserUpdate
 
-router = fastapi.APIRouter(tags=["users"])
+router = APIRouter(tags=["users"])
 
 
 @router.post("/user", response_model=UserRead, status_code=201)
@@ -52,7 +51,8 @@ async def read_users(
         is_deleted=False,
     )
 
-    return paginated_response(crud_data=users_data, page=page, items_per_page=items_per_page)
+    response: dict[str, Any] = paginated_response(crud_data=users_data, page=page, items_per_page=items_per_page)
+    return response
 
 
 @router.get("/user/me/", response_model=UserRead)
@@ -115,7 +115,7 @@ async def erase_user(
     if username != current_user["username"]:
         raise ForbiddenException()
 
-    await crud_users.delete(db=db, db_row=db_user, username=username)
+    await crud_users.delete(db=db, username=username)
     await blacklist_token(token=token, db=db)
     return {"message": "User deleted"}
 

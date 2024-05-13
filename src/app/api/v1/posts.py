@@ -1,11 +1,10 @@
-from typing import Annotated
+from typing import Annotated, Any
 
-import fastapi
-from fastapi import Depends, Request
+from fastapi import APIRouter, Depends, Request
+from fastcrud.paginated import PaginatedListResponse, compute_offset, paginated_response
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from ...api.dependencies import get_current_superuser, get_current_user
-from ...api.paginated import PaginatedListResponse, compute_offset, paginated_response
 from ...core.db.database import async_get_db
 from ...core.exceptions.http_exceptions import ForbiddenException, NotFoundException
 from ...core.utils.cache import cache
@@ -14,7 +13,7 @@ from ...crud.crud_users import crud_users
 from ...schemas.post import PostCreate, PostCreateInternal, PostRead, PostUpdate
 from ...schemas.user import UserRead
 
-router = fastapi.APIRouter(tags=["posts"])
+router = APIRouter(tags=["posts"])
 
 
 @router.post("/{username}/post", response_model=PostRead, status_code=201)
@@ -66,7 +65,8 @@ async def read_posts(
         is_deleted=False,
     )
 
-    return paginated_response(crud_data=posts_data, page=page, items_per_page=items_per_page)
+    response: dict[str, Any] = paginated_response(crud_data=posts_data, page=page, items_per_page=items_per_page)
+    return response
 
 
 @router.get("/{username}/post/{id}", response_model=PostRead)
@@ -132,7 +132,7 @@ async def erase_post(
     if db_post is None:
         raise NotFoundException("Post not found")
 
-    await crud_posts.delete(db=db, db_row=db_post, id=id)
+    await crud_posts.delete(db=db, id=id)
 
     return {"message": "Post deleted"}
 
