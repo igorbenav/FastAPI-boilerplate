@@ -20,7 +20,7 @@ from .config import (
     DatabaseSettings,
     EnvironmentOption,
     EnvironmentSettings,
-    OpenTelemeterySettings,
+    MonitoringSettings,
     RedisCacheSettings,
     RedisQueueSettings,
     RedisRateLimiterSettings,
@@ -82,7 +82,7 @@ def lifespan_factory(
         | RedisQueueSettings
         | RedisRateLimiterSettings
         | EnvironmentSettings
-        | OpenTelemeterySettings
+        | MonitoringSettings
     ),
     create_tables_on_start: bool = True,
 ) -> Callable[[FastAPI], _AsyncGeneratorContextManager[Any]]:
@@ -129,7 +129,7 @@ def create_application(
         | RedisQueueSettings
         | RedisRateLimiterSettings
         | EnvironmentSettings
-        | OpenTelemeterySettings
+        | MonitoringSettings
     ),
     create_tables_on_start: bool = True,
     **kwargs: Any,
@@ -156,7 +156,7 @@ def create_application(
         - RedisRateLimiterSettings: Sets up event handlers for creating and closing a Redis rate limiter pool.
         - EnvironmentSettings: Conditionally sets documentation URLs and integrates custom routes for API documentation
           based on the environment type.
-        - OpenTelemeterySettings: Configures OpenTelemetry tracing for the FastAPI application.
+        - MonitoringSettings: Configures OpenTelemetry tracing for the FastAPI application.
 
     create_tables_on_start : bool
         A flag to indicate whether to create database tables on application startup.
@@ -193,16 +193,17 @@ def create_application(
     application = FastAPI(lifespan=lifespan, **kwargs)
     application.include_router(router)
 
-    if isinstance(settings, AppSettings):
-        # Setting metrics middleware
-        application.add_middleware(
-            PrometheusMiddleware,
-            app_name=settings.APP_NAME,
-            excluded_handlers=["/docs", "/redoc", "/openapi.json", "/metrics"],
-        )
-        application.add_route("/metrics", metrics)
-        if isinstance(settings, OpenTelemeterySettings):
-            setting_otlp(application, settings.APP_NAME, settings.OTLP_GRPC_ENDPOINT)
+    if isinstance(settings, MonitoringSettings):
+        if settings.MONITORING:
+            # Setting metrics middleware
+            application.add_middleware(
+                PrometheusMiddleware,
+                app_name=application.title,
+                excluded_handlers=["/docs", "/redoc", "/openapi.json", "/metrics"],
+            )
+            application.add_route("/metrics", metrics)
+
+            setting_otlp(application, application.title, settings.OTLP_GRPC_ENDPOINT)
 
     if isinstance(settings, ClientSideCacheSettings):
         application.add_middleware(ClientCacheMiddleware, max_age=settings.CLIENT_CACHE_MAX_AGE)

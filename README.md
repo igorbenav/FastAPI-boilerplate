@@ -66,7 +66,7 @@
 - 🤸‍♂️ Flexible
 - 🚚 Easy running with docker compose
 - ⚖️ NGINX Reverse Proxy and Load Balancing
-- 📊 Prometheus metrics with Grafana dashboards monitoring
+- 📊 Prometheus metrics with Monitoring monitoring
 - 📖 Loki and open telemetrics for logging
 
 ## 2. Contents
@@ -102,7 +102,7 @@
    1. [ARQ Job Queues](#510-arq-job-queues)
    1. [Rate Limiting](#511-rate-limiting)
    1. [JWT Authentication](#512-jwt-authentication)
-   1. [Grafana Dashboards](#513-grafana-dashboards)
+   1. [Monitoring](#513-monitoring)
    1. [Running](#514-running)
    1. [Create Application](#515-create-application)
    1. [Opting Out of Services](#516-opting-out-of-services)
@@ -1464,7 +1464,7 @@ What you should do with the client is:
 
 This authentication setup in the provides a robust, secure, and user-friendly way to handle user sessions in your API applications.
 
-### 5.13 Grafana Dashboards
+### 5.13 Monitoring
 
 For real-time monitoring, make sure to uncomment the containers related to monitoring:
 
@@ -1472,6 +1472,13 @@ For real-time monitoring, make sure to uncomment the containers related to monit
 - prometheus
 - grafana
 - tempo
+
+Inside of `.env`, create the following setting:
+
+```
+# ------------- monitoring settings -------------
+MONITORING=true
+```
 
 Also, for propper uniform logging, uncomment the x-logging and add the default logging to the worker and web.
 
