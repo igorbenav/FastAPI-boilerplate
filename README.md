@@ -66,7 +66,7 @@
 - 🤸‍♂️ Flexible
 - 🚚 Easy running with docker compose
 - ⚖️ NGINX Reverse Proxy and Load Balancing
-- 📊 Prometheus metrics with Monitoring monitoring
+- 📊 Prometheus metrics with Grafana dashboards for monitoring
 - 📖 Loki and open telemetrics for logging
 
 ## 2. Contents
