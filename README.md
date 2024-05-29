@@ -493,6 +493,9 @@ To create the first tier it's similar, you just replace `create_superuser` for `
 
 ### 4.4 Database Migrations
 
+> \[!WARNING\]
+> To create the tables if you did not create the endpoints, ensure that you import the models in src/app/models/__init__.py. This step is crucial to create the new tables.
+
 If you are using the db in docker, you need to change this in `docker-compose.yml` to run migrations:
 
 ```sh
@@ -736,6 +739,9 @@ class EntityDelete(BaseModel):
 ```
 
 ### 5.5 Alembic Migrations
+
+> \[!WARNING\]
+> To create the tables if you did not create the endpoints, ensure that you import the models in src/app/models/__init__.py. This step is crucial to create the new models.
 
 Then, while in the `src` folder, run Alembic migrations:
 
