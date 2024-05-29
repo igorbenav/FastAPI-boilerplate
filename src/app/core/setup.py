@@ -24,10 +24,9 @@ from .config import (
     RedisRateLimiterSettings,
     settings,
 )
-from .db.database import Base
-from .db.database import async_engine as engine
+from .db.database import Base, async_engine as engine
 from .utils import cache, queue, rate_limit
-
+from ..models import *
 
 # -------------- database --------------
 async def create_tables() -> None:
