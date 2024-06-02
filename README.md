@@ -1256,9 +1256,9 @@ For `client-side caching`, all you have to do is let the `Settings` class define
 
 ### 5.10 ARQ Job Queues
 
-Depending on the problem your API is solving, you might want to implement a job queue. A job queue allows you to run tasks in the background, and usually is made for functions that require longer run times and don't directly impact user response. As a rule of thumb, if a tasks requires more than 2 seconds to be run, can be run in an async way and its result is not needed for the next step of the user's interaction, then it is a good candidate to be ran in the job queue.
+Depending on the problem your API is solving, you might want to implement a job queue. A job queue allows you to run tasks in the background, and is usually aimed at functions that require longer run times and don't directly impact user response in your frontend. As a rule of thumb, if a task takes more than 2 seconds to run, can be executed asynchronously, and its result is not needed for the next step of the user's interaction, then it is a good candidate for the job queue.
 
-> A very common candidate for job queues/ background functions are calls to and from LLM endpoints (e.g. OpenAI or Openrouter). This is because they span tens of seconds and often need to be further parsed and saved.
+> Very common candidates for background functions are calls to and from LLM endpoints (e.g. OpenAI or Openrouter). This is because they span tens of seconds and often need to be further parsed and saved.
 
 #### Background task creation
 
@@ -1310,7 +1310,7 @@ If you are doing it from scratch, run while in the `root` folder:
 poetry run arq src.app.core.worker.settings.WorkerSettings
 ```
 
-#### Database sessions with background tasks
+#### Database session with background tasks
 
 With time your background functions will become 'workflows' increasing in complexity and requirements. Probably, you will need to use a database session to get, create, update, or delete data as part of this workflow.
 
