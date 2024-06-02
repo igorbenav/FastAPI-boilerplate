@@ -535,8 +535,7 @@ And to apply the migration
 poetry run alembic upgrade head
 ```
 
-\[!NOTE\]
-
+> [!NOTE]
 > If you do not have poetry, you may run it without poetry after running `pip install alembic`
 
 ## 5. Extending
@@ -1258,6 +1257,7 @@ For `client-side caching`, all you have to do is let the `Settings` class define
 
 Depending on the problem your API is solving, you might want to implement a job queue. A job queue allows you to run tasks in the background, and is usually aimed at functions that require longer run times and don't directly impact user response in your frontend. As a rule of thumb, if a task takes more than 2 seconds to run, can be executed asynchronously, and its result is not needed for the next step of the user's interaction, then it is a good candidate for the job queue.
 
+> [!TIP]
 > Very common candidates for background functions are calls to and from LLM endpoints (e.g. OpenAI or Openrouter). This is because they span tens of seconds and often need to be further parsed and saved.
 
 #### Background task creation
@@ -1300,7 +1300,7 @@ async def get_task(task_id: str):
 
 And finally run the worker in parallel to your fastapi application.
 
-> \[!CAUTION\]
+> [!IMPORTANT]
 > For any change to the `sample_background_task` to be reflected in the worker, you need to restart the worker (e.g. the docker container).
 
 If you are using `docker compose`, the worker is already running.
@@ -1345,7 +1345,7 @@ async def your_background_function(
     ...
 ```
 
-> \[!CAUTION\]
+> [!WARNING]
 > When using database sessions, you will want to use Pydantic objects. However, these objects don't mingle well with the seralization required by ARQ tasks and will be retrieved as a dictionary.
 
 ### 5.11 Rate Limiting
