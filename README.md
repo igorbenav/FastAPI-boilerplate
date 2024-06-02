@@ -1256,34 +1256,36 @@ For `client-side caching`, all you have to do is let the `Settings` class define
 
 ### 5.10 ARQ Job Queues
 
-Create the background task in `app/core/worker/functions.py`:
+Depending on the problem your API is solving, you might want to implement a job queue. A job queue allows you to run tasks in the background, and usually is made for functions that require longer run times and don't directly impact user response. As a rule of thumb, if a tasks requires more than 2 seconds to be run, can be run in an async way and its result is not needed for the next step of the user's interaction, then it is a good candidate to be ran in the job queue.
+
+> A very common candidate for job queues/ background functions are calls to and from LLM endpoints (e.g. OpenAI or Openrouter). This is because they span tens of seconds and often need to be further parsed and saved.
+
+#### Background task creation
+
+For simple background tasks, you can just create a function in the `app/core/worker/functions.py` file. For more complex tasks, we recommend you to create a new file in the `app/core/worker` directory.
 
 ```python
-...
-# -------- background tasks --------
 async def sample_background_task(ctx, name: str) -> str:
     await asyncio.sleep(5)
     return f"Task {name} is complete!"
 ```
 
-Then add the function to the `WorkerSettings` class `functions` variable in `app/core/worker/settings.py`:
+Then add the function to the `WorkerSettings` class `functions` variable in `app/core/worker/settings.py` to make it available to the worker. If you created a new file in the `app/core/worker` directory, then simply import this function in the `app/core/worker/settings.py` file:
 
 ```python
-# -------- class --------
-...
-
+from .functions import sample_background_task
+from .your_module import sample_complex_background_task
 
 class WorkerSettings:
-    functions = [sample_background_task]
+    functions = [sample_background_task, sample_complex_background_task]
     ...
 ```
 
-Add the task to be enqueued in a **POST** endpoint and get the info in a **GET**:
+#### Add the task to an endpoint
+
+Once you have created the background task, you can add it to any endpoint of your choice to be enqueued. The best practice is to enqueue the task in a **POST** endpoint, while having a **GET** endpoint to get more information on the task. For more details on how job results are handled, check the [ARQ docs](https://arq-docs.helpmanual.io/#job-results).
 
 ```python
-...
-
-
 @router.post("/task", response_model=Job, status_code=201)
 async def create_task(message: str):
     job = await queue.pool.enqueue_job("sample_background_task", message)
@@ -1298,12 +1300,53 @@ async def get_task(task_id: str):
 
 And finally run the worker in parallel to your fastapi application.
 
+> \[!CAUTION\]
+> For any change to the `sample_background_task` to be reflected in the worker, you need to restart the worker (e.g. the docker container).
+
 If you are using `docker compose`, the worker is already running.
 If you are doing it from scratch, run while in the `root` folder:
 
 ```sh
 poetry run arq src.app.core.worker.settings.WorkerSettings
 ```
+
+#### Database sessions with background tasks
+
+With time your background functions will become 'workflows' increasing in complexity and requirements. Probably, you will need to use a database session to get, create, update, or delete data as part of this workflow.
+
+To do this, you can add the database session to the `ctx` object in the `startup` and `shutdown` functions in `app/core/worker/functions.py`, like in the example below:
+
+```python
+from arq.worker import Worker
+from ...core.db.database import async_get_db
+
+async def startup(ctx: Worker) -> None:
+    ctx["db"] = await anext(async_get_db())
+    logging.info("Worker Started")
+
+
+async def shutdown(ctx: Worker) -> None:
+    await ctx["db"].close()
+    logging.info("Worker end")
+```
+
+This will allow you to have the async database session always available in any background function and automatically close it on worker shutdown. Once you have this database session, you can use it as follows:
+
+```python
+from arq.worker import Worker
+
+async def your_background_function(
+    ctx: Worker,
+    post_id: int,
+    ...
+) -> Any:
+    db = ctx["db"]
+    post = crud_posts.get(db=db, schema_to_select=PostRead, id=post_id)
+    ...
+```
+
+> \[!CAUTION\]
+> When using database sessions, you will want to use Pydantic objects. However, these objects don't mingle well with the seralization required by ARQ tasks and will be retrieved as a dictionary.
 
 ### 5.11 Rate Limiting
 
