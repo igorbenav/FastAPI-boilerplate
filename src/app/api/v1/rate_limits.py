@@ -113,7 +113,7 @@ async def erase_rate_limit(
 
     db_rate_limit = await crud_rate_limits.get(db=db, schema_to_select=RateLimitRead, tier_id=db_tier["id"], id=id)
     if db_rate_limit is None:
-        raise RateLimitException("Rate Limit not found")
+        raise NotFoundException("Rate Limit not found")
 
     await crud_rate_limits.delete(db=db, id=db_rate_limit["id"])
     return {"message": "Rate Limit deleted"}
