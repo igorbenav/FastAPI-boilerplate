@@ -1,63 +1,81 @@
+from fastapi import status
 from fastapi.testclient import TestClient
+from pytest_mock import MockerFixture
+from sqlalchemy.orm import Session
 
-from src.app.core.config import settings
-from src.app.main import app
+from src.app.api.dependencies import get_current_user
+from src.app.api.v1.users import oauth2_scheme
+from tests.conftest import fake, override_dependency
 
-from .helper import _get_token
-
-test_name = settings.TEST_NAME
-test_username = settings.TEST_USERNAME
-test_email = settings.TEST_EMAIL
-test_password = settings.TEST_PASSWORD
-
-admin_username = settings.ADMIN_USERNAME
-admin_password = settings.ADMIN_PASSWORD
-
-client = TestClient(app)
+from .helpers import generators, mocks
 
 
 def test_post_user(client: TestClient) -> None:
     response = client.post(
         "/api/v1/user",
-        json={"name": test_name, "username": test_username, "email": test_email, "password": test_password},
+        json={
+            "name": fake.name(),
+            "username": fake.user_name(),
+            "email": fake.email(),
+            "password": fake.password(),
+        },
     )
-    assert response.status_code == 201
+    assert response.status_code == status.HTTP_201_CREATED
 
 
-def test_get_user(client: TestClient) -> None:
-    response = client.get(f"/api/v1/user/{test_username}")
-    assert response.status_code == 200
+def test_get_user(db: Session, client: TestClient) -> None:
+    user = generators.create_user(db)
+
+    response = client.get(f"/api/v1/user/{user.username}")
+    assert response.status_code == status.HTTP_200_OK
+
+    response_data = response.json()
+
+    assert response_data["id"] == user.id
+    assert response_data["username"] == user.username
 
 
-def test_get_multiple_users(client: TestClient) -> None:
+def test_get_multiple_users(db: Session, client: TestClient) -> None:
+    for _ in range(5):
+        generators.create_user(db)
+
     response = client.get("/api/v1/users")
-    assert response.status_code == 200
+    assert response.status_code == status.HTTP_200_OK
+
+    response_data = response.json()["data"]
+    assert len(response_data) >= 5
 
 
-def test_update_user(client: TestClient) -> None:
-    token = _get_token(username=test_username, password=test_password, client=client)
+def test_update_user(db: Session, client: TestClient) -> None:
+    user = generators.create_user(db)
+    new_name = fake.name()
 
-    response = client.patch(
-        f"/api/v1/user/{test_username}",
-        json={"name": f"Updated {test_name}"},
-        headers={"Authorization": f'Bearer {token.json()["access_token"]}'},
-    )
-    assert response.status_code == 200
+    override_dependency(get_current_user, mocks.get_current_user(user))
 
-
-def test_delete_user(client: TestClient) -> None:
-    token = _get_token(username=test_username, password=test_password, client=client)
-
-    response = client.delete(
-        f"/api/v1/user/{test_username}", headers={"Authorization": f'Bearer {token.json()["access_token"]}'}
-    )
-    assert response.status_code == 200
+    response = client.patch(f"/api/v1/user/{user.username}", json={"name": new_name})
+    assert response.status_code == status.HTTP_200_OK
 
 
-def test_delete_db_user(client: TestClient) -> None:
-    token = _get_token(username=admin_username, password=admin_password, client=client)
+def test_delete_user(db: Session, client: TestClient, mocker: MockerFixture) -> None:
+    user = generators.create_user(db)
 
-    response = client.delete(
-        f"/api/v1/db_user/{test_username}", headers={"Authorization": f'Bearer {token.json()["access_token"]}'}
-    )
-    assert response.status_code == 200
+    override_dependency(get_current_user, mocks.get_current_user(user))
+    override_dependency(oauth2_scheme, mocks.oauth2_scheme())
+
+    mocker.patch("src.app.core.security.jwt.decode", return_value={"sub": user.username, "exp": 9999999999})
+
+    response = client.delete(f"/api/v1/user/{user.username}")
+    assert response.status_code == status.HTTP_200_OK
+
+
+def test_delete_db_user(db: Session, mocker: MockerFixture, client: TestClient) -> None:
+    user = generators.create_user(db)
+    super_user = generators.create_user(db, is_super_user=True)
+
+    override_dependency(get_current_user, mocks.get_current_user(super_user))
+    override_dependency(oauth2_scheme, mocks.oauth2_scheme())
+
+    mocker.patch("src.app.core.security.jwt.decode", return_value={"sub": user.username, "exp": 9999999999})
+
+    response = client.delete(f"/api/v1/db_user/{user.username}")
+    assert response.status_code == status.HTTP_200_OK
