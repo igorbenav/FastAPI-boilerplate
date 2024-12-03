@@ -67,10 +67,7 @@ class FirstUserSettings(BaseSettings):
 
 
 class TestSettings(BaseSettings):
-    TEST_NAME: str = config("TEST_NAME", default="Tester User")
-    TEST_EMAIL: str = config("TEST_EMAIL", default="test@tester.com")
-    TEST_USERNAME: str = config("TEST_USERNAME", default="testeruser")
-    TEST_PASSWORD: str = config("TEST_PASSWORD", default="Str1ng$t")
+    ...
 
 
 class RedisCacheSettings(BaseSettings):

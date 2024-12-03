@@ -36,6 +36,9 @@ opentelemetry-distro = "^0.42b0"
 opentelemetry-instrumentation-fastapi = "^0.42b0"
 opentelemetry-instrumentation-logging = "^0.42b0"
 opentelemetry-exporter-otlp = "^1.21.0"
+faker = "^26.0.0"
+psycopg2-binary = "^2.9.9"
+pytest-mock = "^3.14.0"
 
 
 [build-system]

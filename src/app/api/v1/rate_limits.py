@@ -92,11 +92,11 @@ async def patch_rate_limit(
         raise NotFoundException("Rate Limit not found")
 
     db_rate_limit_path = await crud_rate_limits.exists(db=db, tier_id=db_tier["id"], path=values.path)
-    if db_rate_limit_path is not None:
+    if db_rate_limit_path:
         raise DuplicateValueException("There is already a rate limit for this path")
 
     await crud_rate_limits.exists(db=db)
-    if db_rate_limit_path is not None:
+    if db_rate_limit_path:
         raise DuplicateValueException("There is already a rate limit with this name")
 
     await crud_rate_limits.update(db=db, object=values, id=db_rate_limit["id"])
@@ -113,7 +113,7 @@ async def erase_rate_limit(
 
     db_rate_limit = await crud_rate_limits.get(db=db, schema_to_select=RateLimitRead, tier_id=db_tier["id"], id=id)
     if db_rate_limit is None:
-        raise RateLimitException("Rate Limit not found")
+        raise NotFoundException("Rate Limit not found")
 
     await crud_rate_limits.delete(db=db, id=db_rate_limit["id"])
     return {"message": "Rate Limit deleted"}
