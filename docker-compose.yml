@@ -1,15 +1,30 @@
+#-------- uncomment to run with monitoring --------
+# x-logging: &default-logging
+#   driver: loki
+#   options:
+#     loki-url: 'http://localhost:3100/api/prom/push'
+#     loki-pipeline-stages: |
+#       - multiline:
+#           firstline: '^\d{4}-\d{2}-\d{2} \d{1,2}:\d{2}:\d{2}'
+#           max_wait_time: 3s
+#       - regex:
+#           expression: '^(?P<time>\d{4}-\d{2}-\d{2} \d{1,2}:\d{2}:\d{2},d{3}) (?P<message>(?s:.*))$$'
+
 version: '3.8'
 
 services:
   web:
+    container_name: web
     build:
       context: .
       dockerfile: Dockerfile
     # -------- replace with comment to run with gunicorn --------
     command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
-    # command: gunicorn app.main:app -w 4 -k uvicorn.workers.UvicornWorker -b 0.0.0.0:8000
+    # command: gunicorn app.main:app -c app/gunicorn_conf.py -w 4 -k uvicorn.workers.UvicornWorker -b 0.0.0.0:8000
     env_file:
       - ./src/.env
+    environment:
+      - PROMETHEUS_MULTIPROC_DIR=/tmp/prometheus_multiproc
     # -------- replace with comment if you are using nginx --------
     ports:
       - "8000:8000"
@@ -21,8 +36,11 @@ services:
     volumes:
       - ./src/app:/code/app
       - ./src/.env:/code/.env
+    #-------- uncomment to run with monitoring --------
+    # logging: *default-logging
 
   worker:
+    container_name: worker
     build:
       context: .
       dockerfile: Dockerfile
@@ -35,8 +53,11 @@ services:
     volumes:
       - ./src/app:/code/app
       - ./src/.env:/code/.env
+    #-------- uncomment to run with monitoring --------
+    # logging: *default-logging
 
   db:
+    container_name: db
     image: postgres:13
     env_file:
       - ./src/.env
@@ -49,11 +70,63 @@ services:
     #  - 5432:5432
 
   redis:
+    container_name: redis
     image: redis:alpine
     volumes:
       - redis-data:/data
     expose:
       - "6379"
+  #-------- uncomment to run with monitoring --------
+  # loki:
+  #   container_name: loki
+  #   image: grafana/loki:2.8.3
+  #   command: -config.file=/etc/loki/local-config.yaml
+  #   ports:
+  #     - "3100:3100"
+
+  # prometheus:
+  #   container_name: prometheus
+  #   image: prom/prometheus
+  #   ports:
+  #     - 9090:9090
+  #   volumes:
+  #     - ./dashboard/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+  #   command:
+  #     - '--config.file=/etc/prometheus/prometheus.yml'
+  #   depends_on:
+  #     - loki
+  #     - web
+  #   logging: *default-logging
+
+  # grafana:
+  #   container_name: grafana
+  #   image: grafana/grafana
+  #   ports:
+  #     - 3000:3000
+  #   volumes:
+  #     - ./dashboard/grafana/datasources:/etc/grafana/provisioning/datasources
+  #     - ./dashboard/grafana/provisioning/dashboards:/etc/grafana/provisioning/dashboards
+  #   depends_on:
+  #     - loki
+  #     - prometheus
+  #     - tempo
+  #   logging: *default-logging
+
+  # tempo:
+  #   container_name: tempo
+  #   image: grafana/tempo:2.1.1
+  #   command:
+  #     [
+  #       "--target=all",
+  #       "--storage.trace.backend=local",
+  #       "--storage.trace.local.path=/var/tempo",
+  #       "--auth.enabled=false"
+  #     ]
+  #   ports:
+  #     - "14250:14250"
+  #   depends_on:
+  #     - loki
+  #   logging: *default-logging
 
   #-------- uncomment to run with pgadmin --------
   # pgadmin:
@@ -122,6 +195,6 @@ services:
   #     - ./src:/code/src
 
 volumes:
+  #pgadmin-data:
   postgres-data:
   redis-data:
-  #pgadmin-data:
