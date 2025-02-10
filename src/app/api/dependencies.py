@@ -8,7 +8,7 @@ from ..core.db.database import async_get_db
 from ..core.exceptions.http_exceptions import ForbiddenException, RateLimitException, UnauthorizedException
 from ..core.logger import logging
 from ..core.security import oauth2_scheme, verify_token
-from ..core.utils.rate_limit import is_rate_limited
+from ..core.utils.rate_limit import rate_limiter
 from ..crud.crud_rate_limit import crud_rate_limits
 from ..crud.crud_tier import crud_tiers
 from ..crud.crud_users import crud_users
@@ -72,9 +72,12 @@ async def get_current_superuser(current_user: Annotated[dict, Depends(get_curren
     return current_user
 
 
-async def rate_limiter(
+async def rate_limiter_dependency(
     request: Request, db: Annotated[AsyncSession, Depends(async_get_db)], user: User | None = Depends(get_optional_user)
 ) -> None:
+    if hasattr(request.app.state, "initialization_complete"):
+        await request.app.state.initialization_complete.wait()
+
     path = sanitize_path(request.url.path)
     if user:
         user_id = user["id"]
@@ -96,6 +99,6 @@ async def rate_limiter(
         user_id = request.client.host
         limit, period = DEFAULT_LIMIT, DEFAULT_PERIOD
 
-    is_limited = await is_rate_limited(db=db, user_id=user_id, path=path, limit=limit, period=period)
+    is_limited = await rate_limiter.is_rate_limited(db=db, user_id=user_id, path=path, limit=limit, period=period)
     if is_limited:
         raise RateLimitException("Rate limit exceeded.")
