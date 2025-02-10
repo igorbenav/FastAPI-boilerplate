@@ -1342,17 +1342,17 @@ async def your_background_function(
 
 ### 5.11 Rate Limiting
 
-To limit how many times a user can make a request in a certain interval of time (very useful to create subscription plans or just to protect your API against DDOS), you may just use the `rate_limiter` dependency:
+To limit how many times a user can make a request in a certain interval of time (very useful to create subscription plans or just to protect your API against DDOS), you may just use the `rate_limiter_dependency` dependency:
 
 ```python
 from fastapi import Depends
 
-from app.api.dependencies import rate_limiter
+from app.api.dependencies import rate_limiter_dependency
 from app.core.utils import queue
 from app.schemas.job import Job
 
 
-@router.post("/task", response_model=Job, status_code=201, dependencies=[Depends(rate_limiter)])
+@router.post("/task", response_model=Job, status_code=201, dependencies=[Depends(rate_limiter_dependency)])
 async def create_task(message: str):
     job = await queue.pool.enqueue_job("sample_background_task", message)
     return {"id": job.job_id}
@@ -1446,7 +1446,7 @@ curl -X POST 'http://127.0.0.1:8000/api/v1/tasks/task?message=test' \
 ```
 
 > \[!TIP\]
-> Since the `rate_limiter` dependency uses the `get_optional_user` dependency instead of `get_current_user`, it will not require authentication to be used, but will behave accordingly if the user is authenticated (and token is passed in header). If you want to ensure authentication, also use `get_current_user` if you need.
+> Since the `rate_limiter_dependency` dependency uses the `get_optional_user` dependency instead of `get_current_user`, it will not require authentication to be used, but will behave accordingly if the user is authenticated (and token is passed in header). If you want to ensure authentication, also use `get_current_user` if you need.
 
 To change a user's tier, you may just use the `PATCH api/v1/user/{username}/tier` endpoint.
 Note that for flexibility (since this is a boilerplate), it's not necessary to previously inform a tier_id to create a user, but you probably should set every user to a certain tier (let's say `free`) once they are created.
