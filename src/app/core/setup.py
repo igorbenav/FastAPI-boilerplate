@@ -92,30 +92,23 @@ def lifespan_factory(
         initialization_complete = Event()
         app.state.initialization_complete = initialization_complete
 
-        print("1. Starting lifespan")
         await set_threadpool_tokens()
-        print("2. Set threadpool tokens")
 
         try:
             if isinstance(settings, RedisCacheSettings):
-                print("3. Starting Redis cache initialization")
                 await create_redis_cache_pool()
 
             if isinstance(settings, RedisQueueSettings):
-                print("4. Starting Redis queue initialization")
                 await create_redis_queue_pool()
 
             if isinstance(settings, RedisRateLimiterSettings):
-                print("5. Starting Redis rate limit initialization")
                 await create_redis_rate_limit_pool()
 
-            print("6. All initialization complete")
             initialization_complete.set()
 
             yield
 
         finally:
-            print("7. Starting shutdown")
             if isinstance(settings, RedisCacheSettings):
                 await close_redis_cache_pool()
 
