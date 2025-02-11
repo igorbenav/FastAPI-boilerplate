@@ -7,7 +7,7 @@ from ..core.config import settings
 from ..core.db.database import async_get_db
 from ..core.exceptions.http_exceptions import ForbiddenException, RateLimitException, UnauthorizedException
 from ..core.logger import logging
-from ..core.security import TokenType, oauth2_scheme, verify_token  # Add TokenType import
+from ..core.security import TokenType, oauth2_scheme, verify_token
 from ..core.utils.rate_limit import rate_limiter
 from ..crud.crud_rate_limit import crud_rate_limits
 from ..crud.crud_tier import crud_tiers
@@ -24,7 +24,7 @@ DEFAULT_PERIOD = settings.DEFAULT_RATE_LIMIT_PERIOD
 async def get_current_user(
     token: Annotated[str, Depends(oauth2_scheme)], db: Annotated[AsyncSession, Depends(async_get_db)]
 ) -> dict[str, Any] | None:
-    token_data = await verify_token(token, TokenType.ACCESS, db)  # Specify TokenType.ACCESS
+    token_data = await verify_token(token, TokenType.ACCESS, db)
     if token_data is None:
         raise UnauthorizedException("User not authenticated.")
 
@@ -49,7 +49,7 @@ async def get_optional_user(request: Request, db: AsyncSession = Depends(async_g
         if token_type.lower() != "bearer" or not token_value:
             return None
 
-        token_data = await verify_token(token_value, TokenType.ACCESS, db)  # Specify TokenType.ACCESS
+        token_data = await verify_token(token_value, TokenType.ACCESS, db)
         if token_data is None:
             return None
 
@@ -95,7 +95,7 @@ async def rate_limiter_dependency(
         else:
             logger.warning(f"User {user_id} has no assigned tier. Applying default rate limit.")
             limit, period = DEFAULT_LIMIT, DEFAULT_PERIOD
-    else:
+    else:giot
         user_id = request.client.host
         limit, period = DEFAULT_LIMIT, DEFAULT_PERIOD
 
