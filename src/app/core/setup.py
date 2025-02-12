@@ -28,7 +28,7 @@ from .config import (
 )
 from .db.database import Base
 from .db.database import async_engine as engine
-from .utils import cache, queue, rate_limit
+from .utils import cache, queue
 
 
 # -------------- database --------------
@@ -62,7 +62,7 @@ async def create_redis_rate_limit_pool() -> None:
 
 
 async def close_redis_rate_limit_pool() -> None:
-    await rate_limit.client.aclose()  # type: ignore
+    await rate_limiter.client.aclose()  # type: ignore
 
 
 # -------------- application --------------
