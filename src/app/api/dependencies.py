@@ -95,7 +95,7 @@ async def rate_limiter_dependency(
         else:
             logger.warning(f"User {user_id} has no assigned tier. Applying default rate limit.")
             limit, period = DEFAULT_LIMIT, DEFAULT_PERIOD
-    else:giot
+    else:
         user_id = request.client.host
         limit, period = DEFAULT_LIMIT, DEFAULT_PERIOD
 
