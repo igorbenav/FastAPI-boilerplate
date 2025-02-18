@@ -1,4 +1,6 @@
 import asyncio
+import importlib
+import pkgutil
 from logging.config import fileConfig
 
 from alembic import context
@@ -23,9 +25,14 @@ if config.config_file_name is not None:
     fileConfig(config.config_file_name)
 
 # add your model's MetaData object here
-# for 'autogenerate' support
-# from myapp import mymodel
-# target_metadata = mymodel.Base.metadata
+# Auto-import all models in app.models
+def import_models(package_name):
+    package = importlib.import_module(package_name)
+    for _, module_name, _ in pkgutil.walk_packages(package.__path__, package.__name__ + "."):
+        importlib.import_module(module_name)
+
+# Load all models dynamically
+import_models("app.models")
 target_metadata = Base.metadata
 
 # other values from the config, defined by the needs of env.py,
